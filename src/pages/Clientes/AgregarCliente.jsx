@@ -4,7 +4,6 @@ import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
 
-// Importamos los íconos necesarios para la pestaña de Dirección
 import { Search, Clock } from 'lucide-react';
 
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -31,13 +30,10 @@ const LocationMarker = ({ position, setPosition }) => {
 export default function AgregarCliente() {
   const navigate = useNavigate();
 
-  // Estado para controlar qué pestaña está activa
   const [activeTab, setActiveTab] = useState('Cliente');
   
-  // Coordenadas iniciales (Mérida, Yucatán)
   const [position, setPosition] = useState({ lat: 20.9674, lng: -89.6236 });
 
-  // Lista de archivos para la pestaña Expediente
   const archivosExpediente = [
     "Identificación Oficial (INE)",
     "Comprobante de domicilio",
@@ -83,9 +79,7 @@ export default function AgregarCliente() {
           </button>
         </div>
 
-        {/* ========================================= */}
-        {/* VISTA 1: CLIENTE (Formulario + Mapa)      */}
-        {/* ========================================= */}
+        {/* VISTA 1: CLIENTE Formulario     */}
         {activeTab === 'Cliente' && (
           <div className="px-8 pb-8 flex flex-col lg:flex-row gap-8 animate-in fade-in duration-300">
             <div className="flex-1 space-y-6">
@@ -124,9 +118,7 @@ export default function AgregarCliente() {
           </div>
         )}
 
-        {/* ========================================= */}
         {/* VISTA 2: DIRECCIÓN                        */}
-        {/* ========================================= */}
         {activeTab === 'Dirección' && (
           <div className="px-8 pb-12 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 animate-in fade-in duration-300">
             <div className="space-y-6">
@@ -195,9 +187,7 @@ export default function AgregarCliente() {
           </div>
         )}
 
-        {/* ========================================= */}
         {/* VISTA 3: EXPEDIENTE                       */}
-        {/* ========================================= */}
         {activeTab === 'Expediente' && (
           <div className="px-16 pb-12 pt-4 space-y-8 animate-in fade-in duration-300">
             {archivosExpediente.map((archivo, index) => (
@@ -211,9 +201,7 @@ export default function AgregarCliente() {
           </div>
         )}
 
-        {/* ========================================= */}
         {/* FOOTER: BOTONES DE ACCIÓN                 */}
-        {/* ========================================= */}
         <div className="bg-[#d9d9d9] px-8 py-4 flex gap-4 border-t border-gray-300">
           <button 
             onClick={() => navigate('/clientes')}
