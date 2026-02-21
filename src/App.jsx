@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import { UsuariosWeb } from './pages/UsuariosWeb/UsuariosWeb';
 import Sidebar from './Components/Sidebar/Sidebar';
 import AgregarCliente from './pages/Clientes/AgregarCliente';
+import Cobratarios from './pages/Cobratarios/Cobratarios';
 
 import Clientes from './pages/Clientes/Clientes';
 import { Bell, ChevronDown } from 'lucide-react'; 
@@ -60,6 +61,7 @@ function App() {
           <Route path="/usuarios-web" element={<UsuariosWeb />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/clientes/nuevo" element={<AgregarCliente />} />
+          <Route path="/cobratarios" element={<Cobratarios />} />
 
           
         </Route>
