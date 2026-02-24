@@ -5,6 +5,9 @@ import { UsuariosWeb } from './pages/UsuariosWeb/UsuariosWeb';
 import Sidebar from './Components/Sidebar/Sidebar';
 import AgregarCliente from './pages/Clientes/AgregarCliente';
 import Cobratarios from './pages/Cobratarios/Cobratarios';
+import Prestamos from './pages/Prestamos/Prestamos';
+import DetallePrestamo from './pages/Prestamos/DetallePrestamo';
+import NuevoPrestamo from './pages/Prestamos/NuevoPrestamo';
 
 import Clientes from './pages/Clientes/Clientes';
 import { Bell, ChevronDown } from 'lucide-react'; 
@@ -62,6 +65,9 @@ function App() {
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/clientes/nuevo" element={<AgregarCliente />} />
           <Route path="/cobratarios" element={<Cobratarios />} />
+          <Route path="/prestamos" element={<Prestamos />} />
+          <Route path="/prestamos/detalle/:id" element={<DetallePrestamo />} />
+          <Route path="/prestamos/nuevo" element={<NuevoPrestamo />} />
 
           
         </Route>

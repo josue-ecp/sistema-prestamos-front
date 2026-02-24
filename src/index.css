@@ -11,3 +11,25 @@ body {
   font-family: 'Inter', sans-serif;
   margin: 0;
 }
+/* Ajuste para que el input del calendario use todo el ancho de su columna */
+.custom-datepicker-container .react-datepicker-wrapper {
+  width: 100%;
+}
+
+/* Mejora visual para el menú del calendario */
+.react-datepicker {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem !important; /* text-xs */
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.react-datepicker__header {
+  background-color: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.react-datepicker__day--selected {
+  background-color: #2563eb !important; /* Azul de tu sistema */
+}
