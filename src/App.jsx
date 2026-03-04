@@ -8,6 +8,8 @@ import Cobratarios from './pages/Cobratarios/Cobratarios';
 import Prestamos from './pages/Prestamos/Prestamos';
 import DetallePrestamo from './pages/Prestamos/DetallePrestamo';
 import NuevoPrestamo from './pages/Prestamos/NuevoPrestamo';
+import TiposDeCredito from './pages/TiposDeCredito/TiposDeCredito';
+import NuevoTipoCredito from './pages/TiposDeCredito/NuevoTipoCredito';
 
 import Clientes from './pages/Clientes/Clientes';
 import { Bell, ChevronDown } from 'lucide-react'; 
@@ -68,6 +70,8 @@ function App() {
           <Route path="/prestamos" element={<Prestamos />} />
           <Route path="/prestamos/detalle/:id" element={<DetallePrestamo />} />
           <Route path="/prestamos/nuevo" element={<NuevoPrestamo />} />
+          <Route path="/tipos-creditos" element={<TiposDeCredito />} />
+          <Route path="/tipos-de-credito/nuevo" element={<NuevoTipoCredito />} />
 
           
         </Route>
