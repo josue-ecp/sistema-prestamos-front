@@ -95,7 +95,6 @@ export default function DetallePrestamo() {
                     </td>
                   </tr>
                 ))}
-                {/* Filas vacías para mantener estructura */}
                 {[...Array(5)].map((_, i) => (
                   <tr key={`empty-${i}`} className="h-10">
                     <td className="border border-gray-300"></td>

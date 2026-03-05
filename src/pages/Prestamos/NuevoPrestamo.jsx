@@ -35,7 +35,6 @@ export default function NuevoPrestamo() {
       </button>
 
       <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden max-w-5xl">
-        {/* Encabezado Azul */}
         <div className="bg-[#0b66c2] px-4 py-2">
           <h2 className="text-white text-sm font-medium">Nuevo Préstamo</h2>
         </div>
@@ -121,7 +120,6 @@ export default function NuevoPrestamo() {
                 </div>
               </div>
 
-              {/* Tabla de Días Estilo Excel */}
               <div className="flex-1 overflow-x-auto">
                 <table className="border-collapse w-full max-w-2xl border border-gray-400 text-center">
                   <thead>
@@ -152,7 +150,6 @@ export default function NuevoPrestamo() {
             </div>
           </div>
 
-          {/* Botones de acción inferiores con barra gris */}
           <div className="mt-12 flex gap-3 p-3 bg-[#e5e7eb] rounded">
             <button 
               type="submit"

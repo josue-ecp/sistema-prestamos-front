@@ -10,16 +10,54 @@ body {
   background-color: var(--color-background);
   font-family: 'Inter', sans-serif;
   margin: 0;
+  /* Establecemos la base de fuente para todo el cuerpo */
+  font-size: 14px; 
 }
-/* Ajuste para que el input del calendario use todo el ancho de su columna */
+
+/* --- ESTANDARIZACIÓN GLOBAL --- */
+@layer base {
+  html {
+    /* Mantenemos 16px como base de sistema pero manejamos el render con rem */
+    font-size: 16px; 
+  }
+
+  /* Forzamos a que TODOS los elementos de texto comunes tengan exactamente el mismo tamaño */
+  input, 
+  select, 
+  textarea, 
+  button, 
+  td, 
+  span, 
+  p, 
+  label, 
+  div {
+    font-size: 0.875rem !important; /* Equivalente a 14px */
+  }
+
+  /* Las etiquetas solo las diferenciamos por el grosor, no por el tamaño */
+  label {
+    font-weight: 600 !important;
+    color: #4b5563; /* Un gris intermedio para que no canse la vista */
+  }
+
+  /* Los encabezados de tabla (th) también a 14px pero en negritas */
+  th {
+    font-size: 0.875rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+  }
+}
+
+/* --- AJUSTES DE COMPONENTES EXTERNOS --- */
 .custom-datepicker-container .react-datepicker-wrapper {
   width: 100%;
 }
 
-/* Mejora visual para el menú del calendario */
 .react-datepicker {
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem !important; /* text-xs */
+  /* El calendario también debe seguir el estándar de 14px */
+  font-size: 0.875rem !important; 
   border: 1px solid #d1d5db !important;
   border-radius: 0.5rem !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
@@ -31,5 +69,11 @@ body {
 }
 
 .react-datepicker__day--selected {
-  background-color: #2563eb !important; /* Azul de tu sistema */
+  background-color: #2563eb !important;
+}
+
+/* Ajuste para iconos de Lucide para que no se vean desproporcionados */
+svg {
+  width: 18px;
+  height: 18px;
 }

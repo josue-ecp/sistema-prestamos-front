@@ -161,3 +161,6 @@ export const UsuariosWeb = () => {
     </div>
   );
 };
+
+// export default so importing without braces works
+export default UsuariosWeb;
