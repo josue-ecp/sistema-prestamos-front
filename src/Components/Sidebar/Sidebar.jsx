@@ -13,7 +13,7 @@ const menuItems = [
   { icon: <Calendar size={18}/>, label: 'Visitas', path: '/visitas' },
   { icon: <RefreshCcw size={18}/>, label: 'Renovaciones', path: '/renovaciones' },
   { icon: <Briefcase size={18}/>, label: 'Cobratarios', path: '/cobratarios' },
-  { icon: <CreditCard size={18}/>, label: 'Tipos de créditos', path: '/tipos-creditos' },
+  { icon: <CreditCard size={18}/>, label: 'Tipos de crédito', path: '/tipos-creditos' },
 ];
 
 export default function Sidebar() {

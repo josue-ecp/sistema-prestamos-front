@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
 import { Search, Clock, ArrowLeft } from 'lucide-react';
 
-// Configuración de Iconos de Leaflet
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -42,7 +41,7 @@ export default function AgregarCliente() {
   return (
     <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
       
-      {/* Botón Volver - Tamaño Estandarizado */}
+      {/* Botón Volver - */}
       <button 
         onClick={() => navigate('/clientes')}
         className="flex items-center gap-2 text-blue-600 font-bold mb-4 hover:underline text-sm"
@@ -52,12 +51,12 @@ export default function AgregarCliente() {
 
       <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden max-w-6xl mx-auto">
         
-        {/* Encabezado Azul - Igual a Nuevo Préstamo */}
+        {/* Encabezado  */}
         <div className="bg-[#0b66c2] px-4 py-2">
           <h2 className="text-white text-sm font-medium">Información del cliente</h2>
         </div>
 
-        {/* Sistema de Pestañas - Estilo Botón Gris */}
+        {/* Sistema de Pestañas*/}
         <div className="flex gap-2 px-6 pt-6 mb-6">
           {['Cliente', 'Dirección', 'Expediente'].map((tab) => (
             <button 

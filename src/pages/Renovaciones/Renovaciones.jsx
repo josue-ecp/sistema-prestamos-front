@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, Eye } from 'lucide-react';
 
 export default function Renovaciones() {
   const navigate = useNavigate();
@@ -32,37 +32,41 @@ export default function Renovaciones() {
 
       {/* Tabla de Renovaciones */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full text-center border-collapse">
-          <thead>
-            <tr className="bg-[#e5e5e5] text-gray-700 text-xs uppercase tracking-wider font-bold">
-              <th className="py-4 px-4 border-r border-white/50">Fecha</th>
-              <th className="py-4 px-4 border-r border-white/50">Folio</th>
-              <th className="py-4 px-4 border-r border-white/50">Cliente</th>
-              <th className="py-4 px-4 border-r border-white/50">Zona</th>
-              <th className="py-4 px-4 border-r border-white/50">Préstamo</th>
-              <th className="py-4 px-4">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="text-sm text-gray-800">
-            {renovaciones.map((item, index) => (
-              <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                <td className="py-4 px-4 text-gray-600">{item.fecha}</td>
-                <td className="py-4 px-4 font-medium text-gray-700">{item.folio}</td>
-                <td className="py-4 px-4 font-bold text-gray-900 uppercase">{item.cliente}</td>
-                <td className="py-4 px-4 text-gray-600">{item.zona}</td>
-                <td className="py-4 px-4 font-bold text-gray-900">{item.prestamo}</td>
-                <td className="py-4 px-4">
-                  <button 
-  onClick={() => navigate(`/renovaciones/detalle/${item.id}`)}
-  className="bg-[#f39c12] hover:bg-orange-500 text-white text-[10px] font-bold px-4 py-1.5 rounded shadow-sm transition-colors uppercase tracking-wider"
->
-  VER DETALLES
-</button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-center border-collapse">
+            <thead>
+              {/* Cambiado a bg-[#e5e5e5] para consistencia */}
+              <tr className="bg-[#e5e5e5] text-gray-700 text-xs uppercase tracking-wider font-bold">
+                <th className="py-4 px-4 border-r border-white/50">Fecha</th>
+                <th className="py-4 px-4 border-r border-white/50">Folio</th>
+                <th className="py-4 px-4 border-r border-white/50">Cliente</th>
+                <th className="py-4 px-4 border-r border-white/50">Zona</th>
+                <th className="py-4 px-4 border-r border-white/50">Préstamo</th>
+                <th className="py-4 px-4">Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="text-sm text-gray-800">
+              {renovaciones.map((item, index) => (
+                <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                  <td className="py-4 px-4 text-gray-600">{item.fecha}</td>
+                  <td className="py-4 px-4 font-medium text-gray-700">{item.folio}</td>
+                  <td className="py-4 px-4 font-bold text-gray-900 uppercase">{item.cliente}</td>
+                  <td className="py-4 px-4 text-gray-600">{item.zona}</td>
+                  <td className="py-4 px-4 font-bold text-gray-900">{item.prestamo}</td>
+                  <td className="py-4 px-4">
+                    <button
+                      onClick={() => navigate(`/renovaciones/detalle/${item.id}`)}
+                      className="bg-[#f39c12] hover:bg-orange-500 text-white p-2 rounded shadow-sm transition-colors"
+                      aria-label="Ver detalles"
+                    >
+                      <Eye size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div> {/* <-- AQUÍ FALTABA ESTE CIERRE */}
 
         {/* Paginación Estandarizada */}
         <div className="bg-gray-50 px-6 py-3 flex justify-between items-center border-t border-gray-100">
