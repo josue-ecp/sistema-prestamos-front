@@ -1,6 +1,7 @@
 import { 
   Home, Users, Landmark, MapPin, Calendar, 
-  RefreshCcw, Briefcase, CreditCard, Smartphone 
+  RefreshCcw, Briefcase, CreditCard, Smartphone,
+  Building2 // Importamos el icono de edificios para Empresas
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom'; 
 
@@ -14,6 +15,8 @@ const menuItems = [
   { icon: <RefreshCcw size={18}/>, label: 'Renovaciones', path: '/renovaciones' },
   { icon: <Briefcase size={18}/>, label: 'Cobratarios', path: '/cobratarios' },
   { icon: <CreditCard size={18}/>, label: 'Tipos de crédito', path: '/tipos-creditos' },
+  // NUEVA OPCIÓN: Empresas
+  { icon: <Building2 size={18}/>, label: 'Empresas', path: '/empresas' },
 ];
 
 export default function Sidebar() {
@@ -28,7 +31,6 @@ export default function Sidebar() {
 
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
         {menuItems.map((item, index) => (
-         
           <NavLink 
             key={index} 
             to={item.path}
