@@ -8,9 +8,16 @@ export default function EmpresasList() {
   // Estados
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState({ type: '', text: '' });
   
   // NUEVO: Estado para controlar el Modal de Borrar
   const [modalBorrar, setModalBorrar] = useState({ show: false, id: null, nombre: '' });
+
+  const showMessage = (text, type = 'success') => {
+    setMessage({ type, text });
+    window.setTimeout(() => setMessage({ type: '', text: '' }), 4500);
+  };
+
 
   // Efecto para cargar las empresas al entrar a la pantalla
   useEffect(() => {
@@ -64,12 +71,13 @@ export default function EmpresasList() {
         setEmpresas(empresas.filter(emp => emp.id_empresa !== id));
         // Cerramos el modal
         setModalBorrar({ show: false, id: null, nombre: '' });
+        showMessage('Empresa eliminada correctamente.', 'success');
       } else {
-        alert('Error: ' + result.message);
+        showMessage('Error: ' + (result.message || 'No se pudo eliminar la empresa'), 'error');
       }
     } catch (error) {
       console.error("Error al eliminar:", error);
-      alert('Error de conexión con el servidor.');
+      showMessage('Error de conexión con el servidor.', 'error');
     }
   };
 
@@ -78,7 +86,7 @@ export default function EmpresasList() {
   };
 
   const handleVer = (id) => {
-    alert(`Pronto abriremos los detalles de la empresa ID: ${id}`);
+    navigate(`/empresas/detalle/${id}`);
   };
 
   return (
@@ -96,6 +104,13 @@ export default function EmpresasList() {
             NUEVA EMPRESA
           </button>
         </div>
+
+        {message.text && (
+          <div className={`mb-6 rounded-3xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+            <p className="font-semibold mb-1">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
+            <p className="text-sm leading-6">{message.text}</p>
+          </div>
+        )}
 
         {/* Buscador */}
         <div className="relative mb-8 max-w-sm">
@@ -207,18 +222,20 @@ export default function EmpresasList() {
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
             
             {/* Cabecera del modal */}
-            <div className="bg-[#f44336] p-6 text-center flex flex-col items-center">
+            <div className="bg-[#f44336] p-6 text-center flex flex-col items-center rounded-t-[2rem]">
               <div className="bg-white/20 p-3 rounded-full mb-3">
                 <AlertTriangle className="text-white w-8 h-8" strokeWidth={2.5} />
               </div>
-              <h3 className="text-2xl font-bold text-white uppercase tracking-wider">¡Advertencia!</h3>
+              <h3 className="text-2xl font-bold text-white uppercase tracking-[0.2em]">¡ADVERTENCIA!</h3>
             </div>
             
             {/* Cuerpo del modal */}
-            <div className="p-8 text-center space-y-4">
-              <p className="text-gray-600 text-lg">
-                ¿Estás seguro de que deseas eliminar la empresa<br/>
-                <span className="font-bold text-[#1a2b4b] text-xl block mt-2">"{modalBorrar.nombre}"</span>?
+            <div className="p-8 text-center space-y-5">
+              <p className="text-gray-600 text-lg leading-relaxed">
+                ¿Estás seguro de que deseas eliminar la empresa
+              </p>
+              <p className="font-bold text-[#1a2b4b] text-xl">
+                "{modalBorrar.nombre}"?
               </p>
               <p className="text-sm text-[#f44336] font-semibold">
                 Esta acción no se puede deshacer.
@@ -228,13 +245,13 @@ export default function EmpresasList() {
               <div className="flex justify-center gap-4 pt-6">
                 <button
                   onClick={cancelarBorrar}
-                  className="px-6 py-3 bg-[#e0e0e0] hover:bg-gray-300 text-gray-700 font-bold rounded-lg transition-colors uppercase tracking-wide"
+                  className="px-6 py-3 bg-[#e5e7eb] hover:bg-[#d1d5db] text-[#334155] font-bold rounded-xl transition-colors uppercase tracking-wide"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={confirmarBorrado}
-                  className="px-6 py-3 bg-[#f44336] hover:bg-[#d32f2f] text-white font-bold rounded-lg shadow-md transition-colors uppercase tracking-wide"
+                  className="px-6 py-3 bg-[#f44336] hover:bg-[#d32f2f] text-white font-bold rounded-xl shadow-md transition-colors uppercase tracking-wide"
                 >
                   Sí, eliminar
                 </button>

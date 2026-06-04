@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Clientes from './pages/Clientes/Clientes';
 import AgregarCliente from './pages/Clientes/AgregarCliente';
 import Cobratarios from './pages/Cobratarios/Cobratarios';
+import DetalleCobratario from './pages/Cobratarios/DetalleCobratario';
 import Prestamos from './pages/Prestamos/Prestamos';
 import NuevoPrestamo from './pages/Prestamos/NuevoPrestamo';
 import DetallePrestamo from './pages/Prestamos/DetallePrestamo';
@@ -18,10 +19,12 @@ import Renovaciones from './pages/Renovaciones/Renovaciones';
 import DetalleRenovacion from './pages/Renovaciones/DetalleRenovacion';
 import EmpresasList from './pages/Empresas/EmpresasList';
 import EmpresaForm from './pages/Empresas/EmpresaForm';
+import DetalleEmpresa from './pages/Empresas/DetalleEmpresa';
 import Login from './pages/Login/Login';
 
 import TiposDeCredito from './pages/TiposDeCredito/TiposDeCredito';
 import NuevoTipoCredito from './pages/TiposDeCredito/NuevoTipoCredito';
+import DetalleTipoCredito from './pages/TiposDeCredito/DetalleTipoCredito';
 
 function MainLayout() {
   // 1. Estado para el usuario del Header
@@ -33,16 +36,14 @@ function MainLayout() {
 
   // 2. Efecto para buscar quién está logueado
   useEffect(() => {
-    // Intenta buscar la sesión en localStorage (Asegúrate de que el Login lo guarde así)
     const userDataString = localStorage.getItem('user');
     
     if (userDataString) {
       try {
         const userData = JSON.parse(userDataString);
         
-        // Sacar iniciales (ej. "Mario Pech" -> "MP")
         const partesNombre = userData.nombre ? userData.nombre.trim().split(' ') : ['Usuario'];
-        let letras = 'US'; // Valor por defecto
+        let letras = 'US'; 
         
         if (partesNombre.length >= 2) {
           letras = partesNombre[0][0] + partesNombre[1][0]; 
@@ -50,7 +51,6 @@ function MainLayout() {
           letras = partesNombre[0].substring(0, 2);
         }
 
-        // Definimos el texto del rol basado en el id_rol (Puedes ajustar estos números según tu BD)
         let textoRol = 'Usuario';
         if (userData.id_rol === 1) textoRol = 'Super Admin';
         if (userData.id_rol === 2) textoRol = 'Admin Empresa';
@@ -65,7 +65,6 @@ function MainLayout() {
         console.error("Error al leer el usuario del localStorage", error);
       }
     } else {
-      // Si no hay sesión (lo ideal es que el Middleware te mande al login, pero por si acaso)
       setUsuario({
         nombre: 'Modo Invitado',
         rol: 'Sin sesión',
@@ -79,7 +78,7 @@ function MainLayout() {
       <Sidebar />
       <main className="flex-1 ml-64 flex flex-col h-screen overflow-hidden">
         
-        {/* Header Dinámico */}
+        {/* Header  */}
         <header className="h-16 bg-white border-b border-gray-200 flex justify-end items-center px-8 gap-6 shrink-0">
           <button className="relative p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors">
             <Bell size={20} />
@@ -88,13 +87,11 @@ function MainLayout() {
 
           <div className="flex items-center gap-3 pl-6 border-l border-gray-100 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="text-right">
-              {/* Pintamos el estado real */}
               <p className="text-sm font-bold text-gray-800 leading-none">{usuario.nombre}</p>
               <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
                 {usuario.rol}
               </span>
             </div>
-            {/* Pintamos las iniciales reales */}
             <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shadow-blue-200">
               {usuario.iniciales}
             </div>
@@ -128,6 +125,7 @@ export default function App() {
 
           {/* Cobratarios */}
           <Route path="/cobratarios" element={<Cobratarios />} />
+          <Route path="/cobratarios/detalle/:id" element={<DetalleCobratario />} />
 
           {/* Préstamos */}
           <Route path="/prestamos" element={<Prestamos />} />
@@ -149,11 +147,14 @@ export default function App() {
           {/* Tipos de crédito */}
           <Route path="/tipos-creditos" element={<TiposDeCredito />} />
           <Route path="/tipos-de-credito/nuevo" element={<NuevoTipoCredito />} />
+          <Route path="/tipos-de-credito/editar/:id" element={<NuevoTipoCredito />} />
+          <Route path="/tipos-de-credito/detalle/:id" element={<DetalleTipoCredito />} />
 
           {/* Rutas de Empresas */}
           <Route path="/empresas" element={<EmpresasList />} />
           <Route path="/empresas/nueva" element={<EmpresaForm />} />
           <Route path="/empresas/editar/:id" element={<EmpresaForm />} />
+          <Route path="/empresas/detalle/:id" element={<DetalleEmpresa />} />
 
           {/* Redirecciones al final para que no choquen */}
           <Route path="/" element={<Navigate to="/login" replace />} />

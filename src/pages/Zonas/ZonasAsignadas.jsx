@@ -1,15 +1,96 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { Search, Plus, Edit, Trash2, Check } from 'lucide-react';
 
 export default function ZonasAsignadas() {
   const navigate = useNavigate();
-  const zonas = [
-    { id: 1, clave: '152', descripcion: 'ZONA NORTE', activo: true },
-    { id: 2, clave: '152', descripcion: 'ORIENTE', activo: true },
-    { id: 3, clave: '152', descripcion: 'PONIENTE', activo: true },
-    { id: 4, clave: '152', descripcion: 'SUR', activo: true },
-  ];
+  const [zonas, setZonas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  const showMessage = (text, type = 'success') => {
+    setMessage({ type, text });
+    window.setTimeout(() => setMessage({ type: '', text: '' }), 4500);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const headers = {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+
+    const normalizeZones = (payload) => {
+      if (Array.isArray(payload)) return payload;
+      if (!payload || typeof payload !== 'object') return [];
+      if (Array.isArray(payload.data)) return payload.data;
+      if (Array.isArray(payload.zonas)) return payload.zonas;
+      if (Array.isArray(payload.data?.zonas)) return payload.data.zonas;
+      if (Array.isArray(payload.data?.data)) return payload.data.data;
+      return [];
+    };
+
+    const fetchZonas = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/zonas', { headers });
+        const result = await response.json();
+        console.log('GET /api/zonas result:', result);
+
+        if (response.ok) {
+          const zones = normalizeZones(result);
+          setZonas(zones);
+          if (zones.length === 0) {
+            console.warn('No se encontraron zonas en la respuesta del backend.', result);
+          }
+        } else {
+          console.error('Error al cargar zonas:', result.message || response.statusText, result);
+        }
+      } catch (error) {
+        console.error('Error de conexión al cargar zonas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchZonas();
+  }, []);
+
+  const getClave = (zona) => zona.clave ?? zona.id_zona ?? zona.id;
+  const getDescripcion = (zona) => zona.descripcion || zona.nombre_zona || zona.descripcion_zona || '-';
+  const getActivo = (zona) => zona.activo ?? zona.estatus ?? zona.status ?? true;
+
+  const filteredZonas = zonas.filter((zona) =>
+    getDescripcion(zona).toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getClave(zona).toString().toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Seguro que deseas eliminar esta zona?')) return;
+
+    const token = localStorage.getItem('token');
+    const headers = {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/zonas/${id}`, {
+        method: 'DELETE',
+        headers
+      });
+      const result = await response.json();
+
+      if (response.ok && (result.status === undefined || result.status)) {
+        setZonas(zonas.filter((zona) => zona.id !== id && zona.id_zona !== id));
+      } else {
+        showMessage('Error al eliminar zona: ' + (result.message || 'Revisa el backend'), 'error');
+      }
+    } catch (error) {
+      console.error('Error al eliminar zona:', error);
+      showMessage('Error de conexión con el servidor.', 'error');
+    }
+  };
 
   return (
     <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
@@ -23,6 +104,8 @@ export default function ZonasAsignadas() {
           </div>
           <input
             type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border-none rounded-lg bg-gray-200/60 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="Buscar Zona..."
           />
@@ -36,6 +119,13 @@ export default function ZonasAsignadas() {
           Nueva Zona
         </button>
       </div>
+
+      {message.text && (
+        <div className={`mb-6 rounded-3xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+          <p className="font-semibold mb-1">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
+          <p className="text-sm leading-6">{message.text}</p>
+        </div>
+      )}
 
       {/* TABLA DE ZONAS */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
@@ -51,17 +141,29 @@ export default function ZonasAsignadas() {
               </tr>
             </thead>
             <tbody className="text-sm text-gray-800">
-              {zonas.map((zona) => (
-                <tr key={zona.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                {loading ? (
+                <tr>
+                  <td colSpan="4" className="py-10 text-gray-400">
+                    Cargando zonas...
+                  </td>
+                </tr>
+              ) : filteredZonas.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="py-10 text-gray-400">
+                    No hay zonas para mostrar.
+                  </td>
+                </tr>
+              ) : filteredZonas.map((zona) => (
+                <tr key={zona.id ?? zona.id_zona} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                   <td className="py-4 px-4 text-gray-600 font-medium">
-                    {zona.clave}
+                    {getClave(zona)}
                   </td>
                   <td className="py-4 px-4 text-left pl-12 font-medium text-gray-900 uppercase">
-                    {zona.descripcion}
+                    {getDescripcion(zona)}
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex justify-center">
-                      {zona.activo && (
+                      {getActivo(zona) && (
                         <div className="bg-[#2ecc71] rounded-full p-0.5 text-white shadow-sm">
                           <Check size={12} strokeWidth={4} />
                         </div>
@@ -70,10 +172,16 @@ export default function ZonasAsignadas() {
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center justify-center gap-2">
-                      <button className="bg-[#f39c12] hover:bg-orange-500 text-white p-1.5 rounded shadow-sm transition-colors">
+                      <button
+                        onClick={() => navigate('/zonas/nuevo')}
+                        className="bg-[#f39c12] hover:bg-orange-500 text-white p-1.5 rounded shadow-sm transition-colors"
+                      >
                         <Edit size={14} />
                       </button>
-                      <button className="bg-[#e74c3c] hover:bg-red-600 text-white p-1.5 rounded shadow-sm transition-colors">
+                      <button
+                        onClick={() => handleDelete(zona.id ?? zona.id_zona)}
+                        className="bg-[#e74c3c] hover:bg-red-600 text-white p-1.5 rounded shadow-sm transition-colors"
+                      >
                         <Trash2 size={14} />
                       </button>
                     </div>

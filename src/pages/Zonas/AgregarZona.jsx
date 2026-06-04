@@ -26,9 +26,61 @@ const LocationMarker = ({ position, setPosition }) => {
 export default function AgregarZona() {
   const navigate = useNavigate();
   const [position, setPosition] = useState({ lat: 20.9674, lng: -89.6236 });
-  
+  const [descripcion, setDescripcion] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  const showMessage = (text, type = 'success') => {
+    setMessage({ type, text });
+    window.setTimeout(() => setMessage({ type: '', text: '' }), 4500);
+  };
+
   // Lista de clientes basada en tu imagen
   const clientes = ["Josue Ceh Pool", "Adrián Keb", "Mario Pech"];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!descripcion.trim()) {
+      showMessage('Ingresa la descripción de la zona.', 'error');
+      return;
+    }
+
+    setSaving(true);
+    const token = localStorage.getItem('token');
+    const payload = {
+      descripcion,
+      nombre_zona: descripcion,
+      descripcion_zona: descripcion,
+      latitud: position.lat,
+      longitud: position.lng
+    };
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/zonas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      if (response.ok && (result.status === undefined || result.status)) {
+        showMessage(result.message || 'Zona creada correctamente.', 'success');
+        window.setTimeout(() => navigate('/zonas'), 900);
+      } else {
+        showMessage('Error al guardar zona: ' + (result.message || 'Verifica los datos.'), 'error');
+      }
+    } catch (error) {
+      console.error('Error al guardar zona:', error);
+      showMessage('Error de conexión con el backend.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
@@ -44,6 +96,12 @@ export default function AgregarZona() {
       <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden max-w-5xl">
         
         {/* Encabezado Azul */}
+        {message.text && (
+          <div className={`mx-8 mt-6 rounded-3xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+            <p className="font-semibold mb-1">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
+            <p className="text-sm leading-6">{message.text}</p>
+          </div>
+        )}
         <div className="bg-[#0b66c2] px-4 py-2">
           <h2 className="text-white text-sm font-medium">Agregar Nueva Zona</h2>
         </div>
@@ -84,32 +142,37 @@ export default function AgregarZona() {
                 </MapContainer>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-gray-600 text-sm font-bold uppercase tracking-tight">Descripción de la zona</label>
-                <input 
-                  type="text" 
-                  placeholder="Ingresa el nombre de la zona" 
-                  className="w-full border border-gray-400 bg-gray-100 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
+              <form onSubmit={handleSubmit} className="flex-1 space-y-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-gray-600 text-sm font-bold uppercase tracking-tight">Descripción de la zona</label>
+                  <input 
+                    type="text" 
+                    value={descripcion}
+                    onChange={(e) => setDescripcion(e.target.value)}
+                    placeholder="Ingresa el nombre de la zona" 
+                    className="w-full border border-gray-400 bg-gray-100 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
 
-          {/* Barra de Acciones Inferior Estandarizada */}
-          <div className="mt-12 flex gap-3 p-3 bg-[#e5e7eb] rounded">
-            <button 
-              type="submit"
-              className="bg-[#2ecc71] hover:bg-green-600 text-white font-bold px-8 py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95"
-            >
-              Aceptar
-            </button>
-            <button 
-              type="button"
-              onClick={() => navigate('/zonas')}
-              className="bg-[#e74c3c] hover:bg-red-600 text-white font-bold px-8 py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95"
-            >
-              Cancelar
-            </button>
+                {/* Barra de Acciones Inferior Estandarizada */}
+                <div className="mt-12 flex gap-3 p-3 bg-[#e5e7eb] rounded">
+                  <button 
+                    type="submit"
+                    disabled={saving}
+                    className="bg-[#2ecc71] hover:bg-green-600 text-white font-bold px-8 py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                  >
+                    {saving ? 'Guardando...' : 'Aceptar'}
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/zonas')}
+                    className="bg-[#e74c3c] hover:bg-red-600 text-white font-bold px-8 py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>

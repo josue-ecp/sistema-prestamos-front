@@ -17,8 +17,14 @@ export default function EmpresaForm() {
   const [fechaVencimiento, setFechaVencimiento] = useState('');
   const [usuariosWeb, setUsuariosWeb] = useState('');
   const [cobratarios, setCobratarios] = useState('');
+  const [message, setMessage] = useState({ type: '', text: '' });
   
   const [loading, setLoading] = useState(false);
+
+  const showMessage = (text, type = 'success') => {
+    setMessage({ type, text });
+    window.setTimeout(() => setMessage({ type: '', text: '' }), 4500);
+  };
 
   // EFECTO MAGICO: Si hay un ID en la URL, vamos por los datos a Laravel
   useEffect(() => {
@@ -51,7 +57,7 @@ export default function EmpresaForm() {
     if (dateInputRef.current) {
       try {
         dateInputRef.current.showPicker();
-      } catch (error) {
+      } catch {
         dateInputRef.current.focus();
       }
     }
@@ -88,14 +94,14 @@ export default function EmpresaForm() {
       const result = await response.json();
 
       if (response.ok && result.status) {
-        alert(id ? 'Empresa actualizada correctamente' : 'Empresa creada con éxito');
-        navigate('/empresas');
+        showMessage(id ? 'Empresa actualizada correctamente' : 'Empresa creada con éxito', 'success');
+        window.setTimeout(() => navigate('/empresas'), 800);
       } else {
-        alert('Error del servidor: ' + (result.message || 'Verifica los datos'));
+        showMessage('Error del servidor: ' + (result.message || 'Verifica los datos'), 'error');
       }
     } catch (error) {
       console.error("Error en la conexión:", error);
-      alert('Error de conexión con el backend.');
+      showMessage('Error de conexión con el backend.', 'error');
     } finally {
       setLoading(false);
     }
@@ -119,6 +125,13 @@ export default function EmpresaForm() {
             {/* Título dinámico */}
             <h2 className="text-white">{id ? 'Editar empresa' : 'Agregar empresa'}</h2>
           </div>
+
+          {message.text && (
+            <div className={`mx-8 mt-6 rounded-3xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+              <p className="font-semibold mb-1">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
+              <p className="text-sm leading-6">{message.text}</p>
+            </div>
+          )}
 
           <form className="p-10 space-y-8" onSubmit={handleSubmit}>
             
