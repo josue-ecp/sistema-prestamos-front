@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { BrowserRouter, Routes, Route, Navigate, Outlet, Link } from 'react-router-dom';
 import { Bell, ChevronDown } from 'lucide-react';
 
@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Clientes from './pages/Clientes/Clientes';
 import AgregarCliente from './pages/Clientes/AgregarCliente';
 import Cobratarios from './pages/Cobratarios/Cobratarios';
+import DetalleCobratario from './pages/Cobratarios/DetalleCobratario';
 import Prestamos from './pages/Prestamos/Prestamos';
 import NuevoPrestamo from './pages/Prestamos/NuevoPrestamo';
 import DetallePrestamo from './pages/Prestamos/DetallePrestamo';
@@ -23,12 +24,14 @@ import Renovaciones from './pages/Renovaciones/Renovaciones';
 import DetalleRenovacion from './pages/Renovaciones/DetalleRenovacion';
 import EmpresasList from './pages/Empresas/EmpresasList';
 import EmpresaForm from './pages/Empresas/EmpresaForm';
+import DetalleEmpresa from './pages/Empresas/DetalleEmpresa';
 import Login from './pages/Login/Login';
 import Suscripciones from './pages/Suscripciones/Suscripciones';
 import TiposDeCredito from './pages/TiposDeCredito/TiposDeCredito';
 import NuevoTipoCredito from './pages/TiposDeCredito/NuevoTipoCredito';
+import DetalleTipoCredito from './pages/TiposDeCredito/DetalleTipoCredito';
 
-// --- COMPONENTES TEMPORALES PARA PWA (Puedes moverlos a sus propios archivos después) ---
+// --- COMPONENTES TEMPORALES PARA PWA ---
 const PwaClientes = () => (
   <div className="p-6 mt-4">
     <h2 className="text-2xl font-bold text-blue-900">Mis Clientes</h2>
@@ -44,14 +47,12 @@ const PwaVisitas = () => (
 
 // --- LAYOUT DE ESCRITORIO (WEB) ---
 function MainLayout() {
-  // Estado para el usuario del Header
   const [usuario, setUsuario] = useState({
     nombre: 'Cargando...',
     rol: '...',
     iniciales: ''
   });
 
-  // Efecto para buscar quién está logueado
   useEffect(() => {
     const userDataString = localStorage.getItem('user');
     
@@ -93,7 +94,6 @@ function MainLayout() {
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       <Sidebar />
-      {/* Ajuste dinámico del margen para cuando el sidebar sea desplegable en pantallas pequeñas */}
       <main className="flex-1 ml-0 md:ml-64 flex flex-col h-screen overflow-hidden transition-all">
         
         {/* Header Dinámico */}
@@ -142,48 +142,59 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         
-        {/* Hacemos que si entras a localhost:5173/ sin nada, te mande al login */}
+        {/* Ruta raíz redirige al login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         
         {/* Ruta pública */}
         <Route path="/login" element={<Login />} />
         
-        {/* Ruta del Dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
-
         {/* --- RUTAS WEB (Escritorio) --- */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* Clientes */}
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/clientes/nuevo" element={<AgregarCliente />} />
-          <Route path="/cobratarios" element={<Cobratarios />} />
           
+          {/* Cobratarios */}
+          <Route path="/cobratarios" element={<Cobratarios />} />
+          <Route path="/cobratarios/detalle/:id" element={<DetalleCobratario />} />
+          
+          {/* Préstamos */}
           <Route path="/prestamos" element={<Prestamos />} />
           <Route path="/prestamos/nuevo" element={<NuevoPrestamo />} />
           <Route path="/prestamos/:id" element={<DetallePrestamo />} />
           
+          {/* Usuarios y Visitas */}
           <Route path="/usuarios-web" element={<UsuariosWeb />} />
           <Route path="/visitas" element={<Visitas />} />
           
+          {/* Zonas */}
           <Route path="/zonas" element={<ZonasAsignadas />} />
           <Route path="/zonas/nuevo" element={<AgregarZona />} />
           
+          {/* Renovaciones */}
           <Route path="/renovaciones" element={<Renovaciones />} />
           <Route path="/renovaciones/detalle/:id" element={<DetalleRenovacion />} />
           
+          {/* Tipos de Crédito */}
           <Route path="/tipos-creditos" element={<TiposDeCredito />} />
           <Route path="/tipos-de-credito/nuevo" element={<NuevoTipoCredito />} />
+          <Route path="/tipos-de-credito/editar/:id" element={<NuevoTipoCredito />} />
+          <Route path="/tipos-de-credito/detalle/:id" element={<DetalleTipoCredito />} />
           
+          {/* Empresas */}
           <Route path="/empresas" element={<EmpresasList />} />
           <Route path="/empresas/nueva" element={<EmpresaForm />} />
           <Route path="/empresas/editar/:id" element={<EmpresaForm />} />
+          <Route path="/empresas/detalle/:id" element={<DetalleEmpresa />} />
           
+          {/* Planes / Suscripciones */}
           <Route path="/planes" element={<Suscripciones />} />
         </Route>
 
         {/* --- RUTAS PWA (Móvil) --- */}
         <Route path="/pwa" element={<PwaLayout />}>
-          {/* Carga directamente la nueva vista de Ruta que maquetamos */}
           <Route index element={<PwaRuta />} />
           <Route path="clientes" element={<PwaClientes />} />
           <Route path="visitas" element={<PwaVisitas />} />
@@ -196,5 +207,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

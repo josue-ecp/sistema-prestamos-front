@@ -20,41 +20,43 @@ const menuItems = [
 ];
 
 export default function Sidebar() {
-  
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      
+      {/* Botón de Menú Móvil */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-30 p-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors"
+        className="fixed top-4 left-4 z-30 p-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors md:hidden"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      
+      {/* Fondo oscuro cuando el menú móvil está abierto */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/40 z-10 transition-opacity"
+          className="fixed inset-0 bg-black/40 z-10 transition-opacity md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      
+      {/* Contenedor del Sidebar */}
       <aside className={`
         w-64 bg-white h-screen border-r border-gray-100 flex flex-col fixed left-0 top-0 z-20 
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
+        md:translate-x-0
       `}>
         
-        <div className="p-8 mt-10 flex items-center gap-2">
+        {/* Logo */}
+        <div className="p-8 mt-10 md:mt-0 flex items-center gap-2">
           <div className="bg-blue-600 p-1.5 rounded-lg text-white">
             <Landmark size={20} />
           </div>
           <span className="text-xl font-bold text-blue-900 italic tracking-tighter">PrestaYA!</span>
         </div>
 
+        {/* Navegación Principal */}
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
           {menuItems.map((item, index) => (
             <NavLink 
@@ -75,11 +77,12 @@ export default function Sidebar() {
           ))}
         </nav>
 
-       <div className="p-6 border-t border-gray-50 space-y-4 text-gray-400 font-bold text-[11px] uppercase tracking-widest">
+        {/* Footer del Sidebar - Enlace PWA */}
+        <div className="p-6 border-t border-gray-50 space-y-4 text-gray-400 font-bold text-[11px] uppercase tracking-widest">
           <Link 
             to="/pwa" 
             onClick={() => setIsOpen(false)} 
-            className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors"
+            className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors no-underline text-gray-400"
           >
             <Smartphone size={16} /> Vista PWA
           </Link>
