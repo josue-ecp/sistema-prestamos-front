@@ -8,7 +8,38 @@ export default function Login() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    navigate('/dashboard');
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://127.0.0.1:8080/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          correo: email,
+          password: password
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.status) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // --- REDIRECCIÓN TEMPORAL A LA VISTA PWA ---
+        navigate('/dashboard');
+      } else {
+        setError(data.message || 'Credenciales incorrectas');
+      }
+    } catch (err) {
+      setError('Error: El servidor de Alex no responde');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

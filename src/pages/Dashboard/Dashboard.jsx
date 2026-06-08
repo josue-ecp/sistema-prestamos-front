@@ -1,8 +1,6 @@
-import Sidebar from '../../components/Sidebar/Sidebar';
-import StatCard from '../../components/StatCard/StatCard';
-import RecoveryChart from '../../components/RecoveryChart/RecoveryChart'; 
-import MovimientosTable from '../../components/MovimientosTable/MovimientosTable'; 
-import { Bell, ChevronDown } from 'lucide-react';
+import StatCard from '../../Components/StatCard/StatCard';
+import RecoveryChart from '../../Components/RecoveryChart/RecoveryChart'; 
+import MovimientosTable from '../../Components/MovimientosTable/MovimientosTable'; 
 
 export default function Dashboard() {
   return (
