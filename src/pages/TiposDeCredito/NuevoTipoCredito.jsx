@@ -1,39 +1,39 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
 
-const STORAGE_KEY = 'tiposCredito';
-
-const getStoredUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem('user') || 'null');
-  } catch {
-    return null;
-  }
+const api = () => {
+  const token = localStorage.getItem('token');
+  return axios.create({
+    baseURL: 'http://127.0.0.1:8000/api',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 };
 
-const loadTiposCredito = () => {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-};
+const mapTipoCredito = (item) => ({
+  tipoCredito: item.tipo_credito || '',
+  descripcion: item.descripcion || '',
+  esquema: item.esquema || '',
+  tasaInteres: item.tasa_interes || '',
+  plazoCredito: item.plazo_credito || '',
+  periodicidad: item.periodicidad || 'SEMANAL',
+  diasVisita: item.dias_visita || [],
+});
 
-const saveTiposCredito = (items) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-};
-
-const getNextId = (items) => {
-  if (items.length === 0) return 1;
-  return Math.max(...items.map((item) => item.id)) + 1;
-};
+const toApiPayload = (data) => ({
+  tipo_credito: data.tipoCredito,
+  descripcion: data.descripcion,
+  esquema: data.esquema,
+  tasa_interes: data.tasaInteres,
+  plazo_credito: data.plazoCredito,
+  periodicidad: data.periodicidad,
+  dias_visita: data.diasVisita,
+});
 
 export default function NuevoTipoCredito() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const currentUser = getStoredUser();
-  const companyId = currentUser?.id_empresa;
 
   const [formData, setFormData] = useState({
     tipoCredito: '',
@@ -48,24 +48,22 @@ export default function NuevoTipoCredito() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      const stored = loadTiposCredito();
-      const item = stored.find((entry) => String(entry.id) === String(id));
-      if (!item || (companyId && item.id_empresa !== companyId)) {
-        navigate('/tipos-creditos');
+    const fetchTipoCredito = async () => {
+      if (!id) {
         return;
       }
-      setFormData({
-        tipoCredito: item.tipoCredito,
-        descripcion: item.descripcion,
-        esquema: item.esquema,
-        tasaInteres: item.tasaInteres,
-        plazoCredito: item.plazoCredito,
-        periodicidad: item.periodicidad || 'SEMANAL',
-        diasVisita: item.diasVisita || []
-      });
-    }
-  }, [id, companyId, navigate]);
+
+      try {
+        const response = await api().get(`/tipos-creditos/${id}`);
+        setFormData(mapTipoCredito(response.data.data));
+      } catch (error) {
+        setMessage({ type: 'error', text: error.response?.data?.message || 'No se pudo cargar el tipo de crédito' });
+        window.setTimeout(() => navigate('/tipos-creditos'), 1800);
+      }
+    };
+
+    fetchTipoCredito();
+  }, [id, navigate]);
 
   const showMessage = (text, type = 'success') => {
     setMessage({ type, text });
@@ -90,29 +88,19 @@ export default function NuevoTipoCredito() {
     e.preventDefault();
     setSaving(true);
 
-    const stored = loadTiposCredito();
+    const request = id
+      ? api().put(`/tipos-creditos/${id}`, toApiPayload(formData))
+      : api().post('/tipos-creditos', toApiPayload(formData));
 
-    if (id) {
-      const updated = stored.map((item) =>
-        String(item.id) === String(id) ? { ...item, ...formData } : item
-      );
-      saveTiposCredito(updated);
-      showMessage('Tipo de crédito actualizado correctamente.', 'success');
-    } else {
-      const nextId = getNextId(stored);
-      const newItem = {
-        id: nextId,
-        ...formData,
-        id_empresa: companyId || 1
-      };
-      saveTiposCredito([...stored, newItem]);
-      showMessage('Tipo de crédito creado correctamente.', 'success');
-    }
-
-    setTimeout(() => {
-      setSaving(false);
-      navigate('/tipos-creditos');
-    }, 600);
+    request
+      .then(() => {
+        showMessage(id ? 'Tipo de crédito actualizado correctamente.' : 'Tipo de crédito creado correctamente.', 'success');
+        setTimeout(() => navigate('/tipos-creditos'), 600);
+      })
+      .catch((error) => {
+        showMessage(error.response?.data?.message || 'Error al guardar tipo de crédito', 'error');
+      })
+      .finally(() => setSaving(false));
   };
 
   return (

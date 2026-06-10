@@ -1,64 +1,28 @@
 ﻿import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Plus, Edit, Trash2, Eye, Search, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const STORAGE_KEY = 'tiposCredito';
-
-const getStoredUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem('user') || 'null');
-  } catch {
-    return null;
-  }
+const api = () => {
+  const token = localStorage.getItem('token');
+  return axios.create({
+    baseURL: 'http://127.0.0.1:8000/api',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 };
 
-const loadTiposCredito = () => {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-};
-
-const saveTiposCredito = (items) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-};
-
-const createDefaults = (companyId) => [
-  {
-    id: 1,
-    tipoCredito: 'CRÉDITO PERSONAL',
-    descripcion: 'Solución crediticia para gastos personales.',
-    esquema: 'Estándar',
-    tasaInteres: '12%',
-    plazoCredito: '12 meses',
-    periodicidad: 'SEMANAL',
-    diasVisita: ['Lunes', 'Miércoles'],
-    id_empresa: companyId || 1,
-  },
-  {
-    id: 2,
-    tipoCredito: 'CRÉDITO HIPOTECARIO',
-    descripcion: 'Financiamiento para compra de vivienda.',
-    esquema: 'Garantía hipotecaria',
-    tasaInteres: '9%',
-    plazoCredito: '240 meses',
-    periodicidad: 'MENSUAL',
-    diasVisita: ['Martes', 'Jueves'],
-    id_empresa: companyId || 1,
-  },
-  {
-    id: 3,
-    tipoCredito: 'CRÉDITO AUTOMOTRIZ',
-    descripcion: 'Financiamiento para vehículo nuevo o usado.',
-    esquema: 'Automotriz',
-    tasaInteres: '10.5%',
-    plazoCredito: '60 meses',
-    periodicidad: 'SEMANAL',
-    diasVisita: ['Viernes'],
-    id_empresa: companyId || 1,
-  },
-];
+const mapTipoCredito = (item) => ({
+  id: item.id_tipo_credito,
+  tipoCredito: item.tipo_credito || '',
+  descripcion: item.descripcion || '',
+  esquema: item.esquema || '',
+  tasaInteres: item.tasa_interes || '',
+  plazoCredito: item.plazo_credito || '',
+  periodicidad: item.periodicidad || '',
+  diasVisita: item.dias_visita || [],
+  estado: item.estado || 'activo',
+  id_empresa: item.id_empresa,
+});
 
 export default function TiposDeCredito() {
   const navigate = useNavigate();
@@ -68,39 +32,40 @@ export default function TiposDeCredito() {
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, nombre: '' });
   const [searchTerm, setSearchTerm] = useState('');
 
-  const user = getStoredUser();
-  const companyId = user?.id_empresa;
-
-  useEffect(() => {
-    const stored = loadTiposCredito();
-    if (stored.length === 0) {
-      const defaults = createDefaults(companyId);
-      saveTiposCredito(defaults);
-      setTiposCredito(defaults);
-    } else {
-      const filtered = companyId ? stored.filter((item) => item.id_empresa === companyId) : stored;
-      setTiposCredito(filtered);
-    }
-    setLoading(false);
-  }, [companyId]);
-
   const showMessage = (text, type = 'success') => {
     setMessage({ type, text });
     window.setTimeout(() => setMessage({ type: '', text: '' }), 4500);
   };
 
+  const fetchTiposCredito = async () => {
+    try {
+      const response = await api().get('/tipos-creditos');
+      setTiposCredito(response.data.map(mapTipoCredito));
+    } catch (error) {
+      showMessage(error.response?.data?.message || 'No se pudieron cargar los tipos de crédito', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTiposCredito();
+  }, []);
+
   const handleDelete = (tipo) => {
     setDeleteModal({ open: true, id: tipo.id, nombre: tipo.tipoCredito });
   };
 
-  const confirmDelete = () => {
-    const stored = loadTiposCredito();
-    const updated = stored.filter((item) => item.id !== deleteModal.id);
-    saveTiposCredito(updated);
-    const filtered = companyId ? updated.filter((item) => item.id_empresa === companyId) : updated;
-    setTiposCredito(filtered);
-    setDeleteModal({ open: false, id: null, nombre: '' });
-    showMessage('Tipo de crédito eliminado correctamente.', 'success');
+  const confirmDelete = async () => {
+    try {
+      await api().delete(`/tipos-creditos/${deleteModal.id}`);
+      setTiposCredito((current) => current.filter((item) => item.id !== deleteModal.id));
+      showMessage('Tipo de crédito eliminado correctamente.', 'success');
+    } catch (error) {
+      showMessage(error.response?.data?.message || 'No se pudo eliminar el tipo de crédito', 'error');
+    } finally {
+      setDeleteModal({ open: false, id: null, nombre: '' });
+    }
   };
 
   const filteredTipos = tiposCredito.filter((tipo) =>
