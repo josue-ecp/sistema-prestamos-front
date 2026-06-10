@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from 'react'; // ¡No olvides importar useState y useEffect!
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { Bell, ChevronDown } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { Bell, ChevronDown, LogOut } from 'lucide-react';
 
 import Sidebar from './Components/Sidebar/Sidebar';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -26,7 +26,15 @@ import TiposDeCredito from './pages/TiposDeCredito/TiposDeCredito';
 import NuevoTipoCredito from './pages/TiposDeCredito/NuevoTipoCredito';
 import DetalleTipoCredito from './pages/TiposDeCredito/DetalleTipoCredito';
 
+function ProtectedRoute() {
+  const isAuthenticated = Boolean(localStorage.getItem('token'));
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+}
+
 function MainLayout() {
+  const navigate = useNavigate();
+
   // 1. Estado para el usuario del Header
   const [usuario, setUsuario] = useState({
     nombre: 'Cargando...',
@@ -73,6 +81,12 @@ function MainLayout() {
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       <Sidebar />
@@ -85,17 +99,29 @@ function MainLayout() {
             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
           </button>
 
-          <div className="flex items-center gap-3 pl-6 border-l border-gray-100 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="text-right">
-              <p className="text-sm font-bold text-gray-800 leading-none">{usuario.nombre}</p>
-              <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
-                {usuario.rol}
-              </span>
+          <div className="flex items-center gap-3 pl-6 border-l border-gray-100">
+            <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+              <div className="text-right">
+                <p className="text-sm font-bold text-gray-800 leading-none">{usuario.nombre}</p>
+                <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
+                  {usuario.rol}
+                </span>
+              </div>
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shadow-blue-200">
+                {usuario.iniciales}
+              </div>
+              <ChevronDown size={16} className="text-gray-400" />
             </div>
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shadow-blue-200">
-              {usuario.iniciales}
-            </div>
-            <ChevronDown size={16} className="text-gray-400" />
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Cerrar sesión"
+              className="p-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
+              aria-label="Cerrar sesión"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
         </header>
 
@@ -114,8 +140,9 @@ export default function App() {
         {/* Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* Layout con rutas hijas */}
-        <Route element={<MainLayout />}>
+        {/* Rutas protegidas */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
           {/* Dashboard */}
           <Route path="/dashboard" element={<Dashboard />} />
 
@@ -157,9 +184,10 @@ export default function App() {
           <Route path="/empresas/detalle/:id" element={<DetalleEmpresa />} />
 
           {/* Redirecciones al final para que no choquen */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

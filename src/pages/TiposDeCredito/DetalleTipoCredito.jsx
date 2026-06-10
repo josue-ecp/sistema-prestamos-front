@@ -1,24 +1,27 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
-const STORAGE_KEY = 'tiposCredito';
-
-const getStoredUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem('user') || 'null');
-  } catch {
-    return null;
-  }
+const api = () => {
+  const token = localStorage.getItem('token');
+  return axios.create({
+    baseURL: 'http://127.0.0.1:8000/api',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 };
 
-const loadTiposCredito = () => {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-};
+const mapTipoCredito = (item) => ({
+  id: item.id_tipo_credito,
+  tipoCredito: item.tipo_credito || '',
+  descripcion: item.descripcion || '',
+  esquema: item.esquema || '',
+  tasaInteres: item.tasa_interes || '',
+  plazoCredito: item.plazo_credito || '',
+  periodicidad: item.periodicidad || '',
+  diasVisita: item.dias_visita || [],
+  estado: item.estado || 'activo',
+});
 
 export default function DetalleTipoCredito() {
   const { id } = useParams();
@@ -28,19 +31,18 @@ export default function DetalleTipoCredito() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const user = getStoredUser();
-    const companyId = user?.id_empresa;
-    const stored = loadTiposCredito();
-    const found = stored.find((item) => String(item.id) === String(id));
+    const fetchTipoCredito = async () => {
+      try {
+        const res = await api().get(`/tipos-creditos/${id}`);
+        setTipo(mapTipoCredito(res.data.data));
+      } catch (err) {
+        setError(err.response?.data?.message || 'No se pudo cargar el tipo de crédito');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!found || (companyId && found.id_empresa !== companyId)) {
-      setError('Tipo de crédito no encontrado o no pertenece a tu empresa.');
-      setLoading(false);
-      return;
-    }
-
-    setTipo(found);
-    setLoading(false);
+    fetchTipoCredito();
   }, [id]);
 
   return (
