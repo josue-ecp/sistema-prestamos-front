@@ -8,6 +8,7 @@ import { NavLink } from 'react-router-dom';
 const menuItems = [
   { icon: <Home size={18}/>, label: 'Inicio', path: '/dashboard' },
   { icon: <Users size={18}/>, label: 'Usuarios Web', path: '/usuarios-web' },
+  { icon: <Users size={18}/>, label: 'Roles', path: '/roles' },
   { icon: <Users size={18}/>, label: 'Clientes', path: '/clientes' },
   { icon: <Landmark size={18}/>, label: 'Prestamos', path: '/prestamos' },
   { icon: <MapPin size={18}/>, label: 'Zonas Asig.', path: '/zonas' },
