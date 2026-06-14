@@ -2,7 +2,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, LogOut } from 'lucide-react';
 
-import Sidebar from './Components/Sidebar/Sidebar';
+import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Clientes from './pages/Clientes/Clientes';
 import AgregarCliente from './pages/Clientes/AgregarCliente';
@@ -12,6 +12,7 @@ import Prestamos from './pages/Prestamos/Prestamos';
 import NuevoPrestamo from './pages/Prestamos/NuevoPrestamo';
 import DetallePrestamo from './pages/Prestamos/DetallePrestamo';
 import UsuariosWeb from './pages/UsuariosWeb/UsuariosWeb';
+import Roles from './pages/Roles/Roles';
 import Visitas from './pages/Visitas/Visitas';
 import ZonasAsignadas from './pages/Zonas/ZonasAsignadas';
 import AgregarZona from './pages/Zonas/AgregarZona';
@@ -161,6 +162,7 @@ export default function App() {
 
           {/* Usuarios */}
           <Route path="/usuarios-web" element={<UsuariosWeb />} />
+          <Route path="/roles" element={<Roles />} />
           <Route path="/visitas" element={<Visitas />} />
 
           {/* Zonas */}
