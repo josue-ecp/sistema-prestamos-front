@@ -24,10 +24,10 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-white h-screen border-r border-gray-100 flex flex-col fixed left-0 top-0 z-20">
       <div className="p-8 flex items-center gap-2">
-        <div className="bg-blue-600 p-1.5 rounded-lg text-white">
-          <Landmark size={20} />
+        <div className="bg-white p-1.5 rounded-lg text-white">
+          <img src="/logo.png" alt="Logo" className="w-6" />
         </div>
-        <span className="text-xl font-bold text-blue-900 italic tracking-tighter">PrestaYA!</span>
+        <span className="text-xl font-bold text-blue-900 italic tracking-tighter">CREDURIX</span>
       </div>
 
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
