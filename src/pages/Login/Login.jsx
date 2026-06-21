@@ -51,12 +51,12 @@ export default function Login() {
       <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-12 bg-white">
         <div className="max-w-md text-center">
           <img 
-            src="/prestaya-logo-.png" 
-            alt="Logo PrestaYA!" 
+            src="/Credurix.png" 
+            alt="Logo CREDURIX" 
             className="mb-10 mx-auto w-72 object-contain"
           />
           <h1 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">
-            ¡Bienvenido a PrestaYA!
+            ¡Bienvenido!
           </h1>
           <p className="text-gray-500 text-lg font-medium">
             Tu solution financiera rápida y segura
@@ -68,7 +68,7 @@ export default function Login() {
         <div className="w-full max-w-md space-y-10">
           
           <div className="lg:hidden flex justify-center mb-8">
-            <img src="/logo-entero.png" alt="Logo" className="w-48" />
+            <img src="/logo3.png" alt="Logo" className="w-48" />
           </div>
 
           <div>
@@ -125,7 +125,7 @@ export default function Login() {
           </form>
 
           <div className="absolute top-8 right-8 hidden lg:block">
-             <span className="text-2xl font-black italic text-blue-600 tracking-tighter">PrestaYA!</span>
+              <span className="text-2xl font-black italic text-blue-600 tracking-tighter">CREDURIX</span>
           </div>
         </div>
       </div>
