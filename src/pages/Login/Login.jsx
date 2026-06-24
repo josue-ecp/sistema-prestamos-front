@@ -14,11 +14,11 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    loading(true);
+    setLoading(true); 
     setError('');
 
     try {
-      // Ajustado al puerto 8000 estándar de Laravel
+      // Ajustado al puerto estándar de Laravel
       const response = await fetch('http://127.0.0.1:8000/api/login', {
         method: 'POST',
         headers: {
@@ -45,7 +45,7 @@ export default function Login() {
     } catch (err) {
       setError('Error: El servidor no responde');
     } finally {
-      loading(false);
+      setLoading(false); 
     }
   };
 

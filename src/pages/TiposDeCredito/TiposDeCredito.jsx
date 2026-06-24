@@ -13,7 +13,7 @@ const api = () => {
 
 const mapTipoCredito = (item) => ({
   id: item.id_tipo_credito,
-  tipoCredito: item.tipo_credito || '',
+  tipoCredito: item.nombre_tipo || '',
   descripcion: item.descripcion || '',
   esquema: item.esquema || '',
   tasaInteres: item.tasa_interes || '',
@@ -39,9 +39,16 @@ export default function TiposDeCredito() {
 
   const fetchTiposCredito = async () => {
     try {
+      // CAMBIADO: Usando guion bajo para alinearse con el api.php de Laravel
       const response = await api().get('/tipos-creditos');
-      setTiposCredito(response.data.map(mapTipoCredito));
+      
+      if (response.data && response.data.status) {
+        setTiposCredito(response.data.data.map(mapTipoCredito)); 
+      } else {
+        setTiposCredito([]);
+      }
     } catch (error) {
+      console.error(error);
       showMessage(error.response?.data?.message || 'No se pudieron cargar los tipos de crédito', 'error');
     } finally {
       setLoading(false);
@@ -58,6 +65,7 @@ export default function TiposDeCredito() {
 
   const confirmDelete = async () => {
     try {
+      // CAMBIADO: Usando guion bajo también para la ruta de eliminación
       await api().delete(`/tipos-creditos/${deleteModal.id}`);
       setTiposCredito((current) => current.filter((item) => item.id !== deleteModal.id));
       showMessage('Tipo de crédito eliminado correctamente.', 'success');
