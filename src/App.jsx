@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react'; 
-import { BrowserRouter, Routes, Route, Navigate, Outlet, Link } from 'react-router-dom';
-import { Bell, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, Link, useNavigate } from 'react-router-dom';
+import { Bell, ChevronDown, LogOut } from 'lucide-react';
 
 // --- IMPORTACIONES DE LAYOUTS ---
-import Sidebar from './Components/Sidebar/Sidebar';
+import Sidebar from './Components/Sidebar/Sidebar'; 
 import PwaLayout from './Components/PwaLayout/PwaLayout'; 
 import PwaRuta from './pages/Pwa/PwaRuta';
+import PwaClientes from './pages/Pwa/PwaClientes';
+import PwaResumen from './pages/Pwa/PwaResumen';
+import PwaPerfil from './pages/Pwa/PwaPerfil';
 
 // --- IMPORTACIONES DE PÁGINAS WEB ---
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -17,6 +20,7 @@ import Prestamos from './pages/Prestamos/Prestamos';
 import NuevoPrestamo from './pages/Prestamos/NuevoPrestamo';
 import DetallePrestamo from './pages/Prestamos/DetallePrestamo';
 import UsuariosWeb from './pages/UsuariosWeb/UsuariosWeb';
+import Roles from './pages/Roles/Roles';
 import Visitas from './pages/Visitas/Visitas';
 import ZonasAsignadas from './pages/Zonas/ZonasAsignadas';
 import AgregarZona from './pages/Zonas/AgregarZona';
@@ -32,12 +36,7 @@ import NuevoTipoCredito from './pages/TiposDeCredito/NuevoTipoCredito';
 import DetalleTipoCredito from './pages/TiposDeCredito/DetalleTipoCredito';
 
 // --- COMPONENTES TEMPORALES PARA PWA ---
-const PwaClientes = () => (
-  <div className="p-6 mt-4">
-    <h2 className="text-2xl font-bold text-blue-900">Mis Clientes</h2>
-    <p className="text-gray-500">Lista de clientes para cobrar...</p>
-  </div>
-);
+
 const PwaVisitas = () => (
   <div className="p-6 mt-4">
     <h2 className="text-2xl font-bold text-blue-900">Ruta de Visitas</h2>
@@ -45,8 +44,16 @@ const PwaVisitas = () => (
   </div>
 );
 
+// --- COMPONENTE DE RUTA PROTEGIDA ---
+function ProtectedRoute() {
+  const isAuthenticated = Boolean(localStorage.getItem('token'));
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+}
+
 // --- LAYOUT DE ESCRITORIO (WEB) ---
 function MainLayout() {
+  const navigate = useNavigate();
+
   const [usuario, setUsuario] = useState({
     nombre: 'Cargando...',
     rol: '...',
@@ -59,7 +66,6 @@ function MainLayout() {
     if (userDataString) {
       try {
         const userData = JSON.parse(userDataString);
-        
         const partesNombre = userData.nombre ? userData.nombre.trim().split(' ') : ['Usuario'];
         let letras = 'US'; 
         
@@ -91,14 +97,24 @@ function MainLayout() {
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
+      {/* Menú Lateral Operativo */}
       <Sidebar />
+      
+      {/* Contenedor de Vistas */}
       <main className="flex-1 ml-0 md:ml-64 flex flex-col h-screen overflow-hidden transition-all">
         
-        {/* Header Dinámico */}
+        {/* Header Dinámico Premium */}
         <header className="h-16 bg-white border-b border-gray-200 flex justify-end items-center px-8 gap-4 shrink-0">
           
+          {/* Botón de acceso a Planes */}
           <Link
             to="/planes"
             className="flex items-center gap-2 px-3 py-1.5 mr-2 bg-blue-50 border border-blue-100 rounded-full text-blue-600 font-bold text-xs uppercase tracking-wider hover:bg-blue-100 hover:text-blue-700 transition-all no-underline shadow-sm"
@@ -107,27 +123,42 @@ function MainLayout() {
             Ver Planes 
           </Link>
 
-          {/* Icono de Notificaciones */}
+          {/* Notificaciones */}
           <button className="relative p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors flex items-center justify-center">
             <Bell size={20} />
             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
           </button>
 
-          <div className="flex items-center gap-3 pl-4 border-l border-gray-100 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-gray-800 leading-none m-0">{usuario.nombre}</p>
-              <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mt-1 block">
-                {usuario.rol}
-              </span>
+          {/* Bloque de Identidad de Perfil */}
+          <div className="flex items-center gap-3 pl-4 border-l border-gray-100">
+            <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-bold text-gray-800 leading-none m-0">{usuario.nombre}</p>
+                <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mt-1 block">
+                  {usuario.rol}
+                </span>
+              </div>
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shadow-blue-200 flex-shrink-0">
+                {usuario.iniciales}
+              </div>
+              <ChevronDown size={16} className="text-gray-400 flex-shrink-0 hidden sm:block" />
             </div>
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shadow-blue-200 flex-shrink-0">
-              {usuario.iniciales}
-            </div>
-            <ChevronDown size={16} className="text-gray-400 flex-shrink-0 hidden sm:block" />
+
+            {/* Botón de Cierre de Sesión de tu equipo */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Cerrar sesión"
+              className="p-2 ml-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors flex items-center justify-center"
+              aria-label="Cerrar sesión"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
 
         </header>
 
+        {/* Zona operativa de renderizado */}
         <div className="flex-1 overflow-y-auto">
           <Outlet />
         </div>
@@ -141,56 +172,57 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
-        {/* Ruta raíz redirige al login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        
         {/* Ruta pública */}
         <Route path="/login" element={<Login />} />
         
-        {/* --- RUTAS WEB (Escritorio) --- */}
-        <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          
-          {/* Clientes */}
-          <Route path="/clientes" element={<Clientes />} />
-          <Route path="/clientes/nuevo" element={<AgregarCliente />} />
-          
-          {/* Cobratarios */}
-          <Route path="/cobratarios" element={<Cobratarios />} />
-          <Route path="/cobratarios/detalle/:id" element={<DetalleCobratario />} />
-          
-          {/* Préstamos */}
-          <Route path="/prestamos" element={<Prestamos />} />
-          <Route path="/prestamos/nuevo" element={<NuevoPrestamo />} />
-          <Route path="/prestamos/:id" element={<DetallePrestamo />} />
-          
-          {/* Usuarios y Visitas */}
-          <Route path="/usuarios-web" element={<UsuariosWeb />} />
-          <Route path="/visitas" element={<Visitas />} />
-          
-          {/* Zonas */}
-          <Route path="/zonas" element={<ZonasAsignadas />} />
-          <Route path="/zonas/nuevo" element={<AgregarZona />} />
-          
-          {/* Renovaciones */}
-          <Route path="/renovaciones" element={<Renovaciones />} />
-          <Route path="/renovaciones/detalle/:id" element={<DetalleRenovacion />} />
-          
-          {/* Tipos de Crédito */}
-          <Route path="/tipos-creditos" element={<TiposDeCredito />} />
-          <Route path="/tipos-de-credito/nuevo" element={<NuevoTipoCredito />} />
-          <Route path="/tipos-de-credito/editar/:id" element={<NuevoTipoCredito />} />
-          <Route path="/tipos-de-credito/detalle/:id" element={<DetalleTipoCredito />} />
-          
-          {/* Empresas */}
-          <Route path="/empresas" element={<EmpresasList />} />
-          <Route path="/empresas/nueva" element={<EmpresaForm />} />
-          <Route path="/empresas/editar/:id" element={<EmpresaForm />} />
-          <Route path="/empresas/detalle/:id" element={<DetalleEmpresa />} />
-          
-          {/* Planes / Suscripciones */}
-          <Route path="/planes" element={<Suscripciones />} />
+        {/* --- RUTAS PROTEGIDAS (Escritorio Web) --- */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
+            {/* Redirección raíz interna */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
+            {/* Módulos core */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/usuarios-web" element={<UsuariosWeb />} />
+            <Route path="/roles" element={<Roles />} />
+            <Route path="/visitas" element={<Visitas />} />
+            
+            {/* Clientes */}
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/clientes/nuevo" element={<AgregarCliente />} />
+            
+            {/* Cobratarios */}
+            <Route path="/cobratarios" element={<Cobratarios />} />
+            <Route path="/cobratarios/detalle/:id" element={<DetalleCobratario />} />
+            
+            {/* Préstamos */}
+            <Route path="/prestamos" element={<Prestamos />} />
+            <Route path="/prestamos/nuevo" element={<NuevoPrestamo />} />
+            <Route path="/prestamos/:id" element={<DetallePrestamo />} />
+            
+            {/* Zonas (Actualizado con los nombres de archivo de tu equipo) */}
+            <Route path="/zonas" element={<ZonasAsignadas />} />
+            <Route path="/zonas/nuevo" element={<AgregarZona />} />
+            
+            {/* Renovaciones */}
+            <Route path="/renovaciones" element={<Renovaciones />} />
+            <Route path="/renovaciones/detalle/:id" element={<DetalleRenovacion />} />
+            
+            {/* Tipos de Crédito (Actualizado con los nombres de archivo de tu equipo) */}
+            <Route path="/tipos-creditos" element={<TiposDeCredito />} />
+            <Route path="/tipos-de-credito/nuevo" element={<NuevoTipoCredito />} />
+            <Route path="/tipos-de-credito/editar/:id" element={<NuevoTipoCredito />} />
+            <Route path="/tipos-de-credito/detalle/:id" element={<DetalleTipoCredito />} />
+            
+            {/* Empresas */}
+            <Route path="/empresas" element={<EmpresasList />} />
+            <Route path="/empresas/nueva" element={<EmpresaForm />} />
+            <Route path="/empresas/editar/:id" element={<EmpresaForm />} />
+            <Route path="/empresas/detalle/:id" element={<DetalleEmpresa />} />
+            
+            {/* Tu módulo premium de planes tarifarios */}
+            <Route path="/planes" element={<Suscripciones />} />
+          </Route>
         </Route>
 
         {/* --- RUTAS PWA (Móvil) --- */}
@@ -198,11 +230,12 @@ export default function App() {
           <Route index element={<PwaRuta />} />
           <Route path="clientes" element={<PwaClientes />} />
           <Route path="visitas" element={<PwaVisitas />} />
+          <Route path="resumen" element={<PwaResumen />} />
+          <Route path="perfil" element={<PwaPerfil />} />
         </Route>
 
-        {/* Catch-all: Redirección para cualquier ruta que no exista */}
+        {/* Catch-all general si se pierde en la URL */}
         <Route path="*" element={<Navigate to="/login" replace />} />
-
       </Routes>
     </BrowserRouter>
   );

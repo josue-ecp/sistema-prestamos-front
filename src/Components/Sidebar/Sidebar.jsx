@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import { 
   Home, Users, Landmark, MapPin, Calendar, 
-  RefreshCcw, Briefcase, CreditCard, Smartphone,
-  Building2, Menu, X 
+  RefreshCcw, Briefcase, CreditCard, Building2, 
+  Menu, X, ShieldAlert, Smartphone 
 } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 
+// 📋 MENÚ OPERATIVO TOTALMENTE UNIFICADO
 const menuItems = [
-  { icon: <Home size={18}/>, label: 'Inicio', path: '/dashboard' },
+  { icon: <Home size={18}/>, label: 'Inicio', path: '/inicio' },
   { icon: <Users size={18}/>, label: 'Usuarios Web', path: '/usuarios-web' },
+  { icon: <ShieldAlert size={18}/>, label: 'Roles', path: '/roles' }, // Icono distintivo para Roles
   { icon: <Users size={18}/>, label: 'Clientes', path: '/clientes' },
-  { icon: <Landmark size={18}/>, label: 'Prestamos', path: '/prestamos' },
-  { icon: <MapPin size={18}/>, label: 'Zonas Asig.', path: '/zonas' },
+  { icon: <Landmark size={18}/>, label: 'Préstamos', path: '/prestamos' },
+  { icon: <MapPin size={18}/>, label: 'Zonas Asig.', path: '/zonas-asignadas' }, // Match exacto con App.jsx
   { icon: <Calendar size={18}/>, label: 'Visitas', path: '/visitas' },
   { icon: <RefreshCcw size={18}/>, label: 'Renovaciones', path: '/renovaciones' },
   { icon: <Briefcase size={18}/>, label: 'Cobratarios', path: '/cobratarios' },
-  { icon: <CreditCard size={18}/>, label: 'Tipos de crédito', path: '/tipos-creditos' },
+  { icon: <CreditCard size={18}/>, label: 'Tipos de crédito', path: '/tipos-de-credito' }, // Match exacto con App.jsx
   { icon: <Building2 size={18}/>, label: 'Empresas', path: '/empresas' },
 ];
 
@@ -24,15 +26,15 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Botón de Menú Móvil */}
+      {/* Botón de Menú Móvil (Hamburguesa) */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-30 p-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors md:hidden"
+        className="fixed top-4 left-4 z-30 p-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors md:hidden flex items-center justify-center"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Fondo oscuro cuando el menú móvil está abierto */}
+      {/* Fondo oscuro traslúcido para móviles */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/40 z-10 transition-opacity md:hidden"
@@ -40,7 +42,7 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Contenedor del Sidebar */}
+      {/* 💻 CONTENEDOR DEL SIDEBAR (Único, limpio y fluido) */}
       <aside className={`
         w-64 bg-white h-screen border-r border-gray-100 flex flex-col fixed left-0 top-0 z-20 
         transition-transform duration-300 ease-in-out
@@ -48,23 +50,23 @@ export default function Sidebar() {
         md:translate-x-0
       `}>
         
-        {/* Logo */}
-        <div className="p-8 mt-10 md:mt-0 flex items-center gap-2">
-          <div className="bg-blue-600 p-1.5 rounded-lg text-white">
-            <Landmark size={20} />
+        {/* Identidad Oficial: CREDURIX */}
+        <div className="p-8 mt-10 md:mt-0 flex items-center gap-2 border-b border-gray-50 shrink-0">
+          <div className="bg-white p-1 rounded-lg border border-gray-100 flex items-center justify-center shadow-sm">
+            <img src="/logo.png" alt="Logo CREDURIX" className="w-7 h-7 object-contain" />
           </div>
-          <span className="text-xl font-bold text-blue-900 italic tracking-tighter">PrestaYA!</span>
+          <span className="text-xl font-bold text-blue-900 italic tracking-tighter">CREDURIX</span>
         </div>
 
         {/* Navegación Principal */}
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
           {menuItems.map((item, index) => (
             <NavLink 
               key={index} 
               to={item.path}
               onClick={() => setIsOpen(false)} 
               className={({ isActive }) => 
-                `flex items-center gap-3 p-3 rounded-xl cursor-pointer font-semibold transition-all ${
+                `flex items-center gap-3 p-3 rounded-xl cursor-pointer font-semibold transition-all no-underline ${
                   isActive 
                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
                     : 'text-gray-400 hover:bg-gray-50 hover:text-blue-600'
@@ -77,8 +79,8 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        {/* Footer del Sidebar - Enlace PWA */}
-        <div className="p-6 border-t border-gray-50 space-y-4 text-gray-400 font-bold text-[11px] uppercase tracking-widest">
+        {/* Footer del Sidebar: Acceso Operativo PWA */}
+        <div className="p-6 border-t border-gray-100 shrink-0 text-gray-400 font-bold text-[11px] uppercase tracking-widest">
           <Link 
             to="/pwa" 
             onClick={() => setIsOpen(false)} 
