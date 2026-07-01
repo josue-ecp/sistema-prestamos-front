@@ -5,10 +5,14 @@ import { Bell, ChevronDown, LogOut } from 'lucide-react';
 // --- IMPORTACIONES DE LAYOUTS ---
 import Sidebar from './Components/Sidebar/Sidebar'; 
 import PwaLayout from './Components/PwaLayout/PwaLayout'; 
-import PwaRuta from './pages/Pwa/PwaRuta';
-import PwaClientes from './pages/Pwa/PwaClientes';
-import PwaResumen from './pages/Pwa/PwaResumen';
-import PwaPerfil from './pages/Pwa/PwaPerfil';
+import PwaClientLayout from './Components/PwaLayout/PwaClientLayout';
+import PwaRuta from './pages/Pwa/vistacobratarios/PwaRuta';
+import PwaClientes from './pages/Pwa/vistacobratarios/PwaClientes';
+import PwaResumen from './pages/Pwa/vistacobratarios/PwaResumen';
+import PwaPerfil from './pages/Pwa/vistacobratarios/PwaPerfil';
+import HomeClient from './pages/Pwa/vistaclientes/HomeClient';
+import PwaMisPagos from './pages/Pwa/vistaclientes/PwaMisPagos';
+import PwaPerfilCliente from './pages/Pwa/vistaclientes/PwaPerfilCliente';
 
 // --- IMPORTACIONES DE PÁGINAS WEB ---
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -226,13 +230,25 @@ export default function App() {
         </Route>
 
         {/* --- RUTAS PWA (Móvil) --- */}
-        <Route path="/pwa" element={<PwaLayout />}>
-          <Route index element={<PwaRuta />} />
-          <Route path="clientes" element={<PwaClientes />} />
-          <Route path="visitas" element={<PwaVisitas />} />
-          <Route path="resumen" element={<PwaResumen />} />
-          <Route path="perfil" element={<PwaPerfil />} />
-        </Route>
+
+{/* Redirección por defecto: si entran a /pwa, los mandamos a cobratario */}
+<Route path="/pwa" element={<Navigate to="/pwa/cobratario" replace />} />
+
+{/* 1. Rutas para el COBRATARIO */}
+<Route path="/pwa/cobratario" element={<PwaLayout />}>
+  <Route index element={<PwaRuta />} />
+  <Route path="clientes" element={<PwaClientes />} />
+  <Route path="visitas" element={<PwaVisitas />} />
+  <Route path="resumen" element={<PwaResumen />} />
+  <Route path="perfil" element={<PwaPerfil />} />
+</Route>
+
+{/* 2. Rutas para el CLIENTE */}
+<Route path="/pwa/cliente" element={<PwaClientLayout />}>
+  <Route index element={<HomeClient />} />
+  <Route path="pagos" element={<PwaMisPagos />} />
+  <Route path="perfil" element={<PwaPerfilCliente />} />
+</Route>
 
         {/* Catch-all general si se pierde en la URL */}
         <Route path="*" element={<Navigate to="/login" replace />} />

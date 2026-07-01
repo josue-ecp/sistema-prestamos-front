@@ -4,10 +4,10 @@ import { MapPin, Users, BarChart2, User } from 'lucide-react';
 
 export default function PwaLayout() {
   const pwaMenu = [
-    { icon: <MapPin size={22} />, label: 'Ruta', path: '/pwa' },
-    { icon: <Users size={22} />, label: 'Clientes', path: '/pwa/clientes' },
-    { icon: <BarChart2 size={22} />, label: 'Resumen', path: '/pwa/resumen' },
-    { icon: <User size={22} />, label: 'Perfil', path: '/pwa/perfil' },
+    { icon: <MapPin size={22} />, label: 'Ruta', path: '/pwa/cobratario' },
+    { icon: <Users size={22} />, label: 'Clientes', path: '/pwa/cobratario/clientes' },
+    { icon: <BarChart2 size={22} />, label: 'Resumen', path: '/pwa/cobratario/resumen' },
+    { icon: <User size={22} />, label: 'Perfil', path: '/pwa/cobratario/perfil' },
   ];
 
   return (
@@ -23,7 +23,7 @@ export default function PwaLayout() {
           <NavLink
             key={index}
             to={item.path}
-            end={item.path === '/pwa'} 
+            end={item.path === '/pwa/cobratario'}
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 transition-colors ${
                 isActive ? 'text-blue-700' : 'text-gray-800'
