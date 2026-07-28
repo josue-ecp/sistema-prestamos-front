@@ -132,8 +132,8 @@ export default function Cobratarios() {
   );
 
   return (
-    <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6 text-left">Gestión de Cobratarios</h1>
+    <div className="p-4 sm:p-6 lg:p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 text-left">Gestión de Cobratarios</h1>
 
       {message.text && (
         <div className={`mb-6 rounded-3xl p-4 grid grid-cols-[auto_1fr] gap-4 items-center border shadow-sm ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
@@ -152,8 +152,8 @@ export default function Cobratarios() {
       )}
 
       {/* BARRA SUPERIOR */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative w-96">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6">
+        <div className="relative w-full sm:w-96">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-gray-400" />
           </div>
@@ -173,7 +173,7 @@ export default function Cobratarios() {
             resetForm();
             setIsModalOpen(true);
           }}
-          className="flex items-center gap-2 bg-[#3b82f6] hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-sm uppercase tracking-wide active:scale-95"
+          className="flex items-center justify-center gap-2 bg-[#3b82f6] hover:bg-blue-700 text-white px-5 py-2.5 sm:py-2 rounded-lg text-xs font-bold transition-all shadow-sm uppercase tracking-wide active:scale-95 whitespace-nowrap"
         >
           <Plus size={16} />
           Nuevo Cobratario
@@ -183,29 +183,29 @@ export default function Cobratarios() {
       {/* TABLA PRINCIPAL */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
-          <table className="w-full text-center border-collapse">
+          <table className="w-full text-center border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-[#e5e5e5] text-gray-700 text-xs uppercase tracking-wider font-bold">
-                <th className="py-4 px-4 border-r border-white/50 text-left pl-12">Nombre</th>
-                <th className="py-4 px-4 border-r border-white/50 w-64">Zona Asignada</th>
-                <th className="py-4 px-4 border-r border-white/50">Ult. Ingreso</th>
-                <th className="py-4 px-4 border-r border-white/50">Activo</th>
-                <th className="py-4 px-4">Acciones</th>
+                <th className="py-3 sm:py-4 px-4 border-r border-white/50 text-left pl-8 sm:pl-12">Nombre</th>
+                <th className="py-3 sm:py-4 px-4 border-r border-white/50 w-48 sm:w-64">Zona Asignada</th>
+                <th className="py-3 sm:py-4 px-4 border-r border-white/50">Ult. Ingreso</th>
+                <th className="py-3 sm:py-4 px-4 border-r border-white/50">Activo</th>
+                <th className="py-3 sm:py-4 px-4">Acciones</th>
               </tr>
             </thead>
-            <tbody className="text-sm text-gray-800">
+            <tbody className="text-xs sm:text-sm text-gray-800">
               {loading ? (
                 <tr><td colSpan="5" className="py-10 text-gray-400">Cargando datos...</td></tr>
               ) : filteredCobratarios.map((cobratario) => (
                 <tr key={cobratario.id_cobratario} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-4 text-left pl-12 font-medium text-gray-900 uppercase">{cobratario.nombre}</td>
-                  <td className="py-4 px-4 text-gray-700 font-bold uppercase underline decoration-gray-400 underline-offset-2">
+                  <td className="py-3 sm:py-4 px-4 text-left pl-8 sm:pl-12 font-medium text-gray-900 uppercase">{cobratario.nombre}</td>
+                  <td className="py-3 sm:py-4 px-4 text-gray-700 font-bold uppercase underline decoration-gray-400 underline-offset-2">
                     {cobratario.zona?.nombre_zona || 'Sin Zona'}
                   </td>
-                  <td className="py-4 px-4 text-gray-600 font-medium">
+                  <td className="py-3 sm:py-4 px-4 text-gray-600 font-medium whitespace-nowrap">
                     {cobratario.ultimo_ingreso ? new Date(cobratario.ultimo_ingreso).toLocaleString() : 'Nunca'}
                   </td>
-                  <td className="py-4 px-4">
+                  <td className="py-3 sm:py-4 px-4">
                     <div className="flex justify-center">
                       {cobratario.estado === 'activo' && (
                         <div className="bg-[#2ecc71] rounded-full p-0.5 text-white shadow-sm">
@@ -214,7 +214,7 @@ export default function Cobratarios() {
                       )}
                     </div>
                   </td>
-                  <td className="py-4 px-4">
+                  <td className="py-3 sm:py-4 px-4">
                     <div className="relative flex items-center justify-center gap-2">
                       <button
                         type="button"
@@ -264,7 +264,7 @@ export default function Cobratarios() {
         </div>
 
         {/* PAGINACIÓN */}
-        <div className="bg-gray-50 px-6 py-2 border-t border-gray-100 text-left">
+        <div className="bg-gray-50 px-4 sm:px-6 py-2.5 sm:py-2 border-t border-gray-100 text-left">
           <p className="text-[10px] text-gray-400 font-bold uppercase text-left">
             Mostrando {filteredCobratarios.length} de {cobratarios.length} registros
           </p>
@@ -273,16 +273,16 @@ export default function Cobratarios() {
 
       {/* MODAL: NUEVO COBRATARIO */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-[500px] rounded-2xl shadow-2xl p-8 animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-[500px] rounded-2xl shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
-              <h2 className="text-xl font-bold text-gray-900">{isEditing ? 'Editar Cobratario' : 'Registrar Nuevo Cobratario'}</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">{isEditing ? 'Editar Cobratario' : 'Registrar Nuevo Cobratario'}</h2>
               <button type="button" onClick={() => { setIsModalOpen(false); resetForm(); }} className="text-gray-400 hover:text-gray-700 transition-colors">
                 <X size={24} />
               </button>
             </div>
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1.5 text-left">Nombre Completo</label>
                 <input 
@@ -290,19 +290,19 @@ export default function Cobratarios() {
                   required
                   placeholder="Ej. Juan Pérez"
                   value={formData.nombre}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white focus:outline-none focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white text-sm focus:outline-none focus:border-blue-500"
                   onChange={(e) => setFormData({...formData, nombre: e.target.value})}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1.5 text-left">Correo</label>
                   <input 
                     type="email" 
                     required
                     value={formData.correo}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                     onChange={(e) => setFormData({...formData, correo: e.target.value})}
                   />
                 </div>
@@ -313,7 +313,7 @@ export default function Cobratarios() {
                     required={!isEditing}
                     value={formData.password}
                     placeholder={isEditing ? 'Dejar en blanco para no cambiar' : ''}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                   />
                 </div>
@@ -324,7 +324,7 @@ export default function Cobratarios() {
                 <select 
                   required
                   value={formData.id_zona}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white focus:outline-none focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white text-sm focus:outline-none focus:border-blue-500"
                   onChange={(e) => setFormData({...formData, id_zona: e.target.value})}
                 >
                   <option value="">Selecciona una zona...</option>
@@ -339,25 +339,25 @@ export default function Cobratarios() {
                 <input
                   type="text"
                   value={formData.telefono}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                   onChange={(e) => setFormData({...formData, telefono: e.target.value})}
                 />
               </div>
 
-              <div className="flex justify-between gap-4 pt-4 mt-2">
+              <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4 mt-2">
                 <button 
                   type="button" 
                   onClick={() => {
                     setIsModalOpen(false);
                     resetForm();
                   }} 
-                  className="flex-1 py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-bold hover:bg-gray-50"
+                  className="w-full sm:flex-1 py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-bold hover:bg-gray-50 text-sm"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit" 
-                  className="flex-1 py-3 px-4 bg-blue-600 rounded-xl text-white font-bold hover:bg-blue-700 shadow-md"
+                  className="w-full sm:flex-1 py-3 px-4 bg-blue-600 rounded-xl text-white font-bold hover:bg-blue-700 shadow-md text-sm"
                 >
                   {isEditing ? 'Actualizar Cobratario' : 'Agregar Cobratario'}
                 </button>
@@ -368,29 +368,29 @@ export default function Cobratarios() {
       )}
 
       {deleteModal.open && (
-        <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+        <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-xl rounded-[2rem] overflow-hidden shadow-2xl animate-in fade-in duration-200">
-            <div className="bg-red-600 px-8 py-8 text-center text-white">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 text-red-100">
-                <AlertTriangle className="h-7 w-7" />
+            <div className="bg-red-600 px-6 sm:px-8 py-6 sm:py-8 text-center text-white">
+              <div className="mx-auto mb-4 flex h-14 sm:h-16 w-14 sm:w-16 items-center justify-center rounded-full bg-red-500/10 text-red-100">
+                <AlertTriangle className="h-6 sm:h-7 w-6 sm:w-7" />
               </div>
-              <p className="text-3xl font-bold tracking-[0.18em] uppercase">¡Advertencia!</p>
+              <p className="text-2xl sm:text-3xl font-bold tracking-[0.18em] uppercase">¡Advertencia!</p>
             </div>
-            <div className="bg-white p-8">
-              <p className="text-gray-700 mb-4">¿Estás seguro de que deseas eliminar el usuario</p>
-              <p className="font-bold text-slate-900 text-xl mb-4">"{deleteModal.nombre}"?</p>
-              <p className="text-sm font-semibold text-red-600 mb-8">Esta acción no se puede deshacer.</p>
+            <div className="bg-white p-6 sm:p-8">
+              <p className="text-gray-700 mb-4 text-sm sm:text-base">¿Estás seguro de que deseas eliminar el usuario</p>
+              <p className="font-bold text-slate-900 text-lg sm:text-xl mb-4 break-words">"{deleteModal.nombre}"?</p>
+              <p className="text-xs sm:text-sm font-semibold text-red-600 mb-6 sm:mb-8">Esta acción no se puede deshacer.</p>
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={cancelDelete}
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl border border-slate-300 bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200"
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl border border-slate-300 bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 text-sm"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-red-600 text-white font-semibold hover:bg-red-700"
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-red-600 text-white font-semibold hover:bg-red-700 text-sm"
                 >
                   Sí, eliminar
                 </button>

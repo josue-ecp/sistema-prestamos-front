@@ -1,24 +1,25 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { name: 'Lun', actual: 25000, proyectado: 28000 },
-  { name: 'Mar', actual: 18000, proyectado: 17000 },
-  { name: 'Mie', actual: 55000, proyectado: 19000 },
-  { name: 'Jue', actual: 52000, proyectado: 72000 },
-  { name: 'Vie', actual: 62000, proyectado: 32000 },
-  { name: 'Sab', actual: 55000, proyectado: 38000 },
-  { name: 'Dom', actual: 15000, proyectado: 45000 },
-];
+export default function RecoveryChart({ datosGrafica }) {
+  // Si no han cargado los datos, ponemos la estructura en ceros
+  const finalData = datosGrafica?.length > 0 ? datosGrafica : [
+    { name: 'Lun', actual: 0, proyectado: 0 },
+    { name: 'Mar', actual: 0, proyectado: 0 },
+    { name: 'Mie', actual: 0, proyectado: 0 },
+    { name: 'Jue', actual: 0, proyectado: 0 },
+    { name: 'Vie', actual: 0, proyectado: 0 },
+    { name: 'Sab', actual: 0, proyectado: 0 },
+    { name: 'Dom', actual: 0, proyectado: 0 },
+  ];
 
-export default function RecoveryChart() {
   return (
     <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 w-full mb-8">
       <h3 className="font-bold text-gray-800 mb-6 text-lg">Recuperación semanal</h3>
       
-      
       <div className="h-[350px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+        {/* Cambiar width a 99% quita el warning amarillo de consola */}
+        <ResponsiveContainer width="99%" height="100%">
+          <LineChart data={finalData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis 
               dataKey="name" 

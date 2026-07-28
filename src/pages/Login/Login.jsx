@@ -1,6 +1,7 @@
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,39 +19,39 @@ export default function Login() {
     setError('');
 
     try {
-      // Ajustado al puerto estándar de Laravel
-      const response = await fetch('http://127.0.0.1:8000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          correo: email,
-          password: password
-        })
+      // Usamos 'api' para el login
+      const response = await api.post('/login', {
+        correo: email,
+        password: password
       });
 
-      const data = await response.json();
+      const data = response.data;
 
+      // Ajustado para asegurar que tomamos el token correctamente
       if (data.status) {
+        // Guardamos el token y los datos en localStorage
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Redirección definitiva al dashboard
-        navigate('/dashboard');
+        // Redirección inteligente basada en el rol (Doble Vía)
+        if (data.user.tipo === 'cobratario') {
+          navigate('/pwa/cobratario'); // Ruta para trabajadores de campo
+        } else {
+          navigate('/dashboard'); // Ruta para administradores
+        }
       } else {
         setError(data.message || 'Credenciales incorrectas');
       }
     } catch (err) {
-      setError('Error: El servidor no responde');
+      setError('Error: El servidor no responde o credenciales inválidas');
     } finally {
       setLoading(false); 
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc]">
+    <div className="flex min-h-screen bg-[#f8fafc] relative">
+      {/* Panel Izquierdo (Oculto en móviles, visible en pantallas grandes) */}
       <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-12 bg-white">
         <div className="max-w-md text-center">
           <img 
@@ -67,35 +68,37 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
-        <div className="w-full max-w-md space-y-10">
+      {/* Panel Derecho / Formulario de Inicio de Sesión */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-16">
+        <div className="w-full max-w-md space-y-6 sm:space-y-10">
           
-          <div className="lg:hidden flex justify-center mb-8">
-            <img src="/logo3.png" alt="Logo" className="w-48" />
+          {/* Logo móvil adaptado */}
+          <div className="lg:hidden flex justify-center mb-4 sm:mb-8">
+            <img src="/logo3.png" alt="Logo" className="w-36 sm:w-48 object-contain" />
           </div>
 
           <div>
-            <h2 className="text-4xl font-black text-gray-900 tracking-tight">Inicio de sesión</h2>
-            {error && <p className="text-red-500 text-sm font-bold mt-2">{error}</p>}
+            <h2 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight">Inicio de sesión</h2>
+            {error && <p className="text-red-500 text-xs sm:text-sm font-bold mt-2">{error}</p>}
           </div>
 
-          <form className="space-y-6" onSubmit={handleLogin}>
+          <form className="space-y-5 sm:space-y-6" onSubmit={handleLogin}>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Correo electrónico</label>
+              <label className="text-xs sm:text-sm font-bold text-gray-700 ml-1">Correo electrónico</label>
               <input
                 type="email"
                 required
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
-                className="w-full px-5 py-4 rounded-2xl bg-gray-200/50 border-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none text-gray-700"
+                className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-gray-200/50 border-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none text-sm sm:text-base text-gray-700"
                 placeholder="Ingresa tu correo electrónico"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-sm font-bold text-gray-700">Contraseña</label>
-                <button type="button" className="text-xs font-semibold text-gray-400 hover:text-blue-600 transition-colors">
+                <label className="text-xs sm:text-sm font-bold text-gray-700">Contraseña</label>
+                <button type="button" className="text-[11px] sm:text-xs font-semibold text-gray-400 hover:text-blue-600 transition-colors">
                   ¿Has olvidado tu contraseña?
                 </button>
               </div>
@@ -105,7 +108,7 @@ export default function Login() {
                   required
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
-                  className="w-full px-5 py-4 rounded-2xl bg-gray-200/50 border-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none text-gray-700"
+                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-gray-200/50 border-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none text-sm sm:text-base text-gray-700 pr-12"
                   placeholder="Ingresa tu contraseña"
                 />
                 <button 
@@ -113,7 +116,7 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
@@ -121,12 +124,13 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-xl shadow-blue-100 transition-all transform active:scale-[0.98] mt-4 flex justify-center items-center"
+              className="w-full py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-xl shadow-blue-100 transition-all transform active:scale-[0.98] mt-4 flex justify-center items-center text-sm sm:text-base"
             >
               {loading ? <Loader2 className="animate-spin" size={24} /> : 'Iniciar sesión'}
             </button>
           </form>
 
+          {/* Marca de agua flotante en pantallas grandes */}
           <div className="absolute top-8 right-8 hidden lg:block">
               <span className="text-2xl font-black italic text-blue-600 tracking-tighter">CREDURIX</span>
           </div>

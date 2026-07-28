@@ -38,6 +38,7 @@ import Suscripciones from './pages/Suscripciones/Suscripciones';
 import TiposDeCredito from './pages/TiposDeCredito/TiposDeCredito';
 import NuevoTipoCredito from './pages/TiposDeCredito/NuevoTipoCredito';
 import DetalleTipoCredito from './pages/TiposDeCredito/DetalleTipoCredito';
+import HistorialPagos from './pages/Historial/HistorialPagos';
 
 // --- COMPONENTES TEMPORALES PARA PWA ---
 
@@ -226,6 +227,8 @@ export default function App() {
             
             {/* Tu módulo premium de planes tarifarios */}
             <Route path="/planes" element={<Suscripciones />} />
+
+            <Route path="/historial-pagos" element={<HistorialPagos />} />
           </Route>
         </Route>
 

@@ -39,9 +39,9 @@ export default function AgregarCliente() {
   ];
 
   return (
-    <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
+    <div className="p-4 sm:p-6 lg:p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
       
-      {/* Botón Volver - */}
+      {/* Botón Volver */}
       <button 
         onClick={() => navigate('/clientes')}
         className="flex items-center gap-2 text-blue-600 font-bold mb-4 hover:underline text-sm"
@@ -51,18 +51,18 @@ export default function AgregarCliente() {
 
       <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden max-w-6xl mx-auto">
         
-        {/* Encabezado  */}
+        {/* Encabezado */}
         <div className="bg-[#0b66c2] px-4 py-2">
           <h2 className="text-white text-sm font-medium">Información del cliente</h2>
         </div>
 
-        {/* Sistema de Pestañas*/}
-        <div className="flex gap-2 px-6 pt-6 mb-6">
+        {/* Sistema de Pestañas (Adaptable en móvil con scroll horizontal si fuera necesario) */}
+        <div className="flex gap-2 px-4 sm:px-6 pt-6 mb-6 overflow-x-auto">
           {['Cliente', 'Dirección', 'Expediente'].map((tab) => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-8 py-2 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
+              className={`px-6 sm:px-8 py-2 text-xs font-bold uppercase tracking-wider border-b-2 transition-all whitespace-nowrap ${
                 activeTab === tab 
                 ? 'border-blue-600 text-blue-600 bg-blue-50' 
                 : 'border-transparent text-gray-500 hover:bg-gray-100'
@@ -74,7 +74,7 @@ export default function AgregarCliente() {
         </div>
 
         {/* CONTENIDO DE PESTAÑAS */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           
           {/* VISTA 1: CLIENTE */}
           {activeTab === 'Cliente' && (
@@ -99,7 +99,7 @@ export default function AgregarCliente() {
               </div>
 
               <div className="flex-1">
-                <div className="w-full h-[300px] bg-gray-200 rounded border border-gray-300 overflow-hidden relative">
+                <div className="w-full h-[280px] sm:h-[300px] bg-gray-200 rounded border border-gray-300 overflow-hidden relative z-0">
                   <MapContainer center={[20.9674, -89.6236]} zoom={13} style={{ height: '100%', width: '100%' }}>
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <LocationMarker position={position} setPosition={setPosition} />
@@ -132,7 +132,7 @@ export default function AgregarCliente() {
               
               <div className="flex flex-col gap-1">
                 <label className="text-gray-600 text-sm font-medium">Código Postal</label>
-                <div className="flex shadow-sm w-1/2">
+                <div className="flex shadow-sm w-full sm:w-1/2">
                   <input type="text" className="w-full border border-gray-400 bg-gray-50 rounded-l px-2 py-1.5 text-xs focus:outline-none" />
                   <button className="bg-blue-600 text-white px-3 flex items-center justify-center rounded-r hover:bg-blue-700 transition-colors">
                     <Search size={14} />
@@ -142,12 +142,12 @@ export default function AgregarCliente() {
 
               <div className="flex flex-col gap-1 md:col-span-2">
                 <label className="text-gray-600 text-sm font-medium">Horario de visita</label>
-                <div className="flex gap-4">
-                  <div className="flex border border-gray-400 rounded bg-gray-50 overflow-hidden w-40">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex border border-gray-400 rounded bg-gray-50 overflow-hidden w-full sm:w-40">
                     <input type="text" placeholder="12:00 AM" className="w-full text-center px-2 py-1.5 text-xs focus:outline-none bg-transparent" />
                     <div className="bg-gray-200 px-2 flex items-center border-l border-gray-400"><Clock size={14} /></div>
                   </div>
-                  <div className="flex border border-gray-400 rounded bg-gray-50 overflow-hidden w-40">
+                  <div className="flex border border-gray-400 rounded bg-gray-50 overflow-hidden w-full sm:w-40">
                     <input type="text" placeholder="12:00 PM" className="w-full text-center px-2 py-1.5 text-xs focus:outline-none bg-transparent" />
                     <div className="bg-gray-200 px-2 flex items-center border-l border-gray-400"><Clock size={14} /></div>
                   </div>
@@ -160,9 +160,9 @@ export default function AgregarCliente() {
           {activeTab === 'Expediente' && (
             <div className="space-y-4 animate-in fade-in duration-300 max-w-2xl">
               {archivosExpediente.map((archivo, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <span className="text-sm text-gray-700 font-medium">{archivo}</span>
-                  <button className="bg-gray-100 border border-gray-300 text-gray-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
+                  <button className="self-start sm:self-auto bg-gray-100 border border-gray-300 text-gray-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
                     Adjuntar archivo
                   </button>
                 </div>
@@ -171,17 +171,17 @@ export default function AgregarCliente() {
           )}
         </div>
 
-        {/* FOOTER: BOTONES DE ACCIÓN (Barra Gris Estandarizada) */}
-        <div className="mt-4 flex gap-3 p-3 bg-[#e5e7eb]">
+        {/* FOOTER: BOTONES DE ACCIÓN */}
+        <div className="mt-4 flex flex-col sm:flex-row gap-3 p-3 bg-[#e5e7eb]">
           <button 
             onClick={() => navigate('/clientes')}
-            className="bg-[#2ecc71] hover:bg-green-600 text-white font-bold px-8 py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95"
+            className="bg-[#2ecc71] hover:bg-green-600 text-white font-bold px-8 py-2 sm:py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95 text-center"
           >
             Aceptar
           </button>
           <button 
             onClick={() => navigate('/clientes')} 
-            className="bg-[#e74c3c] hover:bg-red-600 text-white font-bold px-8 py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95"
+            className="bg-[#e74c3c] hover:bg-red-600 text-white font-bold px-8 py-2 sm:py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95 text-center"
           >
             Cancelar
           </button>
