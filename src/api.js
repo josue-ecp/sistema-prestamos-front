@@ -1,8 +1,12 @@
-// src/api.js
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api', // Asegúrate de que esta URL coincida con tu backend
+  baseURL: 'http://localhost:8000/api',
+  withCredentials: true, // <--- ¡Añadido para permitir cookies y evitar bloqueos de Sanctum!
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  }
 });
 
 // Interceptor: Se ejecuta antes de cada petición

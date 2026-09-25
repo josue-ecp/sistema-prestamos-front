@@ -35,13 +35,12 @@ import EmpresaForm from './pages/Empresas/EmpresaForm';
 import DetalleEmpresa from './pages/Empresas/DetalleEmpresa';
 import Login from './pages/Login/Login';
 import Suscripciones from './pages/Suscripciones/Suscripciones';
-import TiposDeCredito from './pages/TiposDeCredito/TiposDeCredito';
+import TiposDeCredito from './pages/TiposDeCredito/TiposDeCredito'; 
 import NuevoTipoCredito from './pages/TiposDeCredito/NuevoTipoCredito';
 import DetalleTipoCredito from './pages/TiposDeCredito/DetalleTipoCredito';
 import HistorialPagos from './pages/Historial/HistorialPagos';
 
 // --- COMPONENTES TEMPORALES PARA PWA ---
-
 const PwaVisitas = () => (
   <div className="p-6 mt-4">
     <h2 className="text-2xl font-bold text-blue-900">Ruta de Visitas</h2>
@@ -195,6 +194,7 @@ export default function App() {
             {/* Clientes */}
             <Route path="/clientes" element={<Clientes />} />
             <Route path="/clientes/nuevo" element={<AgregarCliente />} />
+            <Route path="/clientes/editar/:id" element={<AgregarCliente />} />
             
             {/* Cobratarios */}
             <Route path="/cobratarios" element={<Cobratarios />} />
@@ -205,15 +205,17 @@ export default function App() {
             <Route path="/prestamos/nuevo" element={<NuevoPrestamo />} />
             <Route path="/prestamos/:id" element={<DetallePrestamo />} />
             
-            {/* Zonas (Actualizado con los nombres de archivo de tu equipo) */}
+            {/* Zonas */}
             <Route path="/zonas" element={<ZonasAsignadas />} />
             <Route path="/zonas/nuevo" element={<AgregarZona />} />
+            <Route path="/zonas/editar/:id" element={<AgregarZona />} />
             
             {/* Renovaciones */}
             <Route path="/renovaciones" element={<Renovaciones />} />
             <Route path="/renovaciones/detalle/:id" element={<DetalleRenovacion />} />
             
-            {/* Tipos de Crédito (Actualizado con los nombres de archivo de tu equipo) */}
+            {/* Tipos de Crédito */}
+            <Route path="/tipos-de-credito" element={<TiposDeCredito />} />
             <Route path="/tipos-creditos" element={<TiposDeCredito />} />
             <Route path="/tipos-de-credito/nuevo" element={<NuevoTipoCredito />} />
             <Route path="/tipos-de-credito/editar/:id" element={<NuevoTipoCredito />} />
@@ -225,33 +227,34 @@ export default function App() {
             <Route path="/empresas/editar/:id" element={<EmpresaForm />} />
             <Route path="/empresas/detalle/:id" element={<DetalleEmpresa />} />
             
-            {/* Tu módulo premium de planes tarifarios */}
+            {/* Planes tarifarios */}
             <Route path="/planes" element={<Suscripciones />} />
 
+            {/* Historial de pagos */}
             <Route path="/historial-pagos" element={<HistorialPagos />} />
           </Route>
         </Route>
 
         {/* --- RUTAS PWA (Móvil) --- */}
 
-{/* Redirección por defecto: si entran a /pwa, los mandamos a cobratario */}
-<Route path="/pwa" element={<Navigate to="/pwa/cobratario" replace />} />
+        {/* Redirección por defecto: si entran a /pwa, los mandamos a cobratario */}
+        <Route path="/pwa" element={<Navigate to="/pwa/cobratario" replace />} />
 
-{/* 1. Rutas para el COBRATARIO */}
-<Route path="/pwa/cobratario" element={<PwaLayout />}>
-  <Route index element={<PwaRuta />} />
-  <Route path="clientes" element={<PwaClientes />} />
-  <Route path="visitas" element={<PwaVisitas />} />
-  <Route path="resumen" element={<PwaResumen />} />
-  <Route path="perfil" element={<PwaPerfil />} />
-</Route>
+        {/* 1. Rutas para el COBRATARIO */}
+        <Route path="/pwa/cobratario" element={<PwaLayout />}>
+          <Route index element={<PwaRuta />} />
+          <Route path="clientes" element={<PwaClientes />} />
+          <Route path="visitas" element={<PwaVisitas />} />
+          <Route path="resumen" element={<PwaResumen />} />
+          <Route path="perfil" element={<PwaPerfil />} />
+        </Route>
 
-{/* 2. Rutas para el CLIENTE */}
-<Route path="/pwa/cliente" element={<PwaClientLayout />}>
-  <Route index element={<HomeClient />} />
-  <Route path="pagos" element={<PwaMisPagos />} />
-  <Route path="perfil" element={<PwaPerfilCliente />} />
-</Route>
+        {/* 2. Rutas para el CLIENTE */}
+        <Route path="/pwa/cliente" element={<PwaClientLayout />}>
+          <Route index element={<HomeClient />} />
+          <Route path="pagos" element={<PwaMisPagos />} />
+          <Route path="perfil" element={<PwaPerfilCliente />} />
+        </Route>
 
         {/* Catch-all general si se pierde en la URL */}
         <Route path="*" element={<Navigate to="/login" replace />} />

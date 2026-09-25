@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, DollarSign, Phone, ChevronRight } from 'lucide-react';
+import { Search, MapPin, DollarSign, Phone, ChevronRight, Users } from 'lucide-react';
 import api from '../../../api';
 
 export default function PwaClientes() {
@@ -21,7 +21,6 @@ export default function PwaClientes() {
     fetchDirectorio();
   }, []);
 
-  // Lógica del buscador BLINDADA contra clientes sin nombre (nulos)
   const clientesFiltrados = clientes.filter(cliente => {
     const nombreSeguro = cliente.nombre ? cliente.nombre.toLowerCase() : '';
     const busquedaSegura = busqueda ? busqueda.toLowerCase() : '';
@@ -34,49 +33,61 @@ export default function PwaClientes() {
   };
 
   return (
-    <div className="p-5 bg-gray-50 min-h-screen pb-20">
+    <div className="p-4 bg-slate-50 min-h-screen pb-24 font-sans">
       
-      {/* Título de la vista */}
-      <h1 className="text-3xl font-extrabold text-black mb-4 mt-2">
-        Directorio
-      </h1>
+      {/* Título de la vista con diseño moderno */}
+      <div className="flex justify-between items-center mb-4 mt-1 px-1">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            Directorio
+          </h1>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+            {clientesFiltrados.length} clientes en ruta
+          </p>
+        </div>
+        <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 border border-blue-100 shadow-sm">
+          <Users size={20} />
+        </div>
+      </div>
 
-      {/* Barra de Búsqueda Activa */}
-      <div className="relative mb-2">
+      {/* Barra de Búsqueda Mejorada */}
+      <div className="relative mb-5">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search size={18} className="text-gray-500" />
+          <Search size={18} className="text-slate-400" />
         </div>
         <input
           type="text"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 bg-[#E2E4E9] text-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium placeholder:text-gray-500 shadow-sm"
-          placeholder="Buscar por nombre..."
+          className="w-full pl-11 pr-4 py-3.5 bg-white text-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold text-xs placeholder:text-slate-400 border border-slate-200/80 shadow-sm"
+          placeholder="Buscar cliente por nombre..."
         />
       </div>
 
-      {/* Contador dinámico */}
-      <p className="text-xs font-bold text-gray-400 mb-4 ml-1 uppercase tracking-wide">
-        {clientesFiltrados.length} clientes encontrados
-      </p>
-
       {/* Lista de Tarjetas de Clientes */}
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         {isLoading ? (
-          <p className="text-center text-gray-500 mt-10">Cargando directorio...</p>
+          <div className="text-center text-slate-400 py-16 bg-white rounded-3xl border border-slate-100 shadow-sm mt-4">
+            <p className="text-xs font-bold animate-pulse">Cargando directorio...</p>
+          </div>
         ) : clientesFiltrados.length > 0 ? (
           clientesFiltrados.map((cliente) => (
-            <div key={cliente.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col relative active:scale-[0.98] transition-transform">
+            <div key={cliente.id} className="bg-white p-4.5 rounded-3xl shadow-sm border border-slate-100/80 flex flex-col relative active:scale-[0.99] transition-all overflow-hidden group">
               
+              {/* Línea lateral decorativa de estado */}
+              <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
+                cliente.tiene_retraso ? 'bg-red-500' : 'bg-emerald-500'
+              }`} />
+
               {/* Cabecera de la tarjeta */}
-              <div className="flex justify-between items-start mb-2">
-                <div className="pr-8">
-                  <h2 className="text-md font-black text-black leading-tight">
+              <div className="flex justify-between items-start pl-2 mb-2">
+                <div className="pr-10">
+                  <h2 className="text-sm font-black text-slate-900 leading-snug uppercase tracking-tight">
                     {cliente.nombre || 'Cliente sin nombre'}
                   </h2>
-                  <div className="flex items-center gap-1 text-gray-500 mt-1 mb-2">
-                    <MapPin size={12} />
-                    <span className="text-[11px] truncate w-48">
+                  <div className="flex items-center gap-1.5 text-slate-500 mt-1">
+                    <MapPin size={13} className="text-blue-500 shrink-0" />
+                    <span className="text-[11px] font-medium truncate max-w-[220px]">
                       {cliente.direccion || 'Sin dirección registrada'}
                     </span>
                   </div>
@@ -86,44 +97,39 @@ export default function PwaClientes() {
                 {cliente.telefono && (
                   <a 
                     href={`tel:${cliente.telefono}`} 
-                    className="bg-blue-50 p-2.5 rounded-full text-blue-600 hover:bg-blue-100 transition absolute top-4 right-4"
+                    className="bg-blue-50 hover:bg-blue-100 p-2.5 rounded-2xl text-blue-600 transition shadow-sm shrink-0"
                   >
-                    <Phone size={16} fill="currentColor" />
+                    <Phone size={16} />
                   </a>
                 )}
               </div>
 
               {/* Pie de tarjeta con info financiera condensada */}
-              <div className="flex justify-between items-end pt-3 border-t border-gray-50 mt-1">
+              <div className="flex justify-between items-center pt-3 border-t border-slate-100 mt-2 pl-2">
                 <div>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">Saldo Pendiente</p>
-                  <div className="flex items-center gap-1 text-black">
-                    <DollarSign size={14} className="text-blue-500" />
-                    <span className="text-lg font-black leading-none">{formatMoney(cliente.monto)}</span>
+                  <p className="text-[9px] text-slate-400 font-black uppercase tracking-wider">Saldo Pendiente</p>
+                  <div className="flex items-center gap-0.5 text-slate-900 mt-0.5">
+                    <span className="text-xs font-bold text-slate-400">$</span>
+                    <span className="text-base font-black leading-none">{formatMoney(cliente.monto)}</span>
                   </div>
                 </div>
 
                 {cliente.tiene_retraso ? (
-                  <span className="px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-lg border border-red-100">
+                  <span className="px-2.5 py-1 bg-red-50 text-red-600 text-[10px] font-black rounded-xl border border-red-100 uppercase tracking-wider">
                     Con atraso
                   </span>
                 ) : (
-                  <span className="px-2 py-1 bg-green-50 text-green-600 text-[10px] font-bold rounded-lg border border-green-100">
+                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-xl border border-emerald-100 uppercase tracking-wider">
                     Al día
                   </span>
                 )}
-              </div>
-              
-              {/* Indicador visual de que se puede tocar para ver detalles */}
-              <div className="absolute right-4 bottom-4 text-gray-300">
-                <ChevronRight size={18} />
               </div>
 
             </div>
           ))
         ) : (
-          <div className="text-center text-gray-500 mt-10">
-            <p>No se encontraron clientes.</p>
+          <div className="text-center text-slate-400 py-16 bg-white rounded-3xl border border-slate-100 shadow-sm mt-4">
+            <p className="text-xs font-bold">No se encontraron clientes con ese nombre.</p>
           </div>
         )}
       </div>

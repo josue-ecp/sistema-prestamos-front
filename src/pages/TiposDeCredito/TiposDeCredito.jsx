@@ -12,8 +12,8 @@ const api = () => {
 };
 
 const mapTipoCredito = (item) => ({
-  id: item.id_tipo_credito,
-  tipoCredito: item.nombre_tipo || '',
+  id: item.id,
+  tipoCredito: item.tipo_credito || '',
   descripcion: item.descripcion || '',
   esquema: item.esquema || '',
   tasaInteres: item.tasa_interes || '',
@@ -39,7 +39,6 @@ export default function TiposDeCredito() {
 
   const fetchTiposCredito = async () => {
     try {
-      // CAMBIADO: Usando guion bajo para alinearse con el api.php de Laravel
       const response = await api().get('/tipos-creditos');
       
       if (response.data && response.data.status) {
@@ -65,7 +64,6 @@ export default function TiposDeCredito() {
 
   const confirmDelete = async () => {
     try {
-      // CAMBIADO: Usando guion bajo también para la ruta de eliminación
       await api().delete(`/tipos-creditos/${deleteModal.id}`);
       setTiposCredito((current) => current.filter((item) => item.id !== deleteModal.id));
       showMessage('Tipo de crédito eliminado correctamente.', 'success');
@@ -96,7 +94,7 @@ export default function TiposDeCredito() {
 
           <button
             onClick={handleNew}
-            className="inline-flex items-center gap-2 bg-[#3b82f6] hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 uppercase tracking-wide"
+            className="inline-flex items-center gap-2 bg-[#3b82f6] hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 uppercase tracking-wide cursor-pointer"
           >
             <Plus size={16} />
             Nuevo tipo de crédito
@@ -116,7 +114,7 @@ export default function TiposDeCredito() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Buscar tipo de crédito..."
-            className="w-full pl-10 pr-4 py-2 bg-[#f0f2f5] rounded-md border-none outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-[#f0f2f5] rounded-md border-none outline-none text-sm"
           />
         </div>
 
@@ -128,7 +126,7 @@ export default function TiposDeCredito() {
                   <th className="py-4 px-4 border-r border-white/50">Tipo de crédito</th>
                   <th className="py-4 px-4 border-r border-white/50">Descripción</th>
                   <th className="py-4 px-4 border-r border-white/50">Periodicidad</th>
-                  <th className="py-4 px-4">Acciones</th>
+                  <th className="py-4 px-4 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody className="text-sm text-gray-800">
@@ -154,21 +152,21 @@ export default function TiposDeCredito() {
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleView(tipo.id)}
-                            className="bg-[#3b82f6] hover:bg-blue-700 text-white p-2 rounded shadow-sm transition-colors"
+                            className="bg-[#3b82f6] hover:bg-blue-700 text-white p-2 rounded shadow-sm transition-colors cursor-pointer"
                             title="Ver"
                           >
                             <Eye size={16} />
                           </button>
                           <button
                             onClick={() => handleEdit(tipo.id)}
-                            className="bg-[#f59e0b] hover:bg-orange-500 text-white p-2 rounded shadow-sm transition-colors"
+                            className="bg-[#f59e0b] hover:bg-orange-500 text-white p-2 rounded shadow-sm transition-colors cursor-pointer"
                             title="Editar"
                           >
                             <Edit size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(tipo)}
-                            className="bg-[#ef4444] hover:bg-red-600 text-white p-2 rounded shadow-sm transition-colors"
+                            className="bg-[#ef4444] hover:bg-red-600 text-white p-2 rounded shadow-sm transition-colors cursor-pointer"
                             title="Eliminar"
                           >
                             <Trash2 size={16} />
@@ -183,7 +181,7 @@ export default function TiposDeCredito() {
           </div>
 
           <div className="bg-[#f8f9fa] px-6 py-4 border-t border-gray-100">
-            <span className="text-gray-500 uppercase font-semibold">
+            <span className="text-gray-500 uppercase font-semibold text-xs">
               MOSTRANDO {filteredTipos.length} REGISTROS
             </span>
           </div>
@@ -207,13 +205,13 @@ export default function TiposDeCredito() {
                 <button
                   type="button"
                   onClick={() => setDeleteModal({ open: false, id: null, nombre: '' })}
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl border border-slate-300 bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200"
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl border border-slate-300 bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-red-600 text-white font-semibold hover:bg-red-700"
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-red-600 text-white font-semibold hover:bg-red-700 cursor-pointer"
                 >
                   Sí, eliminar
                 </button>

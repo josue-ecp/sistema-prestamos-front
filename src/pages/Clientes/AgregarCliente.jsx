@@ -1,192 +1,319 @@
-import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { useNavigate } from 'react-router-dom';
-import L from 'leaflet';
-import { Search, Clock, ArrowLeft } from 'lucide-react';
-
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
-});
-L.Marker.prototype.options.icon = DefaultIcon;
-
-const LocationMarker = ({ position, setPosition }) => {
-  useMapEvents({
-    click(e) {
-      setPosition(e.latlng);
-    },
-  });
-  return position === null ? null : <Marker position={position}></Marker>;
-};
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import axios from 'axios';
+import TabDireccion from './TabDireccion';
+import TabExpediente from './TabExpediente';
 
 export default function AgregarCliente() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('Cliente');
-  const [position, setPosition] = useState({ lat: 20.9674, lng: -89.6236 });
+  const { id } = useParams();
+  const isEditing = Boolean(id);
 
-  const archivosExpediente = [
-    "Identificación Oficial (INE)",
-    "Comprobante de domicilio",
-    "Archivo libre 1",
-    "Archivo libre 2",
-    "Archivo libre 3"
-  ];
+  const [activeTab, setActiveTab] = useState('datos');
+
+  const [formData, setFormData] = useState({
+    nombre: '',
+    correo: '',
+    password: '',
+    direccion: '',
+    telefono: '',
+    id_zona: '',
+    latitud: '20.9674',
+    longitud: '-89.5926'
+  });
+
+  const [archivosFiles, setArchivosFiles] = useState({
+    ine: null,
+    comprobante_domicilio: null,
+    archivo_libre_1: null,
+    archivo_libre_2: null,
+    archivo_libre_3: null
+  });
+
+  const [zonas, setZonas] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  const showMessage = (text, type = 'success') => {
+    setMessage({ type, text });
+    window.setTimeout(() => setMessage({ type: '', text: '' }), 4500);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+
+      try {
+        const zonasRes = await axios.get('http://127.0.0.1:8000/api/zonas', { headers });
+        setZonas(zonasRes.data);
+
+        if (isEditing) {
+          const clienteRes = await axios.get(`http://127.0.0.1:8000/api/clientes/${id}`, { headers });
+          const cliente = clienteRes.data;
+          setFormData({
+            nombre: cliente.nombre || '',
+            correo: cliente.correo || '',
+            password: '', // Se deja vacío por seguridad al editar; solo se llena si desea cambiarla
+            direccion: cliente.direccion || '',
+            telefono: cliente.telefono || '',
+            id_zona: cliente.id_zona || '',
+            latitud: cliente.latitud || '20.9674',
+            longitud: cliente.longitud || '-89.5926'
+          });
+        }
+      } catch (error) {
+        console.error("Error al cargar datos iniciales:", error);
+        showMessage('Error al cargar la información.', 'error');
+      }
+    };
+
+    fetchData();
+  }, [id, isEditing]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.nombre.trim() || !formData.id_zona) {
+      showMessage('El nombre y la zona son obligatorios.', 'error');
+      setActiveTab('datos');
+      return;
+    }
+
+    setSaving(true);
+    const token = localStorage.getItem('token');
+    const data = new FormData();
+
+    data.append('nombre', formData.nombre);
+    data.append('correo', formData.correo || '');
+    if (formData.password) {
+      data.append('password', formData.password);
+    }
+    data.append('direccion', formData.direccion || '');
+    data.append('telefono', formData.telefono || '');
+    data.append('id_zona', formData.id_zona);
+    data.append('latitud', formData.latitud);
+    data.append('longitud', formData.longitud);
+
+    Object.keys(archivosFiles).forEach(key => {
+      if (archivosFiles[key]) {
+        data.append(key, archivosFiles[key]);
+      }
+    });
+
+    try {
+      const headers = { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      };
+
+      if (isEditing) {
+        data.append('_method', 'PUT');
+        await axios.post(`http://127.0.0.1:8000/api/clientes/${id}`, data, { headers });
+        showMessage('Cliente actualizado correctamente.');
+      } else {
+        await axios.post('http://127.0.0.1:8000/api/clientes', data, { headers });
+        showMessage('Cliente registrado correctamente.');
+      }
+
+      window.setTimeout(() => navigate('/clientes'), 1000);
+    } catch (error) {
+      console.error("Error al guardar cliente:", error);
+      showMessage('Error al guardar el cliente. Revisa los campos.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
-      
-      {/* Botón Volver */}
       <button 
+        type="button"
         onClick={() => navigate('/clientes')}
-        className="flex items-center gap-2 text-blue-600 font-bold mb-4 hover:underline text-sm"
+        className="flex items-center gap-2 text-blue-600 font-bold mb-4 hover:underline text-sm cursor-pointer"
       >
         <ArrowLeft size={18} /> Volver a la lista
       </button>
 
-      <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden max-w-6xl mx-auto">
-        
-        {/* Encabezado */}
-        <div className="bg-[#0b66c2] px-4 py-2">
-          <h2 className="text-white text-sm font-medium">Información del cliente</h2>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-w-4xl mx-auto">
+        <div className="bg-[#0b66c2] px-6 py-4">
+          <h2 className="text-white text-base font-bold uppercase tracking-wide">
+            {isEditing ? 'Editar Cliente' : 'Registrar Nuevo Cliente'}
+          </h2>
         </div>
 
-        {/* Sistema de Pestañas (Adaptable en móvil con scroll horizontal si fuera necesario) */}
-        <div className="flex gap-2 px-4 sm:px-6 pt-6 mb-6 overflow-x-auto">
-          {['Cliente', 'Dirección', 'Expediente'].map((tab) => (
-            <button 
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 sm:px-8 py-2 text-xs font-bold uppercase tracking-wider border-b-2 transition-all whitespace-nowrap ${
-                activeTab === tab 
-                ? 'border-blue-600 text-blue-600 bg-blue-50' 
-                : 'border-transparent text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="flex border-b border-gray-200 bg-gray-50 overflow-x-auto">
+          <button 
+            type="button"
+            onClick={() => setActiveTab('datos')}
+            className={`px-6 py-3 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${activeTab === 'datos' ? 'border-b-4 border-blue-600 text-blue-600 bg-white shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            1. Datos Generales
+          </button>
+          <button 
+            type="button"
+            onClick={() => setActiveTab('direccion')}
+            className={`px-6 py-3 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${activeTab === 'direccion' ? 'border-b-4 border-blue-600 text-blue-600 bg-white shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            2. Ubicación / Mapa {formData.latitud !== '20.9674' && '✓'}
+          </button>
+          <button 
+            type="button"
+            onClick={() => setActiveTab('expediente')}
+            className={`px-6 py-3 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${activeTab === 'expediente' ? 'border-b-4 border-blue-600 text-blue-600 bg-white shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            3. Expediente y Archivos
+          </button>
         </div>
 
-        {/* CONTENIDO DE PESTAÑAS */}
-        <div className="p-4 sm:p-6">
+        {message.text && (
+          <div className={`mx-6 mt-6 rounded-2xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+            <p className="font-semibold">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
+            <p className="text-sm">{message.text}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} autoComplete="off">
           
-          {/* VISTA 1: CLIENTE */}
-          {activeTab === 'Cliente' && (
-            <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in duration-300">
-              <div className="flex-1 grid grid-cols-1 gap-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-gray-600 text-sm font-medium">Nombre(s)</label>
-                  <input type="text" className="border border-gray-400 bg-gray-50 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          {/* Pestaña 1: Datos Generales */}
+          <div style={{ display: activeTab === 'datos' ? 'block' : 'none' }}>
+            <div className="p-6 sm:p-8 space-y-6 animate-in fade-in duration-300">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2 sm:col-span-2">
+                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Nombre Completo</label>
+                  <input 
+                    type="text" 
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    placeholder="Ej. Juan Pérez Pool" 
+                    required
+                    autoComplete="off"
+                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800 uppercase"
+                  />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-gray-600 text-sm font-medium">Apellidos</label>
-                  <input type="text" className="border border-gray-400 bg-gray-50 rounded px-2 py-1.5 text-xs focus:outline-none" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-gray-600 text-sm font-medium">E-mail</label>
-                  <input type="email" placeholder="ejemplo@correo.com" className="border border-gray-400 bg-gray-50 rounded px-2 py-1.5 text-xs focus:outline-none" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-gray-600 text-sm font-medium">Teléfonos de contacto</label>
-                  <input type="tel" className="border border-gray-400 bg-gray-50 rounded px-2 py-1.5 text-xs focus:outline-none" />
-                </div>
-              </div>
 
-              <div className="flex-1">
-                <div className="w-full h-[280px] sm:h-[300px] bg-gray-200 rounded border border-gray-300 overflow-hidden relative z-0">
-                  <MapContainer center={[20.9674, -89.6236]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    <LocationMarker position={position} setPosition={setPosition} />
-                  </MapContainer>
+                <div className="flex flex-col gap-2">
+                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Correo Electrónico (Portal PWA)</label>
+                  <input 
+                    type="email" 
+                    name="correo"
+                    value={formData.correo}
+                    onChange={handleChange}
+                    placeholder="cliente@correo.com" 
+                    autoComplete="off"
+                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                  />
                 </div>
-                <p className="text-[10px] text-gray-500 mt-2 font-bold uppercase tracking-tight">
-                  * Haz clic para ajustar ubicación (Lat: {position?.lat.toFixed(4)}, Lng: {position?.lng.toFixed(4)})
-                </p>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Contraseña {isEditing && '(Opcional)'}</label>
+                  <input 
+                    type="password" 
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder={isEditing ? "Dejar en blanco para mantener actual" : "••••••••"} 
+                    autoComplete="new-password"
+                    {...(!isEditing ? { required: true } : {})}
+                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2 sm:col-span-2">
+                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Dirección</label>
+                  <input 
+                    type="text" 
+                    name="direccion"
+                    value={formData.direccion}
+                    onChange={handleChange}
+                    placeholder="Ej. Calle 20 x 15 y 17" 
+                    autoComplete="off"
+                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Teléfono</label>
+                  <input 
+                    type="text" 
+                    name="telefono"
+                    value={formData.telefono}
+                    onChange={handleChange}
+                    placeholder="Ej. 9991234567" 
+                    autoComplete="off"
+                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Zona Asignada</label>
+                  <select 
+                    name="id_zona"
+                    value={formData.id_zona}
+                    onChange={handleChange}
+                    required
+                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800 cursor-pointer"
+                  >
+                    <option value="">Selecciona una zona...</option>
+                    {zonas.map((zona) => (
+                      <option key={zona.id_zona} value={zona.id_zona}>
+                        {zona.nombre_zona} (ID: {zona.id_zona})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* VISTA 2: DIRECCIÓN */}
-          {activeTab === 'Dirección' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 animate-in fade-in duration-300">
-              {[
-                { label: 'Calle', type: 'text' },
-                { label: 'Número Interior', type: 'text' },
-                { label: 'Número Exterior', type: 'text' },
-                { label: 'Cruzamientos', type: 'text' },
-                { label: 'Colonia', type: 'text' },
-                { label: 'Ciudad', type: 'text' },
-                { label: 'Estado', type: 'text' },
-              ].map((item) => (
-                <div key={item.label} className="flex flex-col gap-1">
-                  <label className="text-gray-600 text-sm font-medium">{item.label}</label>
-                  <input type={item.type} className="border border-gray-400 bg-gray-50 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                </div>
-              ))}
-              
-              <div className="flex flex-col gap-1">
-                <label className="text-gray-600 text-sm font-medium">Código Postal</label>
-                <div className="flex shadow-sm w-full sm:w-1/2">
-                  <input type="text" className="w-full border border-gray-400 bg-gray-50 rounded-l px-2 py-1.5 text-xs focus:outline-none" />
-                  <button className="bg-blue-600 text-white px-3 flex items-center justify-center rounded-r hover:bg-blue-700 transition-colors">
-                    <Search size={14} />
-                  </button>
-                </div>
-              </div>
+          {/* Pestaña 2: Mapa */}
+          <div style={{ display: activeTab === 'direccion' ? 'block' : 'none' }}>
+            <TabDireccion 
+              lat={formData.latitud} 
+              lng={formData.longitud} 
+              onChangeCoordinates={(lat, lng) => {
+                setFormData(prev => ({ 
+                  ...prev, 
+                  latitud: String(lat), 
+                  longitud: String(lng) 
+                }));
+              }}
+            />
+          </div>
+          
+          {/* Pestaña 3: Expediente */}
+          <div style={{ display: activeTab === 'expediente' ? 'block' : 'none' }}>
+            <TabExpediente 
+              onFileSelect={(tipoKey, file) => {
+                setArchivosFiles(prev => ({ ...prev, [tipoKey]: file }));
+              }}
+            />
+          </div>
 
-              <div className="flex flex-col gap-1 md:col-span-2">
-                <label className="text-gray-600 text-sm font-medium">Horario de visita</label>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex border border-gray-400 rounded bg-gray-50 overflow-hidden w-full sm:w-40">
-                    <input type="text" placeholder="12:00 AM" className="w-full text-center px-2 py-1.5 text-xs focus:outline-none bg-transparent" />
-                    <div className="bg-gray-200 px-2 flex items-center border-l border-gray-400"><Clock size={14} /></div>
-                  </div>
-                  <div className="flex border border-gray-400 rounded bg-gray-50 overflow-hidden w-full sm:w-40">
-                    <input type="text" placeholder="12:00 PM" className="w-full text-center px-2 py-1.5 text-xs focus:outline-none bg-transparent" />
-                    <div className="bg-gray-200 px-2 flex items-center border-l border-gray-400"><Clock size={14} /></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
+            <button 
+              type="button"
+              onClick={() => navigate('/clientes')}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-6 py-2.5 rounded-lg text-xs uppercase transition-all cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit"
+              disabled={saving}
+              className="bg-[#3b82f6] hover:bg-blue-700 text-white font-bold px-8 py-2.5 rounded-lg text-xs uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? 'Guardando todo...' : (isEditing ? 'Actualizar Cliente' : 'Guardar Cliente')}
+            </button>
+          </div>
 
-          {/* VISTA 3: EXPEDIENTE */}
-          {activeTab === 'Expediente' && (
-            <div className="space-y-4 animate-in fade-in duration-300 max-w-2xl">
-              {archivosExpediente.map((archivo, index) => (
-                <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <span className="text-sm text-gray-700 font-medium">{archivo}</span>
-                  <button className="self-start sm:self-auto bg-gray-100 border border-gray-300 text-gray-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
-                    Adjuntar archivo
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* FOOTER: BOTONES DE ACCIÓN */}
-        <div className="mt-4 flex flex-col sm:flex-row gap-3 p-3 bg-[#e5e7eb]">
-          <button 
-            onClick={() => navigate('/clientes')}
-            className="bg-[#2ecc71] hover:bg-green-600 text-white font-bold px-8 py-2 sm:py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95 text-center"
-          >
-            Aceptar
-          </button>
-          <button 
-            onClick={() => navigate('/clientes')} 
-            className="bg-[#e74c3c] hover:bg-red-600 text-white font-bold px-8 py-2 sm:py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95 text-center"
-          >
-            Cancelar
-          </button>
-        </div>
-
+        </form>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import StatCard from '../../Components/StatCard/StatCard';
 import RecoveryChart from '../../Components/RecoveryChart/RecoveryChart'; 
+import VisitasPieChart from '../../Components/VisitasPieChart/VisitasPieChart'; // <--- 1. Importas el componente
 import MovimientosTable from '../../Components/MovimientosTable/MovimientosTable'; 
 
 export default function Dashboard() {
@@ -12,27 +13,30 @@ export default function Dashboard() {
     prestamosActivos: 0
   });
 
-  // 1. Agregamos el estado para guardar los datos de la gráfica
   const [chartData, setChartData] = useState([]);
+  const [visitasChartData, setVisitasChartData] = useState([]); // <--- 2. Estado para los datos de la gráfica de pastel
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const response = await api.get('/dashboard-stats');
         
-        // Entramos a response.data.stats porque así lo manda tu controlador
         if (response.data && response.data.stats) {
           setStats({
             totalColocado: `$${response.data.stats.totalColocado}`,
             cobrosHoy: `$${response.data.stats.cobrosHoy}`,
             carteraVencida: `$${response.data.stats.carteraVencida}`,
-            prestamosActivos: response.data.stats.pendientes // Tu controlador lo llama pendientes
+            prestamosActivos: response.data.stats.pendientes
           });
         }
 
-        // 2. Guardamos los datos de la gráfica si vienen en la respuesta de Laravel
         if (response.data && response.data.grafica) {
           setChartData(response.data.grafica);
+        }
+
+        // 3. Suponiendo que el backend mandará la info de visitas en response.data.visitasGrafica
+        if (response.data && response.data.visitasGrafica) {
+          setVisitasChartData(response.data.visitasGrafica);
         }
 
       } catch (error) {
@@ -64,10 +68,18 @@ export default function Dashboard() {
       </div>
 
       <div className="space-y-6 sm:space-y-8">
-        <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* 3. Le pasamos los datos al componente de la gráfica mediante la prop datosGrafica */}
-          <RecoveryChart datosGrafica={chartData} />
+        {/* Grid para mostrar ambas gráficas ordenadas */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <RecoveryChart datosGrafica={chartData} />
+          </div>
+          
+          {/* 4. Llamamos la gráfica de pastel aquí */}
+          <div className="w-full">
+            <VisitasPieChart datosGrafica={visitasChartData} />
+          </div>
         </div>
+
         <div className="w-full pb-8 overflow-x-auto">
           <div className="min-w-[650px] lg:min-w-full">
             <MovimientosTable />

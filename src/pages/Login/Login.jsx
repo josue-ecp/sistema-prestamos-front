@@ -19,7 +19,7 @@ export default function Login() {
     setError('');
 
     try {
-      // Usamos 'api' para el login
+      // Petición directa al login (sin csrf-cookie)
       const response = await api.post('/login', {
         correo: email,
         password: password
@@ -27,14 +27,15 @@ export default function Login() {
 
       const data = response.data;
 
-      // Ajustado para asegurar que tomamos el token correctamente
       if (data.status) {
         // Guardamos el token y los datos en localStorage
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Redirección inteligente basada en el rol (Doble Vía)
-        if (data.user.tipo === 'cobratario') {
+        // Redirección inteligente según el rol del usuario (Admin, Cobrador o Cliente)
+        if (data.user.tipo === 'cliente') {
+          navigate('/pwa/cliente'); // Ruta para la PWA del cliente
+        } else if (data.user.tipo === 'cobratario') {
           navigate('/pwa/cobratario'); // Ruta para trabajadores de campo
         } else {
           navigate('/dashboard'); // Ruta para administradores
