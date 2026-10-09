@@ -1,8 +1,12 @@
 import axios from 'axios';
 
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:8000/api' 
+  : 'https://credurix-backend-production.up.railway.app/api';
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
-  withCredentials: true, // <--- ¡Añadido para permitir cookies y evitar bloqueos de Sanctum!
+  baseURL: API_URL,
+  withCredentials: true, // <--- Permite cookies y evita bloqueos de Sanctum
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
