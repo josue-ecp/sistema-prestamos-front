@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import { MapPin } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -10,6 +10,27 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+// Componente auxiliar para corregir el tamaño gris cuando el mapa está en pestañas ocultas
+// Componente auxiliar con ResizeObserver para corregir el mapa en pestañas automáticamente
+function MapController() {
+  const map = useMap();
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    
+    const container = map.getContainer();
+    if (container) {
+      observer.observe(container);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [map]);
+  return null;
+}
 
 function LocationSelector({ position, onMapClick }) {
   useMapEvents({
@@ -24,7 +45,6 @@ function LocationSelector({ position, onMapClick }) {
 }
 
 export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
-  // Inicializamos con las props que vienen de afuera o con una por defecto de Yucatán
   const [position, setPosition] = useState(() => {
     if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
       return [parseFloat(lat), parseFloat(lng)];
@@ -32,7 +52,6 @@ export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
     return [20.9674, -89.5926];
   });
 
-  // Sincronizar si cambian las props externas
   useEffect(() => {
     if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
       setPosition([parseFloat(lat), parseFloat(lng)]);
@@ -41,7 +60,6 @@ export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
 
   const handleMarkerPlacement = (newPos) => {
     setPosition(newPos);
-    // Notificamos inmediatamente al componente padre (AgregarCliente)
     if (onChangeCoordinates) {
       onChangeCoordinates(newPos[0], newPos[1]);
     }
@@ -66,6 +84,7 @@ export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
           scrollWheelZoom={true} 
           style={{ width: '100%', height: '100%' }}
         >
+          <MapController />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
