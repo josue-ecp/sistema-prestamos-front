@@ -48,18 +48,18 @@ export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
   };
 
   return (
-    <div className="p-6 sm:p-8 space-y-6 animate-in fade-in duration-300">
-      <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-        <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+    <div className="space-y-6 p-5 animate-in fade-in duration-300 sm:p-8">
+      <div className="flex items-center gap-3 border-b border-slate-100 pb-5">
+        <div className="rounded-xl bg-blue-50 p-2.5 text-blue-800">
           <MapPin size={20} />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-gray-900 uppercase">Ubicación y Geolocalización en Mapa</h3>
-          <p className="text-xs text-gray-500">Haz clic en cualquier punto del mapa para fijar la ubicación exacta del cliente.</p>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800">Ubicación y Geolocalización en Mapa</h3>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">Haz clic en cualquier punto del mapa para fijar la ubicación exacta del cliente.</p>
         </div>
       </div>
 
-      <div className="w-full h-80 rounded-xl overflow-hidden border border-gray-300 shadow-xs relative z-0">
+      <div className="relative z-0 h-80 w-full overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
         <MapContainer 
           center={position} 
           zoom={13} 
@@ -74,24 +74,24 @@ export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
         </MapContainer>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
         <div className="flex flex-col gap-2">
-          <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Latitud Seleccionada</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Latitud Seleccionada</label>
           <input 
             type="text" 
             value={position[0]} 
             readOnly
-            className="w-full border border-gray-300 bg-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 cursor-not-allowed"
+            className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-medium text-slate-600"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Longitud Seleccionada</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Longitud Seleccionada</label>
           <input 
             type="text" 
             value={position[1]} 
             readOnly
-            className="w-full border border-gray-300 bg-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 cursor-not-allowed"
+            className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-medium text-slate-600"
           />
         </div>
       </div>

@@ -26,39 +26,43 @@ export default function Renovaciones() {
   }, []);
 
   return (
-    <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Renovaciones de créditos</h1>
+    <div className="min-h-screen w-full animate-in fade-in duration-500 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
+      <div className="mb-7">
+        <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Cartera de crédito</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Renovaciones de créditos</h1>
+        <p className="mt-1 text-sm text-slate-500">Revisa los créditos disponibles para renovación.</p>
+      </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.045)]">
         <div className="overflow-x-auto">
           <table className="w-full text-center border-collapse">
             <thead>
-              <tr className="bg-[#e5e5e5] text-gray-700 text-xs uppercase tracking-wider font-bold">
-                <th className="py-4 px-4 border-r border-white/50">Fecha</th>
-                <th className="py-4 px-4 border-r border-white/50">Folio</th>
-                <th className="py-4 px-4 border-r border-white/50">Cliente</th>
-                <th className="py-4 px-4 border-r border-white/50">Zona</th>
-                <th className="py-4 px-4 border-r border-white/50">Préstamo</th>
-                <th className="py-4 px-4">Acciones</th>
+              <tr className="bg-slate-50 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                <th className="border-b border-slate-200 px-5 py-4">Fecha</th>
+                <th className="border-b border-slate-200 px-5 py-4">Folio</th>
+                <th className="border-b border-slate-200 px-5 py-4">Cliente</th>
+                <th className="border-b border-slate-200 px-5 py-4">Zona</th>
+                <th className="border-b border-slate-200 px-5 py-4">Préstamo</th>
+                <th className="border-b border-slate-200 px-5 py-4">Acciones</th>
               </tr>
             </thead>
             <tbody className="text-sm text-gray-800">
               {loading ? (
-                <tr><td colSpan="6" className="py-6 text-gray-400">Cargando renovaciones...</td></tr>
+                <tr><td colSpan="6" className="py-12 text-slate-400">Cargando renovaciones...</td></tr>
               ) : renovaciones.length === 0 ? (
-                <tr><td colSpan="6" className="py-6 text-gray-400">No hay créditos pendientes de renovación.</td></tr>
+                <tr><td colSpan="6" className="py-12 text-slate-400">No hay créditos pendientes de renovación.</td></tr>
               ) : (
                 renovaciones.map((item) => (
-                  <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-4 text-gray-600">{item.fecha}</td>
-                    <td className="py-4 px-4 font-medium text-gray-700">{item.folio}</td>
-                    <td className="py-4 px-4 font-bold text-gray-900 uppercase">{item.cliente}</td>
-                    <td className="py-4 px-4 text-gray-600">{item.zona}</td>
-                    <td className="py-4 px-4 font-bold text-gray-900">{item.prestamo}</td>
-                    <td className="py-4 px-4">
+                  <tr key={item.id} className="border-b border-slate-100 transition-colors last:border-0 hover:bg-blue-50/40">
+                    <td className="px-5 py-4 text-slate-500">{item.fecha}</td>
+                    <td className="px-5 py-4 font-semibold text-slate-600">{item.folio}</td>
+                    <td className="px-5 py-4 font-semibold uppercase text-slate-900">{item.cliente}</td>
+                    <td className="px-5 py-4 text-slate-600">{item.zona}</td>
+                    <td className="px-5 py-4 font-bold text-slate-900">{item.prestamo}</td>
+                    <td className="px-5 py-4">
                       <button
                         onClick={() => navigate(`/renovaciones/detalle/${item.id}`)}
-                        className="bg-[#f39c12] hover:bg-orange-500 text-white p-2 rounded shadow-sm transition-colors cursor-pointer"
+                        className="rounded-lg border border-slate-200 bg-white p-2 text-blue-800 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
                         aria-label="Ver detalles"
                       >
                         <Eye size={16} />

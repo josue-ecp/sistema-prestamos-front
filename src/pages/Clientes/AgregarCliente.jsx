@@ -131,48 +131,50 @@ export default function AgregarCliente() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
+    <div className="min-h-screen w-full animate-in fade-in duration-500 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto w-full max-w-5xl">
       <button 
         type="button"
         onClick={() => navigate('/clientes')}
-        className="flex items-center gap-2 text-blue-600 font-bold mb-4 hover:underline text-sm cursor-pointer"
+        className="mb-5 flex items-center gap-2 rounded-lg py-2 text-sm font-semibold text-blue-800 transition hover:text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
       >
         <ArrowLeft size={18} /> Volver a la lista
       </button>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-w-4xl mx-auto">
-        <div className="bg-[#0b66c2] px-6 py-4">
-          <h2 className="text-white text-base font-bold uppercase tracking-wide">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.07)]">
+        <div className="bg-blue-900 px-6 py-5 sm:px-8">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-200">Administración de clientes</p>
+          <h2 className="text-lg font-bold tracking-tight text-white sm:text-xl">
             {isEditing ? 'Editar Cliente' : 'Registrar Nuevo Cliente'}
           </h2>
         </div>
 
-        <div className="flex border-b border-gray-200 bg-gray-50 overflow-x-auto">
+        <div className="flex overflow-x-auto border-b border-slate-200 bg-slate-50/80">
           <button 
             type="button"
             onClick={() => setActiveTab('datos')}
-            className={`px-6 py-3 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${activeTab === 'datos' ? 'border-b-4 border-blue-600 text-blue-600 bg-white shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+            className={`whitespace-nowrap border-b-2 px-5 py-4 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer sm:px-6 ${activeTab === 'datos' ? 'border-blue-700 bg-white text-blue-800' : 'border-transparent text-slate-500 hover:bg-white/70 hover:text-slate-800'}`}
           >
             1. Datos Generales
           </button>
           <button 
             type="button"
             onClick={() => setActiveTab('direccion')}
-            className={`px-6 py-3 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${activeTab === 'direccion' ? 'border-b-4 border-blue-600 text-blue-600 bg-white shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+            className={`whitespace-nowrap border-b-2 px-5 py-4 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer sm:px-6 ${activeTab === 'direccion' ? 'border-blue-700 bg-white text-blue-800' : 'border-transparent text-slate-500 hover:bg-white/70 hover:text-slate-800'}`}
           >
             2. Ubicación / Mapa {formData.latitud !== '20.9674' && '✓'}
           </button>
           <button 
             type="button"
             onClick={() => setActiveTab('expediente')}
-            className={`px-6 py-3 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${activeTab === 'expediente' ? 'border-b-4 border-blue-600 text-blue-600 bg-white shadow-xs' : 'text-gray-500 hover:text-gray-800'}`}
+            className={`whitespace-nowrap border-b-2 px-5 py-4 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer sm:px-6 ${activeTab === 'expediente' ? 'border-blue-700 bg-white text-blue-800' : 'border-transparent text-slate-500 hover:bg-white/70 hover:text-slate-800'}`}
           >
             3. Expediente y Archivos
           </button>
         </div>
 
         {message.text && (
-          <div className={`mx-6 mt-6 rounded-2xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+          <div className={`mx-4 mt-5 rounded-xl border p-4 sm:mx-6 ${message.type === 'success' ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-slate-300 bg-slate-100 text-slate-900'}`}>
             <p className="font-semibold">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
             <p className="text-sm">{message.text}</p>
           </div>
@@ -182,10 +184,10 @@ export default function AgregarCliente() {
           
           {/* Pestaña 1: Datos Generales */}
           <div style={{ display: activeTab === 'datos' ? 'block' : 'none' }}>
-            <div className="p-6 sm:p-8 space-y-6 animate-in fade-in duration-300">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-6 p-5 animate-in fade-in duration-300 sm:p-8">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Nombre Completo</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Nombre Completo</label>
                   <input 
                     type="text" 
                     name="nombre"
@@ -194,12 +196,12 @@ export default function AgregarCliente() {
                     placeholder="Ej. Juan Pérez Pool" 
                     required
                     autoComplete="off"
-                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800 uppercase"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100 uppercase"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Correo Electrónico (Portal PWA)</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Correo Electrónico (Portal PWA)</label>
                   <input 
                     type="email" 
                     name="correo"
@@ -207,12 +209,12 @@ export default function AgregarCliente() {
                     onChange={handleChange}
                     placeholder="cliente@correo.com" 
                     autoComplete="off"
-                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Contraseña {isEditing && '(Opcional)'}</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Contraseña {isEditing && '(Opcional)'}</label>
                   <input 
                     type="password" 
                     name="password"
@@ -221,12 +223,12 @@ export default function AgregarCliente() {
                     placeholder={isEditing ? "Dejar en blanco para mantener actual" : "••••••••"} 
                     autoComplete="new-password"
                     {...(!isEditing ? { required: true } : {})}
-                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Dirección</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Dirección</label>
                   <input 
                     type="text" 
                     name="direccion"
@@ -234,12 +236,12 @@ export default function AgregarCliente() {
                     onChange={handleChange}
                     placeholder="Ej. Calle 20 x 15 y 17" 
                     autoComplete="off"
-                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Teléfono</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Teléfono</label>
                   <input 
                     type="text" 
                     name="telefono"
@@ -247,18 +249,18 @@ export default function AgregarCliente() {
                     onChange={handleChange}
                     placeholder="Ej. 9991234567" 
                     autoComplete="off"
-                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-700 text-xs font-bold uppercase tracking-wider">Zona Asignada</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Zona Asignada</label>
                   <select 
                     name="id_zona"
                     value={formData.id_zona}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-gray-800 cursor-pointer"
+                    className="w-full cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   >
                     <option value="">Selecciona una zona...</option>
                     {zonas.map((zona) => (
@@ -296,24 +298,25 @@ export default function AgregarCliente() {
             />
           </div>
 
-          <div className="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
+          <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t border-slate-200 bg-slate-50 px-5 py-5 sm:flex-row sm:items-center sm:px-8">
             <button 
               type="button"
               onClick={() => navigate('/clientes')}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-6 py-2.5 rounded-lg text-xs uppercase transition-all cursor-pointer"
+              className="cursor-pointer rounded-xl border border-slate-200 bg-white px-6 py-3 text-xs font-bold uppercase text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-slate-200"
             >
               Cancelar
             </button>
             <button 
               type="submit"
               disabled={saving}
-              className="bg-[#3b82f6] hover:bg-blue-700 text-white font-bold px-8 py-2.5 rounded-lg text-xs uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="cursor-pointer rounded-xl bg-blue-800 px-8 py-3 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-[0.98] disabled:opacity-50"
             >
               {saving ? 'Guardando todo...' : (isEditing ? 'Actualizar Cliente' : 'Guardar Cliente')}
             </button>
           </div>
 
         </form>
+      </div>
       </div>
     </div>
   );

@@ -93,27 +93,31 @@ export default function ZonasAsignadas() {
   };
 
   return (
-    <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Zonas Asignadas</h1>
+    <div className="min-h-screen w-full animate-in fade-in duration-500 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
+      <div className="mb-7">
+        <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Administración</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Zonas Asignadas</h1>
+        <p className="mt-1 text-sm text-slate-500">Consulta y administra las zonas de operación.</p>
+      </div>
 
       {/* BARRA SUPERIOR: Buscador y Botón Nueva Zona */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative w-96">
+      <div className="mb-5 flex flex-col items-stretch justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:p-5">
+        <div className="relative w-full max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
+            <Search className="h-4 w-4 text-slate-400" />
           </div>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border-none rounded-lg bg-gray-200/60 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="block w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm text-slate-700 placeholder-slate-400 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
             placeholder="Buscar Zona..."
           />
         </div>
 
         <button 
           onClick={() => navigate('/zonas/nuevo')}
-          className="flex items-center gap-2 bg-[#3b82f6] hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-sm uppercase tracking-wide active:scale-95"
+          className="flex items-center justify-center gap-2 rounded-xl bg-blue-800 px-5 py-3 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-[0.98]"
         >
           <Plus size={16} />
           Nueva Zona
@@ -121,66 +125,65 @@ export default function ZonasAsignadas() {
       </div>
 
       {message.text && (
-        <div className={`mb-6 rounded-3xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+        <div className={`mb-6 rounded-xl border p-4 ${message.type === 'success' ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-slate-300 bg-slate-100 text-slate-900'}`}>
           <p className="font-semibold mb-1">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
           <p className="text-sm leading-6">{message.text}</p>
         </div>
       )}
 
       {/* TABLA DE ZONAS */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.045)]">
         <div className="overflow-x-auto">
           <table className="w-full text-center border-collapse">
             <thead>
-              {/* Cambiado a bg-[#e5e5e5] para estandarizar con los demás módulos */}
-              <tr className="bg-[#e5e5e5] text-gray-700 text-xs uppercase tracking-wider font-bold">
-                <th className="py-4 px-4 border-r border-white/50 w-48">Clave</th>
-                <th className="py-4 px-4 border-r border-white/50 text-left pl-12">Descripción de zona</th>
-                <th className="py-4 px-4 border-r border-white/50 w-32">Activo</th>
-                <th className="py-4 px-4 w-40">Acciones</th>
+              <tr className="bg-slate-50 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                <th className="w-48 border-b border-slate-200 px-5 py-4">Clave</th>
+                <th className="border-b border-slate-200 px-5 py-4 pl-8 text-left sm:pl-12">Descripción de zona</th>
+                <th className="w-32 border-b border-slate-200 px-5 py-4">Activo</th>
+                <th className="w-40 border-b border-slate-200 px-5 py-4">Acciones</th>
               </tr>
             </thead>
             <tbody className="text-sm text-gray-800">
                 {loading ? (
                 <tr>
-                  <td colSpan="4" className="py-10 text-gray-400">
+                  <td colSpan="4" className="py-12 text-slate-400">
                     Cargando zonas...
                   </td>
                 </tr>
               ) : filteredZonas.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="py-10 text-gray-400">
+                  <td colSpan="4" className="py-12 text-slate-400">
                     No hay zonas para mostrar.
                   </td>
                 </tr>
               ) : filteredZonas.map((zona) => (
-                <tr key={zona.id ?? zona.id_zona} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-4 text-gray-600 font-medium">
+                <tr key={zona.id ?? zona.id_zona} className="border-b border-slate-100 transition-colors last:border-0 hover:bg-blue-50/40">
+                  <td className="px-5 py-4 font-semibold text-slate-500">
                     {getClave(zona)}
                   </td>
-                  <td className="py-4 px-4 text-left pl-12 font-medium text-gray-900 uppercase">
+                  <td className="py-4 pl-8 pr-5 text-left font-semibold uppercase text-slate-800 sm:pl-12">
                     {getDescripcion(zona)}
                   </td>
-                  <td className="py-4 px-4">
+                  <td className="px-5 py-4">
                     <div className="flex justify-center">
                       {getActivo(zona) && (
-                        <div className="bg-[#2ecc71] rounded-full p-0.5 text-white shadow-sm">
+                        <div className="rounded-full bg-blue-100 p-1 text-blue-700">
                           <Check size={12} strokeWidth={4} />
                         </div>
                       )}
                     </div>
                   </td>
-                  <td className="py-4 px-4">
+                  <td className="px-5 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => navigate('/zonas/nuevo')}
-                        className="bg-[#f39c12] hover:bg-orange-500 text-white p-1.5 rounded shadow-sm transition-colors"
+                        className="rounded-lg border border-slate-200 bg-white p-2 text-blue-800 shadow-sm transition hover:bg-blue-50"
                       >
                         <Edit size={14} />
                       </button>
                       <button
                         onClick={() => handleDelete(zona.id ?? zona.id_zona)}
-                        className="bg-[#e74c3c] hover:bg-red-600 text-white p-1.5 rounded shadow-sm transition-colors"
+                        className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 shadow-sm transition hover:bg-slate-100 hover:text-slate-900"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -193,8 +196,8 @@ export default function ZonasAsignadas() {
         </div>
 
         {/* Información de paginación */}
-        <div className="bg-gray-50 px-6 py-2 border-t border-gray-100">
-          <p className="text-[10px] text-gray-400 font-bold uppercase">
+        <div className="border-t border-slate-100 bg-slate-50 px-6 py-3">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
             Mostrando del 1 al {zonas.length} de {zonas.length}
           </p>
         </div>

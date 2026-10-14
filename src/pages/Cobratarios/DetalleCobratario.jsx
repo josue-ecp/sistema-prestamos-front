@@ -29,55 +29,57 @@ export default function DetalleCobratario() {
   }, [id]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 min-h-screen bg-[#f8f9fa] w-full">
+    <div className="min-h-screen w-full bg-slate-50/70 p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto w-full max-w-5xl">
       <button
         type="button"
         onClick={() => navigate('/cobratarios')}
-        className="inline-flex items-center gap-2 mb-6 rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-all"
+        className="mb-5 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-blue-800 shadow-sm transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
       >
         <ArrowLeft className="h-4 w-4" /> Volver a cobratarios
       </button>
 
-      <div className="bg-white rounded-3xl shadow-lg p-4 sm:p-6 lg:p-8">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_36px_rgba(15,23,42,0.07)] sm:p-8">
         {loading ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-gray-500">
-            <Loader2 className="animate-spin h-8 w-8" />
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-slate-500">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-700" />
             <p className="text-sm">Cargando cobratario...</p>
           </div>
         ) : error ? (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700 text-sm sm:text-base">
+          <div className="rounded-xl border border-slate-300 bg-slate-100 p-6 text-sm text-slate-800 sm:text-base">
             {error}
           </div>
         ) : (
           <>
-            <div className="mb-6 sm:mb-8 flex flex-col gap-2">
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Detalle del cobratario</p>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 break-words">{cobratario.nombre}</h1>
+            <div className="mb-7 flex flex-col gap-2">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Detalle del cobratario</p>
+              <h1 className="break-words text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{cobratario.nombre}</h1>
             </div>
 
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-5 sm:p-6 shadow-sm overflow-hidden">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Correo electrónico</p>
-                <p className="mt-2 text-base sm:text-lg font-semibold text-slate-900 break-all">{cobratario.correo}</p>
+            <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2">
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Correo electrónico</p>
+                <p className="mt-2 break-all text-base font-semibold text-slate-900 sm:text-lg">{cobratario.correo}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-5 sm:p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Teléfono</p>
-                <p className="mt-2 text-base sm:text-lg font-semibold text-slate-900">{cobratario.telefono || 'No disponible'}</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Teléfono</p>
+                <p className="mt-2 text-base font-semibold text-slate-900 sm:text-lg">{cobratario.telefono || 'No disponible'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-5 sm:p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Zona asignada</p>
-                <p className="mt-2 text-base sm:text-lg font-semibold text-slate-900 uppercase">{cobratario.zona?.nombre_zona || 'Sin zona'}</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Zona asignada</p>
+                <p className="mt-2 text-base font-semibold uppercase text-slate-900 sm:text-lg">{cobratario.zona?.nombre_zona || 'Sin zona'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-5 sm:p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Estado</p>
-                <p className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold uppercase ${cobratario.estado === 'activo' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Estado</p>
+                <p className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold uppercase ${cobratario.estado === 'activo' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-700'}`}>
                   {cobratario.estado || 'Desconocido'}
                 </p>
               </div>
-            </div>
+              </div>
           </>
         )}
       </div>
+    </div>
     </div>
   );
 }

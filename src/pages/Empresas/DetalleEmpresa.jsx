@@ -31,56 +31,56 @@ export default function DetalleEmpresa() {
   }, [id]);
 
   return (
-    <div className="p-8 min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-slate-50/70 p-4 sm:p-6 lg:p-8">
       <button
         type="button"
         onClick={() => navigate('/empresas')}
-        className="inline-flex items-center gap-2 mb-6 rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        className="mb-5 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-blue-800 shadow-sm transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
       >
         <ArrowLeft className="h-4 w-4" /> Volver al listado
       </button>
 
-      <div className="bg-white rounded-3xl shadow-lg p-8">
+      <div className="mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_36px_rgba(15,23,42,0.07)] sm:p-8">
         {loading ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-gray-500">
-            <Loader2 className="animate-spin h-8 w-8" />
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-slate-500">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-700" />
             <p>Cargando empresa...</p>
           </div>
         ) : error ? (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700">
+          <div className="rounded-xl border border-slate-300 bg-slate-100 p-6 text-slate-800">
             {error}
           </div>
         ) : (
           <>
             <div className="mb-8 flex flex-col gap-2">
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Detalle de la empresa</p>
-              <h1 className="text-3xl font-bold text-slate-900">{empresa.nombre_negocio}</h1>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Detalle de la empresa</p>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{empresa.nombre_negocio}</h1>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Responsable</p>
+            <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Responsable</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{empresa.responsable}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Correo electrónico</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Correo electrónico</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{empresa.correo}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Fecha de vencimiento</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Fecha de vencimiento</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{empresa.fecha_vencimiento_licencia ? new Date(empresa.fecha_vencimiento_licencia).toLocaleDateString('es-MX') : 'N/A'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Usuarios WEB</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Usuarios WEB</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{empresa.limite_usuarios_web ?? 'No definido'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Cobratarios</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Cobratarios</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{empresa.limite_cobratarios ?? 'No definido'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Estado</p>
-                <p className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${empresa.estado === 'activo' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Estado</p>
+                <p className={`mt-2 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${empresa.estado === 'activo' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-700'}`}>
                   {empresa.estado ?? 'Desconocido'}
                 </p>
               </div>

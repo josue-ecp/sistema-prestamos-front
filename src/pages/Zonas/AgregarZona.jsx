@@ -89,52 +89,52 @@ export default function AgregarZona() {
   };
 
   return (
-    <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
+    <div className="min-h-screen w-full animate-in fade-in duration-500 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
       
       {/* Botón Volver Estandarizado */}
       <button 
         type="button"
         onClick={() => navigate('/zonas')}
-        className="flex items-center gap-2 text-blue-600 font-bold mb-4 hover:underline text-sm cursor-pointer"
+        className="mb-5 flex items-center gap-2 rounded-lg py-2 text-sm font-semibold text-blue-800 transition hover:text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
       >
         <ArrowLeft size={18} /> Volver a la lista
       </button>
 
-      <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden max-w-5xl">
+      <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.07)]">
         
         {/* Mensajes de Alerta */}
         {message.text && (
-          <div className={`mx-8 mt-6 rounded-3xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+          <div className={`mx-5 mt-5 rounded-xl border p-4 sm:mx-8 ${message.type === 'success' ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-slate-300 bg-slate-100 text-slate-900'}`}>
             <p className="font-semibold mb-1">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
             <p className="text-sm leading-6">{message.text}</p>
           </div>
         )}
 
         {/* Encabezado Azul */}
-        <div className="bg-[#0b66c2] px-4 py-3 mt-4">
-          <h2 className="text-white text-sm font-bold uppercase tracking-wide">Agregar Nueva Zona</h2>
+        <div className="bg-blue-900 px-6 py-5">
+          <h2 className="text-lg font-bold tracking-tight text-white">Agregar Nueva Zona</h2>
         </div>
 
-        <div className="p-8">
-          <div className="flex flex-col lg:flex-row gap-12">
+        <div className="p-5 sm:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
             
             {/* Columna Izquierda: Tabla de Clientes */}
             <div className="w-full lg:w-1/3">
-              <table className="w-full border-collapse border border-gray-400 text-sm">
+              <table className="w-full overflow-hidden rounded-xl border-collapse border border-slate-200 text-sm">
                 <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border border-gray-400 py-2 px-4 text-left font-bold uppercase text-xs">Cliente</th>
+                  <tr className="bg-slate-50">
+                    <th className="border border-slate-200 px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Cliente</th>
                   </tr>
                 </thead>
                 <tbody>
                   {clientes.map((cliente, index) => (
                     <tr key={index}>
-                      <td className="border border-gray-400 py-2 px-4 text-gray-700 font-medium">{cliente}</td>
+                      <td className="border border-slate-100 px-4 py-3 font-medium text-slate-700">{cliente}</td>
                     </tr>
                   ))}
                   {/* Fila de paginación interna */}
-                  <tr className="bg-gray-50">
-                    <td className="border border-gray-400 py-1.5 px-4 text-[10px] text-gray-400 font-bold uppercase">
+                  <tr className="bg-slate-50">
+                    <td className="border border-slate-100 px-4 py-2 text-[10px] font-bold uppercase text-slate-400">
                       Mostrando del 1 al {clientes.length} de {clientes.length}
                     </td>
                   </tr>
@@ -144,7 +144,7 @@ export default function AgregarZona() {
 
             {/* Columna Derecha: Mapa y Formulario */}
             <div className="flex-1 space-y-6">
-              <div className="w-full h-[350px] bg-gray-200 rounded border border-gray-300 overflow-hidden relative shadow-inner">
+              <div className="relative h-[350px] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-inner">
                 <MapContainer center={[20.9674, -89.6236]} zoom={13} style={{ height: '100%', width: '100%' }}>
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <LocationMarker position={position} setPosition={setPosition} />
@@ -153,29 +153,29 @@ export default function AgregarZona() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-gray-600 text-sm font-bold uppercase tracking-tight">Descripción de la zona</label>
+                  <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Descripción de la zona</label>
                   <input 
                     type="text" 
                     value={descripcion}
                     onChange={(e) => setDescripcion(e.target.value)}
                     placeholder="Ingresa el nombre de la zona" 
-                    className="w-full border border-gray-400 bg-gray-100 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-800 font-medium"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
 
                 {/* Barra de Acciones Inferior Estandarizada */}
-                <div className="mt-8 flex gap-3 p-3 bg-[#e5e7eb] rounded justify-start">
+                <div className="mt-8 flex flex-col-reverse justify-start gap-3 border-t border-slate-100 pt-5 sm:flex-row">
                   <button 
                     type="submit"
                     disabled={saving}
-                    className="bg-[#2ecc71] hover:bg-green-600 text-white font-bold px-8 py-2 rounded text-xs uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+                    className="cursor-pointer rounded-xl bg-blue-800 px-8 py-3 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-[0.98] disabled:opacity-50"
                   >
                     {saving ? 'Guardando...' : 'Aceptar'}
                   </button>
                   <button 
                     type="button"
                     onClick={() => navigate('/zonas')}
-                    className="bg-[#e74c3c] hover:bg-red-600 text-white font-bold px-8 py-2 rounded text-xs uppercase transition-all shadow-sm active:scale-95 cursor-pointer"
+                    className="cursor-pointer rounded-xl border border-slate-200 bg-white px-8 py-3 text-xs font-bold uppercase text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-slate-200"
                   >
                     Cancelar
                   </button>

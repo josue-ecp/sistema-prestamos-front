@@ -48,34 +48,34 @@ export default function PwaPerfilCliente() {
   const correoCliente = clienteData?.correo || 'No registrado';
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 pb-28 font-sans max-w-md mx-auto shadow-2xl">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-slate-50 pb-28 font-sans shadow-2xl">
       
       {/* Header */}
-      <div className="p-5 flex items-center bg-white border-b border-slate-100 sticky top-0 z-20 shadow-sm">
+      <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-slate-100 bg-white p-4 shadow-sm sm:p-5">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-slate-700 hover:bg-slate-100 rounded-xl transition">
           <ArrowLeft size={22} />
         </button>
-        <h1 className="text-base font-black text-slate-900 ml-2 uppercase tracking-tight">Mi Perfil</h1>
+        <h1 className="ml-1 text-base font-black uppercase tracking-tight text-slate-900">Mi Perfil</h1>
       </div>
 
       <div className="p-4 space-y-5 flex-1">
 
         {/* Tarjeta de Presentación / Avatar */}
-        <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex flex-col items-center text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-blue-600 to-indigo-700"></div>
+        <div className="relative flex flex-col items-center overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 text-center shadow-sm sm:p-6">
+          <div className="absolute left-0 top-0 h-20 w-full bg-gradient-to-r from-blue-800 to-blue-950"></div>
           
           <div className="w-24 h-24 bg-white border-4 border-white rounded-3xl flex items-center justify-center text-blue-600 text-3xl font-black shadow-lg mb-3 mt-6 relative z-10">
             {iniciales}
           </div>
           
-          <h2 className="text-base font-black text-slate-900 uppercase tracking-tight">{nombreCliente}</h2>
-          <div className="flex items-center gap-1.5 mt-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border border-blue-100">
+          <h2 className="max-w-full break-words text-base font-black uppercase tracking-tight text-slate-900">{nombreCliente}</h2>
+          <div className="mt-1 flex max-w-full items-center gap-1.5 break-words rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-blue-700">
             <Shield size={12} /> ID de Cliente: #{idCliente}
           </div>
         </div>
 
         {/* Opciones de Información Personal (Datos Reales) */}
-        <div className="bg-white rounded-[28px] p-4 shadow-sm border border-slate-100 space-y-1">
+        <div className="space-y-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 py-1">Información de Contacto</p>
           
           <OptionItem 
@@ -96,7 +96,7 @@ export default function PwaPerfilCliente() {
         </div>
 
         {/* Seguridad y Sesión */}
-        <div className="bg-white rounded-[28px] p-4 shadow-sm border border-slate-100 space-y-1">
+        <div className="space-y-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 py-1">Seguridad</p>
           
           <div onClick={() => alert("Función de cambio de contraseña en desarrollo.")}>
@@ -105,13 +105,13 @@ export default function PwaPerfilCliente() {
 
           <button 
             onClick={handleCerrarSesion} 
-            className="w-full flex items-center justify-between p-3 text-red-600 hover:bg-red-50 rounded-2xl transition-colors mt-2"
+            className="mt-2 flex w-full items-center justify-between rounded-xl border border-slate-200 p-3 text-slate-700 transition-colors hover:bg-slate-100"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-50 text-red-600 rounded-xl">
+              <div className="rounded-xl bg-slate-100 p-2 text-slate-700">
                 <LogOut size={18} />
               </div>
-              <span className="font-black text-xs uppercase tracking-wider">Cerrar Sesión</span>
+              <span className="text-xs font-black uppercase tracking-wider">Cerrar Sesión</span>
             </div>
           </button>
         </div>
@@ -125,11 +125,11 @@ export default function PwaPerfilCliente() {
 function OptionItem({ icon, label, value }) {
   return (
     <div className="flex items-center justify-between p-3 text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors cursor-pointer">
-      <div className="flex items-center gap-3.5">
-        <div className="p-2 bg-slate-100 text-slate-600 rounded-xl">{icon}</div>
-        <div>
+      <div className="flex min-w-0 items-center gap-3.5">
+        <div className="shrink-0 rounded-xl bg-blue-50 p-2 text-blue-800">{icon}</div>
+        <div className="min-w-0">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{label}</span>
-          <span className="font-black text-slate-800 text-xs">{value}</span>
+          <span className="break-words text-xs font-black text-slate-800">{value}</span>
         </div>
       </div>
       {value ? null : <ChevronRight size={16} className="text-slate-300" />}
