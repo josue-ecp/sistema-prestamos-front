@@ -46,55 +46,55 @@ export default function DetalleTipoCredito() {
   }, [id]);
 
   return (
-    <div className="p-8 min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-slate-50/70 p-4 sm:p-6 lg:p-8">
       <button
         type="button"
         onClick={() => navigate('/tipos-creditos')}
-        className="inline-flex items-center gap-2 mb-6 rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        className="mb-5 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-blue-800 shadow-sm transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
       >
         <ArrowLeft className="h-4 w-4" /> Volver a tipos de crédito
       </button>
 
-      <div className="bg-white rounded-3xl shadow-lg p-8">
+      <div className="mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_36px_rgba(15,23,42,0.07)] sm:p-8">
         {loading ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-gray-500">
-            <Loader2 className="animate-spin h-8 w-8" />
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-slate-500">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-700" />
             <p>Cargando tipo de crédito...</p>
           </div>
         ) : error ? (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700">
+          <div className="rounded-xl border border-slate-300 bg-slate-100 p-6 text-slate-800">
             {error}
           </div>
         ) : (
           <>
             <div className="mb-8 flex flex-col gap-2">
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Detalle del tipo de crédito</p>
-              <h1 className="text-3xl font-bold text-slate-900">{tipo.tipoCredito}</h1>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Detalle del tipo de crédito</p>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{tipo.tipoCredito}</h1>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Descripción</p>
+            <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Descripción</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{tipo.descripcion || 'No disponible'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Esquema</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Esquema</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{tipo.esquema || 'No definido'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Tasa de interés</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Tasa de interés</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{tipo.tasaInteres || 'No disponible'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Plazo de crédito</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Plazo de crédito</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{tipo.plazoCredito || 'No disponible'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Periodicidad</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Periodicidad</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{tipo.periodicidad || 'No disponible'}</p>
               </div>
-              <div className="rounded-3xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Días de visita</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 shadow-sm sm:p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Días de visita</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{tipo.diasVisita?.join(', ') || 'No definido'}</p>
               </div>
             </div>

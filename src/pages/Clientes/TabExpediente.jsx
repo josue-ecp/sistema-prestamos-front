@@ -24,12 +24,12 @@ export default function TabExpediente({ onFileSelect }) {
   };
 
   return (
-    <div className="px-4 sm:px-8 lg:px-16 pb-8 sm:pb-12 pt-4 space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-4 p-5 animate-in fade-in duration-300 sm:space-y-5 sm:p-8">
       {archivos.map((archivo, index) => (
-        <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-8 pb-4 sm:pb-0 border-b sm:border-b-0 border-gray-100">
-          <span className="w-full sm:w-64 text-gray-700 font-medium text-sm sm:text-base">
+        <div key={index} className="flex flex-col justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:gap-8 sm:px-5">
+          <span className="w-full text-sm font-semibold text-slate-700 sm:flex-1 sm:text-base">
             {archivo.nombre}
-            {archivo.file && <span className="block text-[10px] text-green-600 font-bold uppercase mt-1">✓ Seleccionado: {archivo.file.name}</span>}
+            {archivo.file && <span className="mt-1 block text-[10px] font-bold uppercase text-blue-700">✓ Seleccionado: {archivo.file.name}</span>}
           </span>
           
           <label className="cursor-pointer">
@@ -38,7 +38,7 @@ export default function TabExpediente({ onFileSelect }) {
               className="hidden" 
               onChange={(e) => handleFileChange(index, e)} 
             />
-            <span className="inline-block border border-[#e74c3c] bg-[#e5e5e5] text-gray-600 px-6 sm:px-8 py-2.5 rounded-[2rem] text-xs sm:text-sm hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm font-bold uppercase tracking-wide cursor-pointer">
+            <span className="inline-block cursor-pointer rounded-xl border border-blue-200 bg-blue-50 px-5 py-2.5 text-xs font-bold uppercase tracking-wide text-blue-800 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-100 sm:px-6 sm:text-sm">
               {archivo.file ? 'Cambiar archivo' : 'Adjuntar archivo'}
             </span>
           </label>

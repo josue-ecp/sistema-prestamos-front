@@ -104,18 +104,20 @@ export default function NuevoTipoCredito() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#f8fafc]">
-      <div className="bg-[#0b66c2] px-6 py-3">
-        <h2 className="text-white text-sm font-medium">{id ? 'Editar tipo de crédito' : 'Agregar tipo de crédito'}</h2>
+    <div className="min-h-screen w-full bg-slate-50/70 p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.07)]">
+      <div className="bg-blue-900 px-6 py-5 sm:px-8">
+        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-200">Administración de cartera</p>
+        <h2 className="text-lg font-bold tracking-tight text-white sm:text-xl">{id ? 'Editar tipo de crédito' : 'Agregar tipo de crédito'}</h2>
       </div>
 
-      <div className="bg-[#f8fafc] p-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-4xl mx-auto">
+      <div className="p-5 sm:p-8">
+        <div className="mx-auto">
           <div className="mb-6 flex items-center justify-between">
             <button
               type="button"
               onClick={() => navigate('/tipos-creditos')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-blue-600"
+              className="inline-flex items-center gap-2 rounded-lg py-2 text-sm font-semibold text-blue-800 transition hover:text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-200"
             >
               <ArrowLeft size={16} />
               Volver a tipos de crédito
@@ -123,7 +125,7 @@ export default function NuevoTipoCredito() {
           </div>
 
           {message.text && (
-            <div className={`mb-6 rounded-3xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+            <div className={`mb-6 rounded-xl border p-4 ${message.type === 'success' ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-slate-300 bg-slate-100 text-slate-900'}`}>
               <p className="font-semibold mb-1">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
               <p className="text-sm leading-6">{message.text}</p>
             </div>
@@ -132,24 +134,24 @@ export default function NuevoTipoCredito() {
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-6">
               <div>
-                <label className="block text-gray-700 text-sm font-medium mb-2">Tipo de crédito</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600">Tipo de crédito</label>
                 <input
                   type="text"
                   name="tipoCredito"
                   value={formData.tipoCredito}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-700 text-sm font-medium mb-2">Descripción</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600">Descripción</label>
                 <textarea
                   name="descripcion"
                   value={formData.descripcion}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   required
                 />
               </div>
@@ -157,13 +159,13 @@ export default function NuevoTipoCredito() {
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-gray-700 text-sm font-medium mb-2">Esquema</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600">Esquema</label>
                 <div className="relative">
                   <select
                     name="esquema"
                     value={formData.esquema}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                    className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                     required
                   >
                     <option value="">SELECCIONE UN ESQUEMA</option>
@@ -179,44 +181,44 @@ export default function NuevoTipoCredito() {
                 </div>
               </div>
               <div>
-                <label className="block text-gray-700 text-sm font-medium mb-2">Tasa de interés</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600">Tasa de interés</label>
                 <input
                   type="text"
                   name="tasaInteres"
                   value={formData.tasaInteres}
                   onChange={handleChange}
                   placeholder="Porcentaje de interés"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-700 text-sm font-medium mb-2">Plazo de crédito</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600">Plazo de crédito</label>
                 <input
                   type="text"
                   name="plazoCredito"
                   value={formData.plazoCredito}
                   onChange={handleChange}
                   placeholder="Plazo del crédito"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <p className="text-gray-700 text-sm font-medium">Asigne la periodicidad de visitas</p>
-              <hr className="my-4 border-gray-300" />
-              <p className="text-gray-700 text-sm font-medium mb-4">Tipo de periodicidad para el cliente</p>
+              <p className="text-sm font-bold text-slate-800">Asigne la periodicidad de visitas</p>
+              <hr className="my-4 border-slate-200" />
+              <p className="mb-4 text-xs font-bold uppercase tracking-wide text-slate-600">Tipo de periodicidad para el cliente</p>
 
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Calendar size={18} className="text-gray-500" />
+                  <Calendar size={18} className="text-blue-700" />
                   <select
                     name="periodicidad"
                     value={formData.periodicidad}
                     onChange={handleChange}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100"
                   >
                     <option value="SEMANAL">SEMANAL</option>
                     <option value="MENSUAL">MENSUAL</option>
@@ -225,18 +227,18 @@ export default function NuevoTipoCredito() {
                 </div>
 
                 <div className="flex-1">
-                  <table className="w-full border-collapse border border-gray-300">
+                  <table className="w-full border-collapse overflow-hidden rounded-xl border border-slate-200">
                     <thead>
-                      <tr className="bg-gray-100">
+                      <tr className="bg-slate-50">
                         {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((dia) => (
-                          <th key={dia} className="border border-gray-300 py-2 px-2 text-xs font-medium text-gray-700">{dia}</th>
+                          <th key={dia} className="border border-slate-200 px-2 py-3 text-xs font-bold text-slate-600">{dia}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((dia) => (
-                          <td key={dia} className="border border-gray-300 py-2 px-2 text-center">
+                          <td key={dia} className="border border-slate-100 px-2 py-3 text-center">
                             <input
                               type="checkbox"
                               checked={formData.diasVisita.includes(dia)}
@@ -251,11 +253,11 @@ export default function NuevoTipoCredito() {
               </div>
             </div>
 
-            <div className="flex gap-4 pt-6 border-t border-gray-200">
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row">
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-[#2ecc71] hover:bg-green-600 text-white font-bold px-6 py-2.5 rounded text-sm uppercase transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                className="rounded-xl bg-blue-800 px-6 py-3 text-xs font-bold uppercase text-white transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {saving ? 'Guardando...' : id ? 'Actualizar' : 'Aceptar'}
               </button>
@@ -263,7 +265,7 @@ export default function NuevoTipoCredito() {
                 type="button"
                 onClick={() => navigate('/tipos-creditos')}
                 disabled={saving}
-                className="bg-[#e74c3c] hover:bg-red-600 text-white font-bold px-6 py-2.5 rounded text-sm uppercase transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-xs font-bold uppercase text-slate-600 transition hover:bg-slate-100 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 Cancelar
               </button>
@@ -271,6 +273,7 @@ export default function NuevoTipoCredito() {
           </form>
         </div>
       </div>
+    </div>
     </div>
   );
 }

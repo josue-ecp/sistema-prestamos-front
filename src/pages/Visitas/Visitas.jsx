@@ -9,65 +9,65 @@ export default function Visitas() {
   ];
 
   return (
-    <div className="p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Visitas ( Supervisión )</h1>
+    <div className="min-h-screen w-full animate-in fade-in duration-500 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
+      <div className="mb-7">
+        <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Operación de campo</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Visitas ( Supervisión )</h1>
+      </div>
 
-      <div className="bg-[#cccccc] rounded shadow-sm border border-gray-300 overflow-hidden max-w-6xl">
+      <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.045)]">
         {/* Encabezado Azul Panorámico */}
-        <div className="bg-[#0b66c2] px-4 py-1.5">
-          <h2 className="text-white text-sm font-medium">Visitas ( Supervisión )</h2>
+        <div className="bg-blue-900 px-5 py-4">
+          <h2 className="text-sm font-bold text-white">Visitas ( Supervisión )</h2>
         </div>
 
-        <div className="p-4 space-y-6">
+        <div className="space-y-6 p-5 sm:p-6">
           {/* MAPA PANORÁMICO */}
-          <div className="w-full h-[250px] bg-gray-200 rounded border border-gray-400 overflow-hidden shadow-inner">
+          <div className="h-[250px] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-inner">
             <MapContainer center={[20.9674, -89.6236]} zoom={11} style={{ height: '100%', width: '100%' }}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             </MapContainer>
           </div>
 
           {/* SELECTOR DE COBRATARIO */}
-          <div className="max-w-xs space-y-1">
-            <label className="text-gray-700 text-sm font-bold">Cobratario</label>
+          <div className="max-w-sm space-y-2">
+            <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Cobratario</label>
             <div className="relative">
-              <select className="w-full border border-gray-400 bg-gray-50 rounded px-2 py-1.5 text-xs text-gray-500 font-bold focus:outline-none appearance-none uppercase">
+              <select className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-semibold text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 uppercase">
                 <option>SELECCIONE UN COBRATARIO</option>
                 <option>ROMAN G.</option>
                 <option>PEDRO P.</option>
               </select>
-              <div className="absolute right-2 top-2 pointer-events-none text-gray-400">
+              <div className="pointer-events-none absolute right-3 top-3 text-blue-700">
                 <UserCheck size={14} />
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-400">
-            <table className="w-full border-collapse text-center text-sm">
+          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table className="w-full min-w-[650px] border-collapse text-center text-sm">
               <thead>
-                <tr className="bg-white text-gray-800 border-b border-gray-400">
-                  <th className="border-r border-gray-400 py-2 px-4 font-bold">Cliente</th>
-                  <th className="border-r border-gray-400 py-2 px-4 font-bold">Check-in</th>
-                  <th className="border-r border-gray-400 py-2 px-4 font-bold">Check-out</th>
-                  <th className="border-r border-gray-400 py-2 px-4 font-bold">Duración</th>
-                  <th className="py-2 px-4 font-bold">Acciones</th>
+                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-3 font-bold">Cliente</th>
+                  <th className="px-4 py-3 font-bold">Check-in</th>
+                  <th className="px-4 py-3 font-bold">Check-out</th>
+                  <th className="px-4 py-3 font-bold">Duración</th>
+                  <th className="px-4 py-3 font-bold">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {registros.map((reg) => (
-                  <tr key={reg.id} className="border-b border-gray-300">
-                    <td className="border-r border-gray-300 py-3 px-4">{reg.cliente}</td>
-                    <td className="border-r border-gray-300 py-3 px-4">{reg.checkIn}</td>
-                    <td className="border-r border-gray-300 py-3 px-4">{reg.checkOut}</td>
-                    <td className="border-r border-gray-300 py-3 px-4">{reg.duracion}</td>
+                  <tr key={reg.id} className="border-b border-slate-100 text-slate-700 transition-colors hover:bg-blue-50/40">
+                    <td className="px-4 py-3 font-medium">{reg.cliente}</td>
+                    <td className="px-4 py-3">{reg.checkIn}</td>
+                    <td className="px-4 py-3">{reg.checkOut}</td>
+                    <td className="px-4 py-3">{reg.duracion}</td>
                     <td className="py-3 px-4"></td>
                   </tr>
                 ))}
                 {[...Array(4)].map((_, i) => (
-                  <tr key={`empty-${i}`} className="h-12 border-b border-gray-300">
-                    <td className="border-r border-gray-300"></td>
-                    <td className="border-r border-gray-300"></td>
-                    <td className="border-r border-gray-300"></td>
-                    <td className="border-r border-gray-300"></td>
+                  <tr key={`empty-${i}`} className="h-12 border-b border-slate-100">
+                    <td></td><td></td><td></td><td></td>
                     <td></td>
                   </tr>
                 ))}
@@ -77,8 +77,8 @@ export default function Visitas() {
         </div>
 
         {/* BARRA DE ESTADO INFERIOR */}
-        <div className="bg-white border-t border-gray-400 px-4 py-1">
-          <p className="text-[10px] text-gray-500 font-bold uppercase">
+        <div className="border-t border-slate-100 bg-slate-50 px-5 py-3">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">
             Mostrando del 1 al 1 de 1
           </p>
         </div>

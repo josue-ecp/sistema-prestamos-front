@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 
 const statusStyles = {
-  Pagado: 'bg-green-100 text-green-600',
-  Pendiente: 'bg-yellow-100 text-yellow-600',
-  Atrasado: 'bg-red-100 text-red-600',
+  Pagado: 'bg-blue-100 text-blue-800',
+  Pendiente: 'bg-slate-100 text-slate-600',
+  Atrasado: 'bg-slate-200 text-slate-700',
 };
 
 export default function HistorialPagos() {
@@ -53,41 +53,41 @@ export default function HistorialPagos() {
   }, [busqueda]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto h-screen flex flex-col">
+    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col bg-slate-50/70 p-4 sm:p-6 lg:p-8">
       {/* Encabezado de la página */}
       <div className="mb-6 flex items-center gap-4">
         <button 
           onClick={() => navigate(-1)} 
-          className="p-2 bg-white rounded-full shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-blue-800 shadow-sm transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
         >
           &larr; Volver
         </button>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
             Historial de Movimientos
           </h1>
-          <p className="text-sm text-gray-500 font-medium">
+          <p className="mt-1 text-sm font-medium text-slate-500">
             Registro completo de todos los cobros y operaciones
           </p>
         </div>
       </div>
 
       {/* Contenedor principal */}
-      <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden flex-1 flex flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.045)]">
         
         {/* BUSCADOR DESBLOQUEADO */}
-        <div className="p-6 border-b border-gray-100 flex gap-4">
+        <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:p-5">
           <input 
             type="text" 
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por nombre de cliente..." 
-            className="border border-gray-200 rounded-lg px-4 py-2 text-sm w-full max-w-sm focus:outline-none focus:border-blue-500"
+            className="w-full max-w-md rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
           />
           {busqueda && (
             <button 
               onClick={() => setBusqueda('')}
-              className="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-200"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
             >
               Limpiar
             </button>
@@ -96,7 +96,7 @@ export default function HistorialPagos() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-gray-50/50 text-[11px] uppercase tracking-widest text-gray-400 font-bold sticky top-0">
+            <thead className="sticky top-0 bg-slate-50 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
               <tr>
                 <th className="px-8 py-4">Cliente</th>
                 <th className="px-8 py-4">Monto</th>
@@ -105,20 +105,20 @@ export default function HistorialPagos() {
                 <th className="px-8 py-4">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50 text-sm">
+            <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
               {loading ? (
-                <tr><td colSpan="5" className="px-8 py-6 text-center text-gray-400">Buscando...</td></tr>
+                <tr><td colSpan="5" className="px-8 py-12 text-center text-slate-400">Buscando...</td></tr>
               ) : movimientos.length === 0 ? (
-                <tr><td colSpan="5" className="px-8 py-6 text-center text-gray-400">No se encontraron registros.</td></tr>
+                <tr><td colSpan="5" className="px-8 py-12 text-center text-slate-400">No se encontraron registros.</td></tr>
               ) : (
                 movimientos.map((m, i) => (
-                  <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-8 py-4 font-semibold text-gray-700 capitalize">{m.cliente}</td>
-                    <td className="px-8 py-4 text-gray-600">{m.monto}</td>
-                    <td className="px-8 py-4 text-gray-500">{m.cobratario}</td>
-                    <td className="px-8 py-4 text-gray-400">{m.hora}</td>
-                    <td className="px-8 py-4">
-                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase ${statusStyles[m.estado]}`}>
+                  <tr key={i} className="transition-colors hover:bg-blue-50/40">
+                    <td className="px-5 py-4 font-semibold capitalize text-slate-800 sm:px-8">{m.cliente}</td>
+                    <td className="px-5 py-4 font-semibold text-slate-900 sm:px-8">{m.monto}</td>
+                    <td className="px-5 py-4 text-slate-600 sm:px-8">{m.cobratario}</td>
+                    <td className="px-5 py-4 text-slate-500 sm:px-8">{m.hora}</td>
+                    <td className="px-5 py-4 sm:px-8">
+                      <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ${statusStyles[m.estado]}`}>
                         {m.estado}
                       </span>
                     </td>

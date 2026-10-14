@@ -50,19 +50,19 @@ const HomeClient = () => {
 
   if (isLiquidado) {
     return (
-      <div className="flex flex-col min-h-screen bg-slate-50 justify-between pb-24 font-sans max-w-md mx-auto shadow-2xl">
-        <header className="p-5 flex justify-between items-center bg-white border-b border-slate-100">
+      <div className="flex min-h-screen w-full max-w-md flex-col justify-between bg-slate-50 pb-24 font-sans mx-auto shadow-2xl">
+        <header className="flex items-center justify-between gap-3 border-b border-slate-100 bg-white p-4 sm:p-5">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Portal del Cliente</p>
             <h1 className="text-base font-black text-slate-900 uppercase tracking-tight">{nombreCliente}</h1>
           </div>
-          <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 border border-emerald-100 shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-800 shadow-sm">
             <FaUserCircle className="text-2xl" />
           </div>
         </header>
 
-        <div className="mx-4 my-auto p-8 bg-white rounded-[32px] border border-slate-100 shadow-xl text-center">
-          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
+        <div className="mx-4 my-auto rounded-3xl border border-slate-200 bg-white p-5 text-center shadow-lg sm:p-8">
+          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-50 text-blue-800 shadow-inner">
             <FaAward className="text-4xl" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 mb-2">¡Crédito Liquidado!</h2>
@@ -71,14 +71,14 @@ const HomeClient = () => {
           </p>
           <button 
             onClick={() => alert("Solicitud de renovación enviada con éxito.")}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-800 py-4 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-[0.98]"
           >
             Solicitar Renovación <FaArrowRight />
           </button>
         </div>
 
-        <nav className="fixed bottom-0 w-full max-w-md bg-white border-t border-slate-100 py-3 px-6 flex justify-around text-slate-400 shadow-lg z-20">
-          <div className="text-center text-emerald-600 flex flex-col items-center cursor-pointer">
+        <nav className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-md -translate-x-1/2 justify-around border-t border-slate-200 bg-white px-4 py-3 text-slate-400 shadow-lg sm:px-6">
+          <div className="flex cursor-pointer flex-col items-center text-center text-blue-800">
             <FaHome size={18}/><span className="text-[10px] font-black uppercase tracking-wider mt-1">Inicio</span>
           </div>
           <div className="text-center flex flex-col items-center cursor-pointer hover:text-slate-600 transition">
@@ -93,15 +93,15 @@ const HomeClient = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 pb-28 font-sans max-w-md mx-auto shadow-2xl">
+    <div className="flex min-h-screen w-full max-w-md flex-col bg-slate-50 pb-28 font-sans mx-auto shadow-2xl">
       
       {/* Encabezado Profesional */}
-      <header className="p-5 flex justify-between items-center bg-white border-b border-slate-100 sticky top-0 z-20">
-        <div>
+      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-slate-100 bg-white p-4 sm:p-5">
+        <div className="min-w-0">
           <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Bienvenido de nuevo</p>
-          <h1 className="text-base font-black text-slate-900 tracking-tight uppercase truncate max-w-[240px]">{nombreCliente}</h1>
+          <h1 className="max-w-full truncate text-base font-black uppercase tracking-tight text-slate-900">{nombreCliente}</h1>
         </div>
-        <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 border border-blue-100 shadow-sm shrink-0">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-800 shadow-sm">
           <FaUserCircle className="text-2xl" />
         </div>
       </header>
@@ -110,61 +110,61 @@ const HomeClient = () => {
 
         {/* ALERTA DE ATRASO / MORA CON MENSAJE DE PREVENCIÓN */}
         {diasRetraso > 0 ? (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3.5 shadow-sm">
-            <div className="w-10 h-10 bg-red-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+          <div className="flex items-center gap-3.5 rounded-2xl border border-slate-200 bg-slate-100 p-4 shadow-sm">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-700 text-white shadow-sm">
               <FaExclamationTriangle className="text-base" />
             </div>
             <div>
-              <p className="text-[10px] font-black text-red-600 uppercase tracking-wider">Aviso importante</p>
-              <p className="text-xs font-bold text-slate-800">Tienes {diasRetraso} días de atraso. Liquida hoy para <span className="text-red-600 underline">evita más recargos</span> adicionales.</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-slate-700">Aviso importante</p>
+              <p className="text-xs font-bold text-slate-800">Tienes {diasRetraso} días de atraso. Liquida hoy para <span className="underline">evita más recargos</span> adicionales.</p>
             </div>
           </div>
         ) : (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3.5 shadow-sm">
-            <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+          <div className="flex items-center gap-3.5 rounded-2xl border border-blue-100 bg-blue-50 p-4 shadow-sm">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-800 text-white shadow-sm">
               <FaBell className="text-base" />
             </div>
             <div>
-              <p className="text-[10px] font-black text-emerald-700 uppercase tracking-wider">Consejo financiero</p>
-              <p className="text-xs font-bold text-slate-800">Mantén tus pagos al día y <span className="text-emerald-700 underline">evita recargos</span> por mora en tu crédito.</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-blue-800">Consejo financiero</p>
+              <p className="text-xs font-bold text-slate-800">Mantén tus pagos al día y <span className="text-blue-800 underline">evita recargos</span> por mora en tu crédito.</p>
             </div>
           </div>
         )}
 
         {/* TARJETA PRINCIPAL: MONTO A PAGAR HOY */}
-        <div className="p-6 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-[32px] text-white shadow-xl shadow-blue-600/25 relative overflow-hidden">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-800 via-blue-900 to-slate-900 p-4 text-white shadow-xl shadow-blue-900/15 sm:p-6">
           <div className="absolute -right-6 -bottom-6 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
           
-          <div className="flex justify-between items-start mb-2">
-            <div>
+          <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
               <p className="text-blue-100 text-[11px] font-bold uppercase tracking-wider">
                 {diasRetraso > 0 ? 'Total Vencido con Mora' : 'Monto Próximo a Pagar'}
               </p>
             </div>
-            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider backdrop-blur-md ${
-              diasRetraso > 0 ? 'bg-red-500 text-white shadow-sm' : 'bg-white/20 text-white'
+            <span className={`max-w-full rounded-full px-3 py-1 text-center text-[9px] font-black uppercase tracking-wider backdrop-blur-md ${
+              diasRetraso > 0 ? 'bg-slate-700 text-white shadow-sm' : 'bg-white/20 text-white'
             }`}>
               {diasRetraso > 0 ? `${diasRetraso} Días de Atraso` : 'Crédito Activo'}
             </span>
           </div>
 
           <div className="my-3">
-            <h2 className="text-4xl font-black tracking-tight">{formatMoney(montoAPagarHoy)}</h2>
+            <h2 className="break-words text-3xl font-black tracking-tight sm:text-4xl">{formatMoney(montoAPagarHoy)}</h2>
             {diasRetraso > 0 && (
-              <p className="text-[11px] text-red-200 font-bold mt-1">Incluye recargo acumulado por falta de pago</p>
+              <p className="mt-1 text-[11px] font-bold text-slate-300">Incluye recargo acumulado por falta de pago</p>
             )}
           </div>
 
-          <div className="pt-4 border-t border-white/15 flex justify-between items-center text-xs">
-            <span className="text-blue-100 font-medium">Fecha límite de pago:</span>
-            <span className="font-black text-white bg-white/10 px-2.5 py-1 rounded-lg">{proximoVencimiento}</span>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-4 text-xs">
+            <span className="font-medium text-blue-100">Fecha límite de pago:</span>
+            <span className="max-w-full break-words rounded-lg bg-white/10 px-2.5 py-1 font-black text-white">{proximoVencimiento}</span>
           </div>
         </div>
 
         {/* BOTÓN DE PAGO DIRECTO */}
         <button 
           onClick={handlePagar}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-blue-600/30 active:scale-95 transition flex items-center justify-center gap-2.5"
+          className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-blue-800 py-4 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-[0.98]"
         >
           <FaShieldAlt className="text-base" /> Pagar {formatMoney(montoAPagarHoy)} Ahora
         </button>
@@ -172,7 +172,7 @@ const HomeClient = () => {
         {/* RESUMEN / ESTADO GENERAL DEL CRÉDITO */}
         <div className="bg-white rounded-[24px] border border-slate-100 p-5 shadow-sm space-y-4">
           <div className="flex items-center gap-2 text-slate-900 border-b border-slate-100 pb-3">
-            <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-800">
               <FaReceipt size={14} />
             </div>
             <h3 className="text-xs font-black uppercase tracking-wider">Resumen de tu Crédito</h3>
@@ -181,12 +181,12 @@ const HomeClient = () => {
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Saldo Total Restante</p>
-              <p className="text-sm font-black text-slate-900 mt-0.5">{formatMoney(saldoTotalPrestamo)}</p>
+              <p className="mt-0.5 break-words text-sm font-black text-slate-900">{formatMoney(saldoTotalPrestamo)}</p>
             </div>
 
             <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cuota Regular Base</p>
-              <p className="text-sm font-black text-slate-900 mt-0.5">
+              <p className="mt-0.5 break-words text-sm font-black text-slate-900">
                 {formatMoney(cuotaActiva ? cuotaActiva.monto - (diasRetraso > 0 ? (diasRetraso * (clienteData?.esquema_cobro === 'semanal' ? 100 : 20)) : 0) : 0)}
               </p>
             </div>
@@ -196,9 +196,9 @@ const HomeClient = () => {
             <div className="w-8 h-8 bg-blue-600 text-white rounded-xl flex items-center justify-center shrink-0">
               <FaWallet size={14} />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] font-black text-blue-600 uppercase tracking-wider">Estado de cuenta</p>
-              <p className="text-xs font-bold text-slate-700">
+              <p className="break-words text-xs font-bold text-slate-700">
                 {diasRetraso > 0 ? 'Tienes pagos pendientes por regularizar.' : 'Estás al corriente con tus pagos. ¡Felicidades!'}
               </p>
             </div>
@@ -208,8 +208,8 @@ const HomeClient = () => {
       </div>
 
       {/* Navbar Inferior */}
-      <nav className="fixed bottom-0 w-full max-w-md bg-white border-t border-slate-100 py-3 px-6 flex justify-around text-slate-400 z-30 shadow-lg">
-        <div className="text-center text-blue-600 flex flex-col items-center cursor-pointer">
+      <nav className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-md -translate-x-1/2 justify-around border-t border-slate-100 bg-white px-4 py-3 text-slate-400 shadow-lg sm:px-6">
+        <div className="flex cursor-pointer flex-col items-center text-center text-blue-800">
           <FaHome size={18}/>
           <span className="text-[10px] font-black uppercase tracking-wider mt-1">Inicio</span>
         </div>

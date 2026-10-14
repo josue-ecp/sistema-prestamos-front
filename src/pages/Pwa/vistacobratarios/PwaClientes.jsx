@@ -36,8 +36,8 @@ export default function PwaClientes() {
     <div className="p-4 bg-slate-50 min-h-screen pb-24 font-sans">
       
       {/* Título de la vista con diseño moderno */}
-      <div className="flex justify-between items-center mb-4 mt-1 px-1">
-        <div>
+      <div className="mb-4 mt-1 flex items-center justify-between gap-3 px-1">
+        <div className="min-w-0">
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             Directorio
           </h1>
@@ -72,22 +72,22 @@ export default function PwaClientes() {
           </div>
         ) : clientesFiltrados.length > 0 ? (
           clientesFiltrados.map((cliente) => (
-            <div key={cliente.id} className="bg-white p-4.5 rounded-3xl shadow-sm border border-slate-100/80 flex flex-col relative active:scale-[0.99] transition-all overflow-hidden group">
+            <div key={cliente.id} className="relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all active:scale-[0.99] group">
               
               {/* Línea lateral decorativa de estado */}
               <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
-                cliente.tiene_retraso ? 'bg-red-500' : 'bg-emerald-500'
+                cliente.tiene_retraso ? 'bg-slate-500' : 'bg-blue-700'
               }`} />
 
               {/* Cabecera de la tarjeta */}
-              <div className="flex justify-between items-start pl-2 mb-2">
-                <div className="pr-10">
-                  <h2 className="text-sm font-black text-slate-900 leading-snug uppercase tracking-tight">
+              <div className="mb-2 flex items-start justify-between gap-2 pl-2">
+                <div className="min-w-0 flex-1">
+                  <h2 className="break-words text-sm font-black uppercase leading-snug tracking-tight text-slate-900">
                     {cliente.nombre || 'Cliente sin nombre'}
                   </h2>
                   <div className="flex items-center gap-1.5 text-slate-500 mt-1">
                     <MapPin size={13} className="text-blue-500 shrink-0" />
-                    <span className="text-[11px] font-medium truncate max-w-[220px]">
+                    <span className="min-w-0 flex-1 truncate text-[11px] font-medium">
                       {cliente.direccion || 'Sin dirección registrada'}
                     </span>
                   </div>
@@ -97,7 +97,7 @@ export default function PwaClientes() {
                 {cliente.telefono && (
                   <a 
                     href={`tel:${cliente.telefono}`} 
-                    className="bg-blue-50 hover:bg-blue-100 p-2.5 rounded-2xl text-blue-600 transition shadow-sm shrink-0"
+                    className="shrink-0 rounded-xl border border-blue-100 bg-blue-50 p-2.5 text-blue-800 shadow-sm transition hover:bg-blue-100"
                   >
                     <Phone size={16} />
                   </a>
@@ -105,21 +105,21 @@ export default function PwaClientes() {
               </div>
 
               {/* Pie de tarjeta con info financiera condensada */}
-              <div className="flex justify-between items-center pt-3 border-t border-slate-100 mt-2 pl-2">
-                <div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pl-2 pt-3">
+                <div className="min-w-0">
                   <p className="text-[9px] text-slate-400 font-black uppercase tracking-wider">Saldo Pendiente</p>
                   <div className="flex items-center gap-0.5 text-slate-900 mt-0.5">
                     <span className="text-xs font-bold text-slate-400">$</span>
-                    <span className="text-base font-black leading-none">{formatMoney(cliente.monto)}</span>
+                    <span className="break-all text-base font-black leading-none">{formatMoney(cliente.monto)}</span>
                   </div>
                 </div>
 
                 {cliente.tiene_retraso ? (
-                  <span className="px-2.5 py-1 bg-red-50 text-red-600 text-[10px] font-black rounded-xl border border-red-100 uppercase tracking-wider">
+                  <span className="rounded-xl border border-slate-200 bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-700">
                     Con atraso
                   </span>
                 ) : (
-                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-xl border border-emerald-100 uppercase tracking-wider">
+                  <span className="rounded-xl border border-blue-100 bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-800">
                     Al día
                   </span>
                 )}

@@ -90,15 +90,19 @@ export default function EmpresasList() {
   };
 
   return (
-    <div className="flex-1 p-8 bg-white min-h-screen relative">
+    <div className="min-h-screen flex-1 bg-slate-50/70 p-4 sm:p-6 lg:p-8 relative">
       <div className="max-w-[1600px] mx-auto">
         
         {/* Encabezado */}
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="text-4xl font-black tracking-tight text-[#1a2b4b]">Gestión de Empresas</h1>
+        <div className="mb-7 flex flex-col justify-between gap-4 sm:mb-9 sm:flex-row sm:items-end">
+          <div>
+            <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Administración</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Gestión de Empresas</h1>
+            <p className="mt-1 text-sm text-slate-500">Administra empresas y su información de licencia.</p>
+          </div>
           <button 
             onClick={() => navigate('/empresas/nueva')}
-            className="flex items-center gap-2 bg-[#4285f4] text-white px-6 py-2.5 rounded-lg shadow-md hover:brightness-110 transition-all uppercase"
+            className="flex items-center justify-center gap-2 rounded-xl bg-blue-800 px-5 py-3 text-xs font-bold tracking-wide text-white shadow-sm transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 uppercase"
           >
             <Plus strokeWidth={3} />
             NUEVA EMPRESA
@@ -106,87 +110,88 @@ export default function EmpresasList() {
         </div>
 
         {message.text && (
-          <div className={`mb-6 rounded-3xl p-4 border ${message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+          <div className={`mb-6 rounded-xl border p-4 ${message.type === 'success' ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-slate-300 bg-slate-100 text-slate-900'}`}>
             <p className="font-semibold mb-1">{message.type === 'success' ? '¡Éxito!' : 'Error'}</p>
             <p className="text-sm leading-6">{message.text}</p>
           </div>
         )}
 
         {/* Buscador */}
-        <div className="relative mb-8 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="relative mb-5 max-w-md rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <Search className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" />
           <input 
             type="text" 
             placeholder="Buscar empresa..."
-            className="w-full pl-10 pr-4 py-2 bg-[#f0f2f5] rounded-md border-none outline-none"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
           />
         </div>
 
         {/* Tabla */}
-        <div className="border border-gray-100 rounded-lg overflow-hidden shadow-sm">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.045)]">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px] border-collapse text-left">
             <thead>
-              <tr className="bg-[#e9ecef] border-b border-gray-200">
-                <th className="px-6 py-4 text-gray-600 text-center w-32">Registro</th>
-                <th className="px-6 py-4 text-gray-600">Nombre de Empresa</th>
-                <th className="px-6 py-4 text-gray-600">Responsable</th>
-                <th className="px-6 py-4 text-gray-600">Fecha Vencimiento</th>
-                <th className="px-6 py-4 text-gray-600 text-center">Estado</th>
-                <th className="px-6 py-4 text-gray-600 text-center w-32">Acciones</th>
+              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                <th className="w-32 px-5 py-4 text-center">Registro</th>
+                <th className="px-5 py-4">Nombre de Empresa</th>
+                <th className="px-5 py-4">Responsable</th>
+                <th className="px-5 py-4">Fecha Vencimiento</th>
+                <th className="px-5 py-4 text-center">Estado</th>
+                <th className="w-32 px-5 py-4 text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100 text-sm">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-10 text-center text-gray-500 font-semibold uppercase">
+                  <td colSpan="6" className="px-6 py-12 text-center font-semibold uppercase text-slate-400">
                     Cargando empresas...
                   </td>
                 </tr>
               ) : empresas.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-10 text-center text-gray-500 font-semibold uppercase">
+                  <td colSpan="6" className="px-6 py-12 text-center font-semibold uppercase text-slate-400">
                     No hay empresas registradas aún
                   </td>
                 </tr>
               ) : (
                 empresas.map((emp) => (
-                  <tr key={emp.id_empresa} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-6 text-center">
+                  <tr key={emp.id_empresa} className="transition-colors hover:bg-blue-50/40">
+                    <td className="px-5 py-5 text-center">
                       <div className="flex justify-center gap-2">
-                        <div className="bg-[#2ecc71] p-1.5 rounded-full text-white shadow-sm"><UserCircle /></div>
-                        <div className="bg-[#a32a44] p-1.5 rounded-full text-white shadow-sm"><Briefcase /></div>
+                        <div className="rounded-full bg-blue-100 p-1.5 text-blue-800"><UserCircle /></div>
+                        <div className="rounded-full bg-slate-100 p-1.5 text-slate-600"><Briefcase /></div>
                       </div>
                     </td>
-                    <td className="px-6 py-6 text-[#1a2b4b] uppercase font-semibold">
+                    <td className="px-5 py-5 font-semibold uppercase text-slate-900">
                       {emp.nombre_negocio}
                     </td>
-                    <td className="px-6 py-6 text-gray-600 uppercase font-semibold">
+                    <td className="px-5 py-5 font-medium uppercase text-slate-600">
                       {emp.responsable}
                     </td>
-                    <td className="px-6 py-6 text-gray-600 uppercase font-semibold">
+                    <td className="px-5 py-5 font-medium uppercase text-slate-600">
                       {emp.fecha_vencimiento_licencia ? new Date(emp.fecha_vencimiento_licencia).toLocaleDateString('es-MX') : 'N/A'}
                     </td>
-                    <td className="px-6 py-6 text-center">
+                    <td className="px-5 py-5 text-center">
                       <div className="flex justify-center">
                         {emp.estado === 'activo' ? (
-                          <CheckCircle2 className="text-[#2ecc71]" strokeWidth={2.5} />
+                          <CheckCircle2 className="text-blue-700" strokeWidth={2.5} />
                         ) : (
-                          <XCircle className="text-red-500" strokeWidth={2.5} />
+                          <XCircle className="text-slate-400" strokeWidth={2.5} />
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-6 text-center">
+                    <td className="px-5 py-5 text-center">
                       <div className="flex justify-center gap-1.5">
                         <button 
                           onClick={() => handleVer(emp.id_empresa)}
-                          className="bg-[#4285f4] p-1.5 rounded text-white shadow-sm hover:brightness-110"
+                          className="rounded-lg border border-slate-200 bg-white p-2 text-blue-800 shadow-sm transition hover:bg-blue-50"
                         >
                           <Eye strokeWidth={2.5} />
                         </button>
                         
                         <button 
                           onClick={() => handleEditar(emp.id_empresa)}
-                          className="bg-[#ff9800] p-1.5 rounded text-white shadow-sm hover:brightness-110"
+                          className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition hover:bg-slate-100"
                         >
                           <Edit3 strokeWidth={2.5} />
                         </button>
@@ -194,7 +199,7 @@ export default function EmpresasList() {
                         {/* Botón Borrar: Ahora solo abre el modal */}
                         <button 
                           onClick={() => clickBorrar(emp.id_empresa, emp.nombre_negocio)}
-                          className="bg-[#f44336] p-1.5 rounded text-white shadow-sm hover:brightness-110"
+                          className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 shadow-sm transition hover:bg-slate-100 hover:text-slate-900"
                         >
                           <Trash2 strokeWidth={2.5} />
                         </button>
@@ -205,9 +210,10 @@ export default function EmpresasList() {
               )}
             </tbody>
           </table>
+          </div>
           
-          <div className="bg-[#f8f9fa] px-6 py-4 border-t border-gray-100">
-            <span className="text-gray-500 uppercase font-semibold">
+          <div className="border-t border-slate-100 bg-slate-50 px-6 py-4">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
               MOSTRANDO {empresas.length} REGISTROS
             </span>
           </div>
@@ -222,9 +228,9 @@ export default function EmpresasList() {
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
             
             {/* Cabecera del modal */}
-            <div className="bg-[#f44336] p-6 text-center flex flex-col items-center rounded-t-[2rem]">
-              <div className="bg-white/20 p-3 rounded-full mb-3">
-                <AlertTriangle className="text-white w-8 h-8" strokeWidth={2.5} />
+            <div className="flex flex-col items-center bg-blue-900 p-6 text-center">
+              <div className="mb-3 rounded-full bg-white/10 p-3">
+                <AlertTriangle className="h-8 w-8 text-blue-100" strokeWidth={2.5} />
               </div>
               <h3 className="text-2xl font-bold text-white uppercase tracking-[0.2em]">¡ADVERTENCIA!</h3>
             </div>
@@ -234,10 +240,10 @@ export default function EmpresasList() {
               <p className="text-gray-600 text-lg leading-relaxed">
                 ¿Estás seguro de que deseas eliminar la empresa
               </p>
-              <p className="font-bold text-[#1a2b4b] text-xl">
+              <p className="text-xl font-bold text-slate-900">
                 "{modalBorrar.nombre}"?
               </p>
-              <p className="text-sm text-[#f44336] font-semibold">
+              <p className="text-sm font-semibold text-slate-500">
                 Esta acción no se puede deshacer.
               </p>
               
@@ -245,13 +251,13 @@ export default function EmpresasList() {
               <div className="flex justify-center gap-4 pt-6">
                 <button
                   onClick={cancelarBorrar}
-                  className="px-6 py-3 bg-[#e5e7eb] hover:bg-[#d1d5db] text-[#334155] font-bold rounded-xl transition-colors uppercase tracking-wide"
+                  className="rounded-xl border border-slate-200 bg-white px-6 py-3 font-bold uppercase tracking-wide text-slate-600 transition hover:bg-slate-100"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={confirmarBorrado}
-                  className="px-6 py-3 bg-[#f44336] hover:bg-[#d32f2f] text-white font-bold rounded-xl shadow-md transition-colors uppercase tracking-wide"
+                  className="rounded-xl bg-blue-800 px-6 py-3 font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-blue-900"
                 >
                   Sí, eliminar
                 </button>

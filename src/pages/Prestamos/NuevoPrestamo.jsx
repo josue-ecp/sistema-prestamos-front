@@ -101,39 +101,41 @@ export default function NuevoPrestamo() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 w-full min-h-screen bg-[#f8f9fa] animate-in fade-in duration-500">
+    <div className="min-h-screen w-full animate-in fade-in duration-500 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto w-full max-w-5xl">
       {/* Botón Volver */}
       <button 
         type="button"
         onClick={() => navigate('/prestamos')}
-        className="flex items-center gap-2 text-blue-600 font-bold mb-4 hover:underline text-sm cursor-pointer"
+        className="mb-5 flex items-center gap-2 rounded-lg py-2 text-sm font-semibold text-blue-800 transition hover:text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
       >
         <ArrowLeft size={18} /> Volver a la lista
       </button>
 
-      <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden max-w-5xl mx-auto">
-        <div className="bg-[#0b66c2] px-4 py-2">
-          <h2 className="text-white text-sm font-medium">Nuevo Préstamo</h2>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.07)]">
+        <div className="bg-blue-900 px-6 py-5 sm:px-8">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-200">Cartera de crédito</p>
+          <h2 className="text-lg font-bold tracking-tight text-white sm:text-xl">Nuevo Préstamo</h2>
         </div>
 
         {errorMessage && (
-          <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded">
+          <div className="mx-5 mt-5 rounded-xl border border-slate-300 bg-slate-100 p-4 text-xs text-slate-800 sm:mx-8">
             {errorMessage}
           </div>
         )}
 
-        <form className="p-4 sm:p-8" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-6">
+        <form className="p-5 sm:p-8" onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 md:grid-cols-3 sm:gap-y-6">
             
             {/* Campo: Cliente Dinámico */}
             <div className="flex flex-col gap-1">
-              <label className="text-gray-600 text-sm font-medium">Cliente</label>
+              <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Cliente</label>
               <select 
                 name="id_cliente"
                 value={formData.id_cliente}
                 onChange={handleChange}
                 required
-                className="border border-gray-400 bg-gray-50 rounded px-2 py-2 sm:py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                className="cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
               >
                 <option value="">{loadingClientes ? 'Cargando clientes...' : 'SELECCIONE UN CLIENTE'}</option>
                 {clientes.map(c => (
@@ -144,43 +146,43 @@ export default function NuevoPrestamo() {
 
             {/* Campo: Fecha de inicio */}
             <div className="flex flex-col gap-1">
-              <label className="text-gray-600 text-sm font-medium">Fecha de inicio</label>
+              <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Fecha de inicio</label>
               <div className="relative custom-datepicker-container">
                 <DatePicker
                   selected={formData.fecha_desembolso}
                   onChange={(date) => setFormData({ ...formData, fecha_desembolso: date })}
                   locale="es"
                   dateFormat="dd/MM/yyyy"
-                  className="w-full border border-gray-400 bg-gray-50 rounded px-2 py-2 sm:py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                 />
-                <Calendar className="absolute right-2 top-2 sm:top-1.5 text-blue-400 pointer-events-none" size={16} />
+                <Calendar className="pointer-events-none absolute right-3 top-3 text-blue-700" size={16} />
               </div>
             </div>
 
             {/* Campo: Plazo */}
             <div className="flex flex-col gap-1">
-              <label className="text-gray-600 text-sm font-medium">Plazo a pagar</label>
-              <div className="flex shadow-sm">
+              <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Plazo a pagar</label>
+              <div className="flex">
                 <input 
                   type="number" 
                   name="plazo"
                   value={formData.plazo}
                   onChange={handleChange}
                   placeholder="26" 
-                  className="w-full border border-gray-400 bg-gray-50 rounded-l px-2 py-2 sm:py-1.5 text-xs focus:outline-none" 
+                  className="w-full rounded-l-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" 
                 />
-                <span className="bg-gray-200 border border-l-0 border-gray-400 rounded-r px-3 py-2 sm:py-1.5 text-[10px] text-gray-500 flex items-center font-bold">Pagos</span>
+                <span className="flex items-center rounded-r-xl border border-l-0 border-slate-200 bg-slate-100 px-3 py-3 text-xs font-bold text-slate-500">Pagos</span>
               </div>
             </div>
 
             {/* Campo: Esquema */}
             <div className="flex flex-col gap-1">
-              <label className="text-gray-600 text-sm font-medium">Esquema de cobro</label>
+              <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Esquema de cobro</label>
               <select 
                 name="esquema_cobro"
                 value={formData.esquema_cobro}
                 onChange={handleChange}
-                className="border border-gray-400 bg-gray-50 rounded px-2 py-2 sm:py-1.5 text-xs text-gray-800 focus:outline-none cursor-pointer uppercase"
+                className="cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100 uppercase"
               >
                 <option value="semanal">Semanal</option>
                 <option value="diario">Diario</option>
@@ -189,9 +191,9 @@ export default function NuevoPrestamo() {
 
             {/* Campo: Préstamo (Monto) */}
             <div className="flex flex-col gap-1">
-              <label className="text-gray-600 text-sm font-medium">Préstamo</label>
-              <div className="flex shadow-sm">
-                <span className="bg-gray-200 border border-r-0 border-gray-400 rounded-l px-2 py-2 sm:py-1.5 text-xs text-gray-500">$</span>
+              <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Préstamo</label>
+              <div className="flex">
+                <span className="rounded-l-xl border border-r-0 border-slate-200 bg-slate-100 px-3 py-3 text-sm font-semibold text-slate-500">$</span>
                 <input 
                   type="number" 
                   step="0.01"
@@ -200,16 +202,16 @@ export default function NuevoPrestamo() {
                   onChange={handleChange}
                   placeholder="0.00" 
                   required
-                  className="w-full border border-gray-400 bg-gray-50 rounded-r px-2 py-2 sm:py-1.5 text-xs focus:outline-none" 
+                  className="w-full rounded-r-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" 
                 />
               </div>
             </div>
 
             {/* Campo: Tasa de interés */}
             <div className="flex flex-col gap-1">
-              <label className="text-gray-600 text-sm font-medium">Tasa de interés</label>
-              <div className="flex shadow-sm">
-                <span className="bg-gray-200 border border-r-0 border-gray-400 rounded-l px-2 py-2 sm:py-1.5 text-xs text-gray-500">$</span>
+              <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Tasa de interés</label>
+              <div className="flex">
+                <span className="rounded-l-xl border border-r-0 border-slate-200 bg-slate-100 px-3 py-3 text-sm font-semibold text-slate-500">$</span>
                 <input 
                   type="number" 
                   step="0.01"
@@ -217,15 +219,15 @@ export default function NuevoPrestamo() {
                   value={formData.tasa_interes}
                   onChange={handleChange}
                   placeholder="0.00" 
-                  className="w-full border border-gray-400 bg-gray-50 rounded-r px-2 py-2 sm:py-1.5 text-xs focus:outline-none" 
+                  className="w-full rounded-r-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" 
                 />
               </div>
             </div>
           </div>
 
           {/* Sección Días de Visitas */}
-          <div className="mt-8">
-            <label className="text-gray-500 text-[10px] font-bold block mb-3 uppercase tracking-widest">Días de visitas</label>
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
+            <label className="mb-4 block text-xs font-bold uppercase tracking-[0.14em] text-slate-600">Días de visitas</label>
             <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
               
               <div className="w-full md:w-48">
@@ -233,28 +235,28 @@ export default function NuevoPrestamo() {
                   <select 
                     value={formData.esquema_cobro}
                     onChange={(e) => setFormData({ ...formData, esquema_cobro: e.target.value })}
-                    className="w-full border border-gray-400 bg-gray-50 rounded pl-8 pr-2 py-2 sm:py-1.5 text-[10px] font-bold text-gray-600 focus:outline-none uppercase cursor-pointer"
+                    className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white py-3 pl-9 pr-3 text-xs font-bold text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 uppercase"
                   >
                     <option value="semanal">Semanal</option>
                     <option value="diario">Diario</option>
                   </select>
-                  <Calendar className="absolute left-2 top-2 sm:top-1.5 text-gray-400" size={16} />
+                  <Calendar className="absolute left-3 top-3 text-blue-700" size={16} />
                 </div>
               </div>
 
               <div className="w-full overflow-x-auto">
-                <table className="border-collapse w-full min-w-[500px] md:max-w-2xl border border-gray-400 text-center">
+                <table className="w-full min-w-[500px] border-collapse text-center md:max-w-2xl">
                   <thead>
-                    <tr className="bg-gray-100 text-gray-700 text-[10px] uppercase">
+                    <tr className="bg-white text-[10px] uppercase text-slate-500">
                       {Object.keys(diasVisita).map(dia => (
-                        <th key={dia} className="border border-gray-400 py-1.5 px-3 font-bold">{dia}</th>
+                        <th key={dia} className="border border-slate-200 px-3 py-2 font-bold">{dia}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       {Object.keys(diasVisita).map(dia => (
-                        <td key={dia} className="border border-gray-400 p-2">
+                        <td key={dia} className="border border-slate-200 p-3">
                           <div className="flex justify-center">
                             <input 
                               type="checkbox" 
@@ -272,23 +274,24 @@ export default function NuevoPrestamo() {
             </div>
           </div>
 
-          <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row gap-3 p-3 bg-[#e5e7eb] rounded">
+          <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:mt-10 sm:flex-row sm:justify-end">
             <button 
               type="submit"
               disabled={saving}
-              className="bg-[#2ecc71] hover:bg-green-600 text-white font-bold px-8 py-2 sm:py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95 text-center cursor-pointer disabled:opacity-50"
+              className="cursor-pointer rounded-xl bg-blue-800 px-8 py-3 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-[0.98] disabled:opacity-50"
             >
               {saving ? 'Guardando...' : 'Agregar'}
             </button>
             <button 
               type="button"
               onClick={() => navigate('/prestamos')}
-              className="bg-[#e74c3c] hover:bg-red-600 text-white font-bold px-8 py-2 sm:py-1.5 rounded text-xs uppercase transition-all shadow-sm active:scale-95 text-center cursor-pointer"
+              className="cursor-pointer rounded-xl border border-slate-200 bg-white px-8 py-3 text-xs font-bold uppercase text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-slate-200"
             >
               Cancelar
             </button>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );
