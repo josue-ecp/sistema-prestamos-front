@@ -1,8 +1,14 @@
 import axios from 'axios';
+import { Capacitor } from '@capacitor/core';
 
 const getBaseUrl = () => {
   const hostname = window.location.hostname;
-  
+
+  // Capacitor serves the app from localhost, but must use the deployed API.
+  if (Capacitor.isNativePlatform()) {
+    return 'https://credurix-backend-production.up.railway.app/api';
+  }
+
   // Si estamos en desarrollo local web (localhost o 127.0.0.1)
   if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '') {
     return 'http://localhost:8000/api';

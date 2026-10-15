@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import api from '../../api';
 
 export default function DetalleEmpresa() {
   const { id } = useParams();
@@ -12,10 +13,10 @@ export default function DetalleEmpresa() {
   useEffect(() => {
     const fetchEmpresa = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/empresas/${id}`);
-        const result = await response.json();
+        const response = await api.get(`/empresas/${id}`, { validateStatus: () => true });
+        const result = response.data;
 
-        if (response.ok && result.status) {
+        if (response.status >= 200 && response.status < 300 && result.status) {
           setEmpresa(result.data);
         } else {
           setError(result.message || 'No se pudo cargar la empresa.');

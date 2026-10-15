@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Edit, Trash2, Check, User, MapPin, AlertTriangle } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api';
 
 export default function Clientes() {
   const navigate = useNavigate();
@@ -18,10 +18,7 @@ export default function Clientes() {
   const fetchClientes = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/api/clientes', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/clientes');
       setClientes(response.data);
     } catch (error) {
       console.error("Error al cargar clientes:", error);
@@ -39,10 +36,7 @@ export default function Clientes() {
     if (!window.confirm(`¿Estás seguro de eliminar al cliente "${nombre}"?`)) return;
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://127.0.0.1:8000/api/clientes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.delete(`/clientes/${id}`);
       showMessage('Cliente eliminado correctamente.');
       fetchClientes();
     } catch (error) {

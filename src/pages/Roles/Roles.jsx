@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, Check, Edit, Plus, Search, Trash2, X } from 'lucide-react';
+import api from '../../api';
 
 const Roles = () => {
     const [roles, setRoles] = useState([]);
@@ -24,16 +25,15 @@ const Roles = () => {
 
     const fetchRoles = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://127.0.0.1:8000/api/roles', {
+            const response = await api.get('/roles', {
+                validateStatus: () => true,
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
                 }
             });
 
-            const data = await response.json();
-            if (response.ok && data.status) {
+            const data = response.data;
+            if (response.status >= 200 && response.status < 300 && data.status) {
                 setRoles(data.data || []);
             } else {
                 showMessage('No se pudieron cargar los roles.', 'error');
@@ -83,29 +83,29 @@ const Roles = () => {
             return;
         }
 
-        const token = localStorage.getItem('token');
         const url = isEditing
-            ? `http://127.0.0.1:8000/api/roles/${currentId}`
-            : 'http://127.0.0.1:8000/api/roles';
+            ? `/roles/${currentId}`
+            : '/roles';
         const method = isEditing ? 'PUT' : 'POST';
 
         try {
-            const response = await fetch(url, {
+            const response = await api.request({
+                url,
                 method,
+                validateStatus: () => true,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({
+                data: {
                     nombre_rol: formData.nombre_rol.trim(),
                     descripcion: formData.descripcion.trim()
-                })
+                }
             });
 
-            const result = await response.json();
+            const result = response.data;
 
-            if (response.ok && result.status) {
+            if (response.status >= 200 && response.status < 300 && result.status) {
                 showMessage(result.message || 'Rol guardado correctamente.', 'success');
                 await fetchRoles();
                 cerrarModal();
@@ -129,20 +129,17 @@ const Roles = () => {
     const confirmarEliminar = async () => {
         if (!modalBorrar.id) return;
 
-        const token = localStorage.getItem('token');
-
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/roles/${modalBorrar.id}`, {
-                method: 'DELETE',
+            const response = await api.delete(`/roles/${modalBorrar.id}`, {
+                validateStatus: () => true,
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
                 }
             });
 
-            const result = await response.json();
+            const result = response.data;
 
-            if (response.ok && result.status) {
+            if (response.status >= 200 && response.status < 300 && result.status) {
                 setRoles((prev) => prev.filter((rol) => rol.id_rol !== modalBorrar.id));
                 cancelarEliminar();
                 showMessage(result.message || 'Rol eliminado.', 'success');

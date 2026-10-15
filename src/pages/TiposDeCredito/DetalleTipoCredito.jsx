@@ -1,15 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-
-const api = () => {
-  const token = localStorage.getItem('token');
-  return axios.create({
-    baseURL: 'http://127.0.0.1:8000/api',
-    headers: { Authorization: `Bearer ${token}` },
-  });
-};
 
 const mapTipoCredito = (item) => ({
   id: item.id_tipo_credito,
@@ -33,7 +25,7 @@ export default function DetalleTipoCredito() {
   useEffect(() => {
     const fetchTipoCredito = async () => {
       try {
-        const res = await api().get(`/tipos-creditos/${id}`);
+        const res = await api.get(`/tipos-creditos/${id}`);
         setTipo(mapTipoCredito(res.data.data));
       } catch (err) {
         setError(err.response?.data?.message || 'No se pudo cargar el tipo de crédito');

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api';
 
 // Librería para el calendario funcional
 import DatePicker, { registerLocale } from 'react-datepicker';
@@ -38,10 +38,7 @@ export default function NuevoPrestamo() {
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://127.0.0.1:8000/api/clientes/disponibles', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/clientes/disponibles');
         setClientes(response.data);
       } catch (error) {
         console.error("Error al cargar clientes:", error);
@@ -72,8 +69,6 @@ export default function NuevoPrestamo() {
 
     setSaving(true);
     try {
-      const token = localStorage.getItem('token');
-      
       // Formatear la fecha a YYYY-MM-DD para MySQL
       const fechaFormateada = formData.fecha_desembolso.toISOString().split('T')[0];
 
@@ -87,9 +82,7 @@ export default function NuevoPrestamo() {
         dias_visita: diasVisita
       };
 
-      await axios.post('http://127.0.0.1:8000/api/prestamos', payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/prestamos', payload);
 
       navigate('/prestamos');
     } catch (error) {

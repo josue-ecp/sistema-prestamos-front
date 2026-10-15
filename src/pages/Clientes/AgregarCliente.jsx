@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api';
 import TabDireccion from './TabDireccion';
 import TabExpediente from './TabExpediente';
 
@@ -42,15 +42,12 @@ export default function AgregarCliente() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
       try {
-        const zonasRes = await axios.get('http://127.0.0.1:8000/api/zonas', { headers });
+        const zonasRes = await api.get('/zonas');
         setZonas(zonasRes.data);
 
         if (isEditing) {
-          const clienteRes = await axios.get(`http://127.0.0.1:8000/api/clientes/${id}`, { headers });
+          const clienteRes = await api.get(`/clientes/${id}`);
           const cliente = clienteRes.data;
           setFormData({
             nombre: cliente.nombre || '',
@@ -86,7 +83,6 @@ export default function AgregarCliente() {
     }
 
     setSaving(true);
-    const token = localStorage.getItem('token');
     const data = new FormData();
 
     data.append('nombre', formData.nombre);
@@ -107,17 +103,16 @@ export default function AgregarCliente() {
     });
 
     try {
-      const headers = { 
-        Authorization: `Bearer ${token}`,
+      const headers = {
         'Content-Type': 'multipart/form-data'
       };
 
       if (isEditing) {
         data.append('_method', 'PUT');
-        await axios.post(`http://127.0.0.1:8000/api/clientes/${id}`, data, { headers });
+        await api.post(`/clientes/${id}`, data, { headers });
         showMessage('Cliente actualizado correctamente.');
       } else {
-        await axios.post('http://127.0.0.1:8000/api/clientes', data, { headers });
+        await api.post('/clientes', data, { headers });
         showMessage('Cliente registrado correctamente.');
       }
 

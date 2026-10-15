@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, UserCircle, Briefcase, Search, Eye, Edit3, Trash2, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
+import api from '../../api';
 
 export default function EmpresasList() {
   const navigate = useNavigate();
@@ -23,10 +24,10 @@ export default function EmpresasList() {
   useEffect(() => {
     const fetchEmpresas = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/empresas');
-        const result = await response.json();
+        const response = await api.get('/empresas', { validateStatus: () => true });
+        const result = response.data;
 
-        if (response.ok && result.status) {
+        if (response.status >= 200 && response.status < 300 && result.status) {
           setEmpresas(result.data);
         } else {
           console.error("Error del servidor:", result.message);
@@ -60,13 +61,10 @@ export default function EmpresasList() {
     const id = modalBorrar.id;
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/empresas/${id}`, {
-        method: 'DELETE',
-      });
-      
-      const result = await response.json();
+      const response = await api.delete(`/empresas/${id}`, { validateStatus: () => true });
+      const result = response.data;
 
-      if (response.ok && result.status) {
+      if (response.status >= 200 && response.status < 300 && result.status) {
         // Actualizamos la tabla
         setEmpresas(empresas.filter(emp => emp.id_empresa !== id));
         // Cerramos el modal

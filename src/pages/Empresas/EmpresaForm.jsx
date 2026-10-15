@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar as CalendarIcon, Eye, EyeOff, AtSign } from 'lucide-react';
+import api from '../../api';
 
 export default function EmpresaForm() {
   const navigate = useNavigate();
@@ -31,10 +32,10 @@ export default function EmpresaForm() {
     if (id) {
       const cargarEmpresa = async () => {
         try {
-          const response = await fetch(`http://127.0.0.1:8000/api/empresas/${id}`);
-          const result = await response.json();
+          const response = await api.get(`/empresas/${id}`, { validateStatus: () => true });
+          const result = response.data;
 
-          if (response.ok && result.status) {
+          if (response.status >= 200 && response.status < 300 && result.status) {
             const emp = result.data;
             // Llenamos los estados con lo que llegó de la BD
             setNombreEmpresa(emp.nombre_negocio);
@@ -79,21 +80,23 @@ export default function EmpresaForm() {
 
     try {
       // DECISIÓN INTELIGENTE: ¿Es POST (Crear) o PUT (Editar)?
-      const url = id ? `http://127.0.0.1:8000/api/empresas/${id}` : 'http://127.0.0.1:8000/api/empresas';
+      const url = id ? `/empresas/${id}` : '/empresas';
       const method = id ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await api.request({
+        url,
         method: method,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify(datosFormulario)
+        data: datosFormulario,
+        validateStatus: () => true
       });
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (response.ok && result.status) {
+      if (response.status >= 200 && response.status < 300 && result.status) {
         showMessage(id ? 'Empresa actualizada correctamente' : 'Empresa creada con éxito', 'success');
         window.setTimeout(() => navigate('/empresas'), 800);
       } else {

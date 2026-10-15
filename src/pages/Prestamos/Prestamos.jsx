@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api';
 
 export default function Prestamos() {
   const navigate = useNavigate();
@@ -13,10 +13,7 @@ export default function Prestamos() {
   useEffect(() => {
     const fetchPrestamos = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://127.0.0.1:8000/api/prestamos', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/prestamos');
         setPrestamos(response.data);
       } catch (error) {
         console.error("Error al cargar los préstamos:", error);

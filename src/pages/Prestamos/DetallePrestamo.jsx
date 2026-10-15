@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api';
 
 export default function DetallePrestamo() {
   const navigate = useNavigate();
@@ -13,10 +13,7 @@ export default function DetallePrestamo() {
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://127.0.0.1:8000/api/prestamos/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get(`/prestamos/${id}`);
         setPrestamo(response.data);
       } catch (error) {
         console.error("Error al cargar detalle:", error);
