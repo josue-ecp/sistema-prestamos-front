@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, Check, X, AlertTriangle } from 'lucide-react';
+import api from '../../api';
 
 const UsuariosWeb = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,21 +23,19 @@ const UsuariosWeb = () => {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token');
       const headers = {
-        'Authorization': `Bearer ${token}`,
         'Accept': 'application/json'
       };
 
-      const resUsuarios = await fetch('http://127.0.0.1:8000/api/usuarios-web', { headers });
-      const dataUsuarios = await resUsuarios.json();
-      if (resUsuarios.ok && dataUsuarios.status) {
+      const resUsuarios = await api.get('/usuarios-web', { headers, validateStatus: () => true });
+      const dataUsuarios = resUsuarios.data;
+      if (resUsuarios.status >= 200 && resUsuarios.status < 300 && dataUsuarios.status) {
         setUsuarios(dataUsuarios.data);
       }
 
-      const resRoles = await fetch('http://127.0.0.1:8000/api/roles', { headers });
-      const dataRoles = await resRoles.json();
-      if (resRoles.ok && dataRoles.status) {
+      const resRoles = await api.get('/roles', { headers, validateStatus: () => true });
+      const dataRoles = resRoles.data;
+      if (resRoles.status >= 200 && resRoles.status < 300 && dataRoles.status) {
         setRoles(dataRoles.data);
       }
 
@@ -66,28 +65,27 @@ const UsuariosWeb = () => {
       return;
     }
 
-    const token = localStorage.getItem('token');
-    
     const url = isEditing 
-      ? `http://127.0.0.1:8000/api/usuarios-web/${currentId}` 
-      : 'http://127.0.0.1:8000/api/usuarios-web';
+      ? `/usuarios-web/${currentId}` 
+      : '/usuarios-web';
       
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
-      const response = await fetch(url, {
+      const response = await api.request({
+        url,
         method: method,
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(formData)
+        data: formData,
+        validateStatus: () => true
       });
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (response.ok && result.status) {
+      if (response.status >= 200 && response.status < 300 && result.status) {
         showMessage(result.message, 'success');
         fetchData(); // Recargamos tabla
         cerrarModal();
@@ -112,18 +110,16 @@ const UsuariosWeb = () => {
   const confirmarEliminar = async () => {
     if (!modalBorrar.id) return;
 
-    const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/usuarios-web/${modalBorrar.id}`, {
-        method: 'DELETE',
+      const response = await api.delete(`/usuarios-web/${modalBorrar.id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
-        }
+        },
+        validateStatus: () => true
       });
 
-      const result = await response.json();
-      if (response.ok && result.status) {
+      const result = response.data;
+      if (response.status >= 200 && response.status < 300 && result.status) {
         setUsuarios(usuarios.filter(u => u.id_usuario_web !== modalBorrar.id));
         cancelarEliminar();
         showMessage(result.message, 'success');

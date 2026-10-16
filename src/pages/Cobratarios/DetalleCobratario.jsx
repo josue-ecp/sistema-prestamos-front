@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api';
 
 export default function DetalleCobratario() {
   const { id } = useParams();
@@ -13,10 +13,7 @@ export default function DetalleCobratario() {
   useEffect(() => {
     const fetchCobratario = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`http://127.0.0.1:8000/api/cobratarios/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get(`/cobratarios/${id}`);
         setCobratario(res.data);
       } catch (err) {
         setError(err.response?.data?.message || 'No se pudo cargar el cobratario');

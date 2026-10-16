@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Eye } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api';
 
 export default function Renovaciones() {
   const navigate = useNavigate();
@@ -11,10 +11,7 @@ export default function Renovaciones() {
   useEffect(() => {
     const fetchRenovaciones = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://127.0.0.1:8000/api/renovaciones', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/renovaciones');
         setRenovaciones(response.data);
       } catch (error) {
         console.error("Error al cargar renovaciones:", error);

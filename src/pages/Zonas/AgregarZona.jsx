@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { ArrowLeft } from 'lucide-react';
+import api from '../../api';
 
 // Configuración de icono para el mapa
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -50,8 +51,6 @@ export default function AgregarZona() {
     }
 
     setSaving(true);
-    const token = localStorage.getItem('token');
-    
     // Objeto adaptado 100% a las columnas requeridas por tu tabla de BD y controlador
     const payload = {
       nombre_zona: descripcion,
@@ -62,19 +61,17 @@ export default function AgregarZona() {
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/zonas', {
-        method: 'POST',
+      const response = await api.post('/zonas', payload, {
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
+          Accept: 'application/json'
         },
-        body: JSON.stringify(payload)
+        validateStatus: () => true
       });
 
-      const result = await response.json();
+      const result = response.data;
       
-      if (response.ok && (result.status === undefined || result.status)) {
+      if (response.status >= 200 && response.status < 300 && (result.status === undefined || result.status)) {
         showMessage(result.message || 'Zona creada correctamente.', 'success');
         window.setTimeout(() => navigate('/zonas'), 900);
       } else {

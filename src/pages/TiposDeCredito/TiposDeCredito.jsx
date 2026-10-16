@@ -1,15 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { Plus, Edit, Trash2, Eye, Search, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-const api = () => {
-  const token = localStorage.getItem('token');
-  return axios.create({
-    baseURL: 'http://127.0.0.1:8000/api',
-    headers: { Authorization: `Bearer ${token}` },
-  });
-};
 
 const mapTipoCredito = (item) => ({
   id: item.id,
@@ -39,7 +31,7 @@ export default function TiposDeCredito() {
 
   const fetchTiposCredito = async () => {
     try {
-      const response = await api().get('/tipos-creditos');
+      const response = await api.get('/tipos-creditos');
       
       if (response.data && response.data.status) {
         setTiposCredito(response.data.data.map(mapTipoCredito)); 
@@ -64,7 +56,7 @@ export default function TiposDeCredito() {
 
   const confirmDelete = async () => {
     try {
-      await api().delete(`/tipos-creditos/${deleteModal.id}`);
+      await api.delete(`/tipos-creditos/${deleteModal.id}`);
       setTiposCredito((current) => current.filter((item) => item.id !== deleteModal.id));
       showMessage('Tipo de crédito eliminado correctamente.', 'success');
     } catch (error) {

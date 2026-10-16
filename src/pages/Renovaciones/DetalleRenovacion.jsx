@@ -4,7 +4,7 @@ import { ArrowLeft, Calendar } from 'lucide-react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import es from 'date-fns/locale/es';
-import axios from 'axios';
+import api from '../../api';
 
 registerLocale('es', es);
 
@@ -28,10 +28,7 @@ export default function DetalleRenovacion() {
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://127.0.0.1:8000/api/renovaciones/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get(`/renovaciones/${id}`);
         setDatos(response.data);
         if (response.data.prestamo_anterior) {
           setFormRenovacion(prev => ({ ...prev, monto: response.data.prestamo_anterior.monto }));
@@ -48,17 +45,14 @@ export default function DetalleRenovacion() {
   const handleAprobar = async () => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('token');
       const fechaFormateada = formRenovacion.fecha_inicio.toISOString().split('T')[0];
 
-      await axios.post(`http://127.0.0.1:8000/api/renovaciones/${id}/aprobar`, {
+      await api.post(`/renovaciones/${id}/aprobar`, {
         monto: formRenovacion.monto,
         fecha_inicio: fechaFormateada,
         esquema_cobro: formRenovacion.esquema_cobro,
         tasa_interes: formRenovacion.tasa_interes,
         plazo: formRenovacion.plazo
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       alert('¡Renovación aprobada con éxito!');

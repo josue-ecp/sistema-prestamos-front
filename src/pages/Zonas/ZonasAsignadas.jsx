@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { Search, Plus, Edit, Trash2, Check } from 'lucide-react';
+import api from '../../api';
 
 export default function ZonasAsignadas() {
   const navigate = useNavigate();
@@ -15,12 +16,6 @@ export default function ZonasAsignadas() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const headers = {
-      Accept: 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    };
-
     const normalizeZones = (payload) => {
       if (Array.isArray(payload)) return payload;
       if (!payload || typeof payload !== 'object') return [];
@@ -33,11 +28,14 @@ export default function ZonasAsignadas() {
 
     const fetchZonas = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/zonas', { headers });
-        const result = await response.json();
+        const response = await api.get('/zonas', {
+          headers: { Accept: 'application/json' },
+          validateStatus: () => true
+        });
+        const result = response.data;
         console.log('GET /api/zonas result:', result);
 
-        if (response.ok) {
+        if (response.status >= 200 && response.status < 300) {
           const zones = normalizeZones(result);
           setZonas(zones);
           if (zones.length === 0) {
@@ -68,20 +66,14 @@ export default function ZonasAsignadas() {
   const handleDelete = async (id) => {
     if (!window.confirm('¿Seguro que deseas eliminar esta zona?')) return;
 
-    const token = localStorage.getItem('token');
-    const headers = {
-      Accept: 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    };
-
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/zonas/${id}`, {
-        method: 'DELETE',
-        headers
+      const response = await api.delete(`/zonas/${id}`, {
+        headers: { Accept: 'application/json' },
+        validateStatus: () => true
       });
-      const result = await response.json();
+      const result = response.data;
 
-      if (response.ok && (result.status === undefined || result.status)) {
+      if (response.status >= 200 && response.status < 300 && (result.status === undefined || result.status)) {
         setZonas(zonas.filter((zona) => zona.id !== id && zona.id_zona !== id));
       } else {
         showMessage('Error al eliminar zona: ' + (result.message || 'Revisa el backend'), 'error');

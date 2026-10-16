@@ -1,15 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
-
-const api = () => {
-  const token = localStorage.getItem('token');
-  return axios.create({
-    baseURL: 'http://127.0.0.1:8000/api',
-    headers: { Authorization: `Bearer ${token}` },
-  });
-};
 
 const mapTipoCredito = (item) => ({
   tipoCredito: item.tipo_credito || '',
@@ -54,7 +46,7 @@ export default function NuevoTipoCredito() {
       }
 
       try {
-        const response = await api().get(`/tipos-creditos/${id}`);
+        const response = await api.get(`/tipos-creditos/${id}`);
         setFormData(mapTipoCredito(response.data.data));
       } catch (error) {
         setMessage({ type: 'error', text: error.response?.data?.message || 'No se pudo cargar el tipo de crédito' });
@@ -89,8 +81,8 @@ export default function NuevoTipoCredito() {
     setSaving(true);
 
     const request = id
-      ? api().put(`/tipos-creditos/${id}`, toApiPayload(formData))
-      : api().post('/tipos-creditos', toApiPayload(formData));
+      ? api.put(`/tipos-creditos/${id}`, toApiPayload(formData))
+      : api.post('/tipos-creditos', toApiPayload(formData));
 
     request
       .then(() => {

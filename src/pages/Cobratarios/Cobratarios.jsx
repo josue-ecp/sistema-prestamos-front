@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, Check, X, Eye, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api';
 
 export default function Cobratarios() {
   const navigate = useNavigate();
@@ -27,13 +27,10 @@ export default function Cobratarios() {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      
       // Consultamos ambos endpoints en paralelo
       const [resCob, resZon] = await Promise.all([
-        axios.get('http://127.0.0.1:8000/api/cobratarios', config),
-        axios.get('http://127.0.0.1:8000/api/zonas', config)
+        api.get('/cobratarios'),
+        api.get('/zonas')
       ]);
       
       setCobratarios(resCob.data);
@@ -65,17 +62,15 @@ export default function Cobratarios() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      const config = { headers: { Authorization: `Bearer ${token}` } };
       const url = isEditing
-        ? `http://127.0.0.1:8000/api/cobratarios/${editingId}`
-        : 'http://127.0.0.1:8000/api/cobratarios';
+        ? `/cobratarios/${editingId}`
+        : '/cobratarios';
 
       if (isEditing) {
-        await axios.put(url, formData, config);
+        await api.put(url, formData);
         showMessage('Cobratario actualizado correctamente.');
       } else {
-        await axios.post(url, formData, config);
+        await api.post(url, formData);
         showMessage('Cobratario registrado exitosamente.');
       }
 
@@ -109,10 +104,7 @@ export default function Cobratarios() {
   const confirmDelete = async () => {
     console.log('Cobratarios: confirmDelete click', deleteModal);
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://127.0.0.1:8000/api/cobratarios/${deleteModal.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.delete(`/cobratarios/${deleteModal.id}`);
       setDeleteModal({ open: false, id: null, nombre: '' });
       showMessage('Cobratario eliminado correctamente.');
       fetchData();
