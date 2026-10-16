@@ -10,7 +10,7 @@ const getBaseUrl = () => {
   }
 
   // Si estamos en desarrollo local web (localhost o 127.0.0.1)
-  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '') {
+  if (import.meta.env.DEV && (hostname === 'localhost' || hostname === '127.0.0.1')) {
     return 'http://localhost:8000/api';
   }
   
