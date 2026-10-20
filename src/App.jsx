@@ -25,6 +25,7 @@ import PwaPerfilCliente from './pages/Pwa/vistaclientes/PwaPerfilCliente';
 
 // --- IMPORTACIONES DE PÁGINAS WEB ---
 import Dashboard from './pages/Dashboard/Dashboard';
+import MetabaseDashboard from './Components/MetabaseDashboard';
 import Clientes from './pages/Clientes/Clientes';
 import AgregarCliente from './pages/Clientes/AgregarCliente';
 import Cobratarios from './pages/Cobratarios/Cobratarios';
@@ -246,6 +247,7 @@ export default function App() {
 
             {/* MÓDULOS PRINCIPALES */}
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard-analitico" element={<MetabaseDashboard />} />
             <Route path="/usuarios-web" element={<UsuariosWeb />} />
             <Route path="/roles" element={<Roles />} />
             <Route path="/visitas" element={<Visitas />} />
