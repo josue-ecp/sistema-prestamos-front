@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Home,
@@ -15,6 +14,7 @@ import {
   ShieldAlert,
   Smartphone,
   ChevronRight,
+  BarChart3, 
 } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 
@@ -24,6 +24,7 @@ const menuSections = [
     title: 'Principal',
     items: [
       { icon: Home, label: 'Inicio', path: '/dashboard' },
+      { icon: BarChart3, label: 'Analítica Metabase', path: '/dashboard-analitico' }, // <-- 2. Agregado aquí
       { icon: Landmark, label: 'Préstamos', path: '/prestamos' },
       { icon: Users, label: 'Clientes', path: '/clientes' },
     ],
@@ -155,7 +156,6 @@ export default function Sidebar() {
             <span className="block truncate text-lg font-extrabold italic tracking-tight text-blue-950">
               CREDURIX
             </span>
-            
           </div>
         </div>
 
