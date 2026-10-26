@@ -199,7 +199,7 @@ function CardPaymentFields({ clientSecret, authorizedIntentId: existingAuthorize
 
 export default function StripePaymentForm({ amount, onSuccess, onClose }) {
   const [clientSecret, setClientSecret] = useState('');
-  const [quotedAmount, setQuotedAmount] = useState(amount);
+  const [quotedAmount, setQuotedAmount] = useState(Number(amount) || 0);
   const [authorizedIntentId, setAuthorizedIntentId] = useState('');
   const [isCreatingIntent, setIsCreatingIntent] = useState(Boolean(publishableKey));
   const [error, setError] = useState('');
@@ -216,7 +216,13 @@ export default function StripePaymentForm({ amount, onSuccess, onClose }) {
     try {
       const response = await api.post('/payments/intent');
       setClientSecret(response.data.client_secret);
-      setQuotedAmount(response.data.amount);
+      const responseAmount = response.data?.amount
+        ?? response.data?.quote?.amount
+        ?? response.data?.quote?.monto
+        ?? response.data?.data?.amount
+        ?? response.data?.data?.quote?.monto;
+      const parsedAmount = Number(responseAmount ?? amount);
+      setQuotedAmount(Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : (Number(amount) || 0));
       setAuthorizedIntentId(response.data.authorized ? response.data.payment_intent_id : '');
     } catch (requestError) {
       setError(
@@ -226,7 +232,7 @@ export default function StripePaymentForm({ amount, onSuccess, onClose }) {
     } finally {
       setIsCreatingIntent(false);
     }
-  }, []);
+  }, [amount]);
 
   useEffect(() => {
     createIntent();
