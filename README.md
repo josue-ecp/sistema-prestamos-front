@@ -1,5 +1,11 @@
 # React + Vite
 
+## Pagos con Stripe
+
+Configura `VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...` en el entorno local/de despliegue del frontend y `STRIPE_SECRET=sk_test_...` únicamente en el entorno del backend. Reinicia Vite después de cambiar la variable pública. No uses llaves secretas en variables `VITE_`.
+
+El formulario de `HomeClient` utiliza Stripe Elements para alojar de forma segura los campos del número, expiración y CVC; esos datos no se envían a Laravel. El endpoint autenticado crea la cotización desde el crédito activo, y solo se registra el abono cuando Stripe confirma la captura. Para desplegar, ejecuta también `php artisan migrate --force` en el backend.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
