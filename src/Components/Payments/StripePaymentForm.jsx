@@ -244,7 +244,7 @@ export default function StripePaymentForm({ amount, onSuccess, onClose }) {
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-blue-700">Pago seguro</p>
             <h2 className="mt-1 text-lg font-black text-slate-900" id="stripe-payment-title">
-              Pagar {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(quotedAmount)}
+              Pagar {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(quotedAmount) || 0)}
             </h2>
             <p className="mt-1 text-xs text-slate-500">Tu tarjeta se procesa directamente en Stripe.</p>
           </div>
