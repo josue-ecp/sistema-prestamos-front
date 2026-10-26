@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FaUserCircle, FaCalendarAlt, FaCheckCircle, FaClock, FaHome, FaCreditCard, FaUser, FaShieldAlt, FaExclamationTriangle, FaAward, FaArrowRight, FaReceipt, FaWallet, FaBell } from 'react-icons/fa';
 import api from '../../../api'; 
+import StripePaymentForm from '../../../Components/Payments/StripePaymentForm';
 
 const HomeClient = () => {
   const [clienteData, setClienteData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState('');
 
   useEffect(() => {
     const fetchClienteInfo = async () => {
@@ -43,9 +46,35 @@ const HomeClient = () => {
   const cuotaActiva = clienteData?.cuotas?.[0] || null;
   const montoAPagarHoy = cuotaActiva ? Number(cuotaActiva.monto) : 0;
   const isLiquidado = saldoTotalPrestamo <= 0;
+  const moraCalculada = diasRetraso > 0
+    ? (clienteData?.esquema_cobro === 'semanal' ? Math.floor(diasRetraso / 7) * 100 : diasRetraso * 20)
+    : 0;
 
   const handlePagar = () => {
-    alert(`Redirigiendo a pasarela segura para procesar el pago de ${formatMoney(montoAPagarHoy)}...`);
+    setPaymentSuccess('');
+    setIsPaymentOpen(true);
+  };
+
+  const handlePaymentSuccess = async (result) => {
+    setPaymentSuccess(
+      result.liquidated
+        ? '¡Pago confirmado! Tu crédito quedó liquidado.'
+        : `¡Pago confirmado! Se aplicaron ${formatMoney(result.amount_paid)} a tu crédito.`,
+    );
+    setClienteData((current) => ({
+      ...current,
+      saldo_pendiente: result.new_balance,
+      cuotas: result.liquidated ? [] : current?.cuotas,
+    }));
+    setIsPaymentOpen(false);
+
+    try {
+      const response = await api.get('/cliente/mi-cuenta');
+      setClienteData(response.data);
+    } catch (error) {
+      console.error('El pago se confirmó, pero no se pudo actualizar la vista de la cuenta:', error);
+      setPaymentSuccess((message) => `${message} Recarga la página para ver el saldo actualizado.`);
+    }
   };
 
   if (isLiquidado) {
@@ -66,6 +95,11 @@ const HomeClient = () => {
             <FaAward className="text-4xl" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 mb-2">¡Crédito Liquidado!</h2>
+          {paymentSuccess && (
+            <p className="mb-4 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700" role="status">
+              {paymentSuccess}
+            </p>
+          )}
           <p className="text-xs font-medium text-slate-500 mb-6 leading-relaxed">
             Has completado exitosamente el pago de todas tus cuotas. Tu historial crediticio es excelente.
           </p>
@@ -107,6 +141,11 @@ const HomeClient = () => {
       </header>
 
       <div className="p-4 space-y-4 flex-1">
+        {paymentSuccess && (
+          <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800" role="status">
+            {paymentSuccess}
+          </p>
+        )}
 
         {/* ALERTA DE ATRASO / MORA CON MENSAJE DE PREVENCIÓN */}
         {diasRetraso > 0 ? (
@@ -187,7 +226,7 @@ const HomeClient = () => {
             <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cuota Regular Base</p>
               <p className="mt-0.5 break-words text-sm font-black text-slate-900">
-                {formatMoney(cuotaActiva ? cuotaActiva.monto - (diasRetraso > 0 ? (diasRetraso * (clienteData?.esquema_cobro === 'semanal' ? 100 : 20)) : 0) : 0)}
+                {formatMoney(cuotaActiva ? Math.max(0, cuotaActiva.monto - moraCalculada) : 0)}
               </p>
             </div>
           </div>
@@ -222,6 +261,14 @@ const HomeClient = () => {
           <span className="text-[10px] font-bold uppercase tracking-wider mt-1">Perfil</span>
         </div>
       </nav>
+
+      {isPaymentOpen && (
+        <StripePaymentForm
+          amount={montoAPagarHoy}
+          onClose={() => setIsPaymentOpen(false)}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 };

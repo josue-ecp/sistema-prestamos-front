@@ -1,0 +1,43 @@
+.payment-card-scene {
+  height: 174px;
+  perspective: 1000px;
+}
+
+.payment-card {
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 500ms ease;
+  width: 100%;
+}
+
+.payment-card-scene.is-flipped .payment-card {
+  transform: rotateY(180deg);
+}
+
+.payment-card-face {
+  backface-visibility: hidden;
+  background: linear-gradient(135deg, #1e40af, #172554 70%, #0f172a);
+  border-radius: 20px;
+  box-shadow: 0 14px 28px rgb(15 23 42 / 18%);
+  height: 100%;
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+.payment-card-front {
+  padding: 22px;
+}
+
+.payment-card-back {
+  transform: rotateY(180deg);
+}
+
+.payment-card-chip {
+  background: linear-gradient(135deg, #dbeafe, #93c5fd);
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 6px;
+  height: 25px;
+  width: 34px;
+}
