@@ -1,22 +1,28 @@
-# React + Vite
+# CREDURIX - Sistema de Préstamos (Frontend)
 
-## Pagos con Stripe
+Interfaz web y aplicación web progresiva (PWA) desarrollada para la gestión de préstamos, clientes y control de cobradores en microfinancieras. Este módulo forma parte de la solución integral **CREDURIX**.
 
-Configura `VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...` en el entorno local/de despliegue del frontend y `STRIPE_SECRET=sk_test_...` únicamente en el entorno del backend. Reinicia Vite después de cambiar la variable pública. No uses llaves secretas en variables `VITE_`.
+## 🚀 Estado del Proyecto
+> **En desarrollo activo / Versión funcional operativa**
 
-El formulario de `HomeClient` utiliza Stripe Elements para alojar de forma segura los campos del número, expiración y CVC; esos datos no se envían a Laravel. El endpoint autenticado crea la cotización desde el crédito activo, y solo se registra el abono cuando Stripe confirma la captura. Para desplegar, ejecuta también `php artisan migrate --force` en el backend.
+## 🛠️ Tecnologías Utilizadas
+* **JavaScript** (Framework/Librería de interfaz)
+* **PWA (Progressive Web App)** para soporte offline y uso móvil
+* **HTML5 & CSS3 / Tailwind CSS**
+* **Vercel** (Plataforma de despliegue)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📌 Funcionalidades Principales
+* Panel de autenticación y control de accesos por roles (Administrador, Cliente, Cobrador).
+* Visualización de estado de cuentas, créditos activos y próximos pagos.
+* Interfaz adaptada para dispositivos móviles orientada al trabajo de campo de los cobradores.
+* Consumo e integración con servicios de API Backend (PHP/Laravel).
 
-Currently, two official plugins are available:
+## 🌐 Enlace a la versión desplegada
+Puedes ver la aplicación en funcionamiento aquí:
+👉 [https://sistema-prestamos-front-sigma.vercel.app/login](https://sistema-prestamos-front-sigma.vercel.app/login)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 👥 Equipo de Trabajo y Participación
+Proyecto colaborativo universitario. Mi rol principal se ha centrado en el desarrollo frontend, la estructuración de vistas responsivas y la integración de la interfaz con los flujos de autenticación y consumo de datos.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+*Desarrollado como parte de proyectos de ingeniería .*
