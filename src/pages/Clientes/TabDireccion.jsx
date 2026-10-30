@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, ZoomControl, useMap, useMapEvents } from 'react-leaflet';
 import { LoaderCircle, MapPin, Search } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -176,7 +176,7 @@ function MapSearchControl({ onSelectCoordinates }) {
   };
 
   return (
-    <div ref={controlRef} className="absolute left-3 right-3 top-3 z-[1000] sm:right-auto sm:w-96">
+    <div ref={controlRef} className="absolute left-3 right-14 top-3 z-[1000] sm:right-auto sm:w-96">
       <form
         onSubmit={handleSearch}
         className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-lg shadow-slate-900/15"
@@ -273,10 +273,12 @@ export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
         <MapContainer 
           center={position} 
           zoom={13} 
+          zoomControl={false}
           scrollWheelZoom={true} 
           style={{ width: '100%', height: '100%' }}
         >
           <MapSizeController />
+          <ZoomControl position="topright" />
         <MapSearchControl
           onSelectCoordinates={(selectedLat, selectedLng) => {
             if (onChangeCoordinates) {
