@@ -106,7 +106,6 @@ function MapSearchControl({ onSelectCoordinates }) {
       const params = new URLSearchParams({
         q: searchTerm,
         limit: '5',
-        lang: 'es',
         lat: String(center.lat),
         lon: String(center.lng),
       });
