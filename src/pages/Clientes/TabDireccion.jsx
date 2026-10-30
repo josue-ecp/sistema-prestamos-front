@@ -85,6 +85,7 @@ function MapSearchControl({ onSelectCoordinates }) {
 
   const handleSearch = async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const searchTerm = query.trim();
 
     if (!searchTerm) {
@@ -186,13 +187,19 @@ function MapSearchControl({ onSelectCoordinates }) {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              handleSearch(event);
+            }
+          }}
           placeholder="Buscar colonia, calle o municipio"
           aria-label="Buscar ubicación"
           aria-expanded={suggestions.length > 0}
           className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-slate-800 outline-none placeholder:text-slate-400"
         />
         <button
-          type="submit"
+          type="button"
+          onClick={handleSearch}
           disabled={isSearching}
           aria-label="Buscar ubicación"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-800 text-white transition hover:bg-blue-900 disabled:cursor-wait disabled:opacity-70"
