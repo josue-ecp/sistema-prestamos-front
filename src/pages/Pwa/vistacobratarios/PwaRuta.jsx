@@ -114,6 +114,24 @@ export default function PwaRuta() {
   };
 
   const clientesFiltrados = clientes.filter(c => c.estado_visita === activeTab);
+
+  const getMapsUrl = (cliente) => {
+    const latitud = Number(cliente.latitud);
+    const longitud = Number(cliente.longitud);
+    const tieneCoordenadas = cliente.latitud != null &&
+      cliente.latitud !== '' &&
+      cliente.longitud != null &&
+      cliente.longitud !== '' &&
+      Number.isFinite(latitud) &&
+      Number.isFinite(longitud) &&
+      latitud >= -90 && latitud <= 90 &&
+      longitud >= -180 && longitud <= 180;
+    const query = tieneCoordenadas
+      ? `${latitud},${longitud}`
+      : cliente.direccion || '';
+
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  };
   
   const totalClientesDia = clientes.length;
   const clientesProcesados = clientes.filter(c => c.estado_visita !== 'pendiente').length;
@@ -193,7 +211,7 @@ export default function PwaRuta() {
               </div>
 
               <button 
-                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cliente.direccion)}`, '_blank')}
+                onClick={() => window.open(getMapsUrl(cliente), '_blank', 'noopener,noreferrer')}
                 className="flex items-center gap-2 text-slate-500 mb-4 text-xs hover:bg-slate-50 p-2 rounded-xl transition-colors w-full text-left pl-1"
               >
                 <div className="shrink-0 rounded-xl bg-blue-50 p-2 text-blue-800">

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import { MapPin } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -23,24 +23,44 @@ function LocationSelector({ position, onMapClick }) {
   );
 }
 
-export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
-  // Inicializamos con las props que vienen de afuera o con una por defecto de Yucatán
-  const [position, setPosition] = useState(() => {
-    if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-      return [parseFloat(lat), parseFloat(lng)];
-    }
-    return [20.9674, -89.5926];
-  });
+function MapSizeController() {
+  const map = useMap();
 
-  // Sincronizar si cambian las props externas
   useEffect(() => {
-    if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-      setPosition([parseFloat(lat), parseFloat(lng)]);
-    }
-  }, [lat, lng]);
+    const container = map.getContainer();
+    let frameId;
+
+    const invalidateSize = () => {
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(() => {
+        map.invalidateSize({ pan: false });
+      });
+    };
+
+    invalidateSize();
+
+    const observer = new ResizeObserver(invalidateSize);
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frameId);
+    };
+  }, [map]);
+
+  return null;
+}
+
+export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
+  const parsedLat = Number(lat);
+  const parsedLng = Number(lng);
+  const hasCoordinates = lat != null && lat !== '' &&
+    lng != null && lng !== '' &&
+    Number.isFinite(parsedLat) && parsedLat >= -90 && parsedLat <= 90 &&
+    Number.isFinite(parsedLng) && parsedLng >= -180 && parsedLng <= 180;
+  const position = hasCoordinates ? [parsedLat, parsedLng] : [20.9674, -89.5926];
 
   const handleMarkerPlacement = (newPos) => {
-    setPosition(newPos);
     // Notificamos inmediatamente al componente padre (AgregarCliente)
     if (onChangeCoordinates) {
       onChangeCoordinates(newPos[0], newPos[1]);
@@ -66,9 +86,10 @@ export default function TabDireccion({ lat, lng, onChangeCoordinates }) {
           scrollWheelZoom={true} 
           style={{ width: '100%', height: '100%' }}
         >
+          <MapSizeController />
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           />
           <LocationSelector position={position} onMapClick={handleMarkerPlacement} />
         </MapContainer>
