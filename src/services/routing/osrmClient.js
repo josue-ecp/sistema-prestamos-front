@@ -98,13 +98,60 @@ export const buildRouteUrl = ({
   return `${normalizeBaseUrl(baseUrl)}/route/v1/driving/${coordinates.join(';')}?overview=full&geometries=geojson&steps=true&annotations=distance,duration`
 }
 
-export const getRouteProgress = (route, location) => {
+const getRoutePositionAtDistance = (geometry, distanceMeters) => {
+  let accumulatedDistance = 0
+
+  for (let index = 0; index < geometry.length - 1; index += 1) {
+    const start = geometry[index]
+    const end = geometry[index + 1]
+    const segmentLength = getDistanceMeters(start, end)
+
+    if (distanceMeters <= accumulatedDistance + segmentLength || index === geometry.length - 2) {
+      const fraction = segmentLength === 0
+        ? 0
+        : Math.max(0, Math.min(1, (distanceMeters - accumulatedDistance) / segmentLength))
+      return {
+        projectedPoint: [
+          start[0] + (end[0] - start[0]) * fraction,
+          start[1] + (end[1] - start[1]) * fraction,
+        ],
+        segmentIndex: index,
+        fraction,
+      }
+    }
+
+    accumulatedDistance += segmentLength
+  }
+
+  return null
+}
+
+export const getRouteProgress = (route, location, minimumProgressMeters = 0) => {
   const geometry = route?.geometry || []
-  if (geometry.length < 2 || !location) {
-    return { distanceFromRouteMeters: Infinity, traveledMeters: 0 }
+  const invalidProgress = {
+    valid: false,
+    distanceFromRouteMeters: Infinity,
+    traveledMeters: 0,
+    geometryLengthMeters: 0,
+    projectedPoint: null,
+    segmentIndex: null,
+    fraction: null,
+  }
+
+  if (
+    geometry.length < 2 ||
+    !location ||
+    !Number.isFinite(Number(location.latitude)) ||
+    !Number.isFinite(Number(location.longitude))
+  ) {
+    return invalidProgress
   }
 
   const point = [Number(location.latitude), Number(location.longitude)]
+  if (point[0] < -90 || point[0] > 90 || point[1] < -180 || point[1] > 180) {
+    return invalidProgress
+  }
+
   let traveledMeters = 0
   let nearestDistance = Infinity
   let nearestProgress = 0
@@ -112,6 +159,25 @@ export const getRouteProgress = (route, location) => {
   for (let index = 0; index < geometry.length - 1; index += 1) {
     const start = geometry[index]
     const end = geometry[index + 1]
+    if (
+      !Array.isArray(start) ||
+      !Array.isArray(end) ||
+      !Number.isFinite(start[0]) ||
+      !Number.isFinite(start[1]) ||
+      !Number.isFinite(end[0]) ||
+      !Number.isFinite(end[1]) ||
+      start[0] < -90 ||
+      start[0] > 90 ||
+      start[1] < -180 ||
+      start[1] > 180 ||
+      end[0] < -90 ||
+      end[0] > 90 ||
+      end[1] < -180 ||
+      end[1] > 180
+    ) {
+      return invalidProgress
+    }
+
     const segmentLength = getDistanceMeters(start, end)
     const projection = getProjectedSegmentDistance(point, start, end)
 
@@ -123,10 +189,45 @@ export const getRouteProgress = (route, location) => {
     traveledMeters += segmentLength
   }
 
+  if (!Number.isFinite(nearestDistance)) return invalidProgress
+
+  const progressFloor = Math.max(
+    0,
+    Math.min(traveledMeters, Number(minimumProgressMeters) || 0),
+  )
+  const progressMeters = Math.max(progressFloor, nearestProgress)
+  const position = getRoutePositionAtDistance(geometry, progressMeters)
+  if (!position) return invalidProgress
+
   return {
+    valid: true,
     distanceFromRouteMeters: nearestDistance,
-    traveledMeters: nearestProgress,
+    traveledMeters: progressMeters,
     geometryLengthMeters: traveledMeters,
+    projectedPoint: position.projectedPoint,
+    segmentIndex: position.segmentIndex,
+    fraction: position.fraction,
+  }
+}
+
+export const splitRouteGeometry = (route, progress) => {
+  const geometry = route?.geometry
+  const { projectedPoint, segmentIndex } = progress || {}
+
+  if (
+    !Array.isArray(geometry) ||
+    geometry.length < 2 ||
+    !Array.isArray(projectedPoint) ||
+    !Number.isInteger(segmentIndex) ||
+    segmentIndex < 0 ||
+    segmentIndex >= geometry.length - 1
+  ) {
+    return null
+  }
+
+  return {
+    traveledGeometry: [...geometry.slice(0, segmentIndex + 1), projectedPoint],
+    remainingGeometry: [projectedPoint, ...geometry.slice(segmentIndex + 1)],
   }
 }
 
@@ -135,10 +236,13 @@ export const getNextManeuver = (
   location,
   reachedThresholdMeters = 18,
   minimumStepIndex = 0,
+  progressMeters = null,
 ) => {
   if (!route?.steps?.length) return null
 
-  const progress = getRouteProgress(route, location).traveledMeters
+  const progress = Number.isFinite(progressMeters)
+    ? progressMeters
+    : getRouteProgress(route, location).traveledMeters
   const departureStepIndex = route.steps.findIndex((step, index) =>
     index >= minimumStepIndex && step.maneuverType === 'depart',
   )

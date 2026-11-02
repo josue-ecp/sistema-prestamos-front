@@ -2,7 +2,12 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import api from '../../../api';
 import RutaMapa from './RutaMapa';
 import { clearLocationWatch, getCurrentPosition, watchCurrentPosition } from '../../../services/locationProvider';
-import { fetchRoute, getNextManeuver, getRouteProgress } from '../../../services/routing/osrmClient';
+import {
+  fetchRoute,
+  getNextManeuver,
+  getRouteProgress,
+  splitRouteGeometry,
+} from '../../../services/routing/osrmClient';
 import { MapPin, Phone, CheckCircle, XCircle, X, RotateCcw, AlertTriangle, MessageSquare, Navigation, LocateFixed, Route as RouteIcon, List, Loader2, RefreshCw } from 'lucide-react';
 
 const getLocalDateKey = () => {
@@ -41,6 +46,47 @@ const getDistanceInMeters = (origin, destination) => {
   return earthRadiusMeters * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 };
 
+const createRouteProgressSnapshot = (route, location, minimumProgressMeters = 0) => {
+  const progress = getRouteProgress(route, location, minimumProgressMeters)
+  if (!progress.valid || progress.distanceFromRouteMeters >= 65) return null
+
+  const geometryParts = splitRouteGeometry(route, progress)
+  if (!geometryParts) return null
+
+  return {
+    route,
+    progress,
+    traveledGeometry: geometryParts.traveledGeometry,
+    remainingGeometry: geometryParts.remainingGeometry,
+  }
+}
+
+const createInitialRouteProgressSnapshot = (route, location) => {
+  const locationSnapshot = createRouteProgressSnapshot(route, location)
+  if (locationSnapshot) return locationSnapshot
+
+  const routeStart = route?.geometry?.[0]
+  if (!Array.isArray(routeStart) || routeStart.length < 2) return null
+
+  return createRouteProgressSnapshot(route, {
+    latitude: routeStart[0],
+    longitude: routeStart[1],
+  })
+}
+
+const getPendingRouteCoords = (route, progressSnapshot) => {
+  if (
+    !route ||
+    !progressSnapshot ||
+    progressSnapshot.route !== route ||
+    !Array.isArray(progressSnapshot.remainingGeometry)
+  ) {
+    return undefined
+  }
+
+  return progressSnapshot.remainingGeometry
+}
+
 const getRouteOwnerId = () => {
   try {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -63,6 +109,7 @@ export default function PwaRuta() {
   const [routeTotalClientCount, setRouteTotalClientCount] = useState(0);
   const [routeLocation, setRouteLocation] = useState(null);
   const [routeData, setRouteData] = useState(null);
+  const [routeProgressData, setRouteProgressData] = useState(null);
   const [isRouting, setIsRouting] = useState(false);
   const [routingError, setRoutingError] = useState('');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -70,6 +117,7 @@ export default function PwaRuta() {
   const routeWatchIdRef = useRef(null);
   const routeRequestRef = useRef({ controller: null, sequence: 0, clientId: null });
   const routeDataRef = useRef(null);
+  const routeProgressRef = useRef(null);
   const lastRouteRequestRef = useRef({ clientId: null, requestedAt: 0 });
   const navigationStepRef = useRef({ clientId: null, index: 0 });
   const [routeActionError, setRouteActionError] = useState('');
@@ -283,6 +331,8 @@ export default function PwaRuta() {
     if (!hasValidCoordinates(targetClient)) {
       if (currentRoute?.clientId !== clientId) {
         routeDataRef.current = null;
+        routeProgressRef.current = null;
+        setRouteProgressData(null);
         setRouteData(null);
       }
       setRoutingError('');
@@ -322,6 +372,8 @@ export default function PwaRuta() {
 
     if (currentRoute?.clientId !== clientId) {
       routeDataRef.current = null;
+      routeProgressRef.current = null;
+      setRouteProgressData(null);
       setRouteData(null);
     }
 
@@ -348,7 +400,13 @@ export default function PwaRuta() {
       if (controller.signal.aborted || routeRequestRef.current.sequence !== sequence) return;
 
       const nextRoute = { ...route, clientId };
+      const initialProgress = createInitialRouteProgressSnapshot(nextRoute, origin)
       routeDataRef.current = nextRoute;
+      routeProgressRef.current = {
+        route: nextRoute,
+        progress: initialProgress?.progress || null,
+      };
+      setRouteProgressData(initialProgress);
       navigationStepRef.current = { clientId, index: 0 };
       setRouteData(nextRoute);
       setRoutingError('');
@@ -400,7 +458,27 @@ export default function PwaRuta() {
     const onLocationUpdate = (location) => {
       setGpsError('');
       const activeRoute = routeDataRef.current;
+      let progress = null
       if (activeRoute) {
+        const previousProgress = routeProgressRef.current?.route === activeRoute
+          ? routeProgressRef.current.progress
+          : null
+        const progressSnapshot = createRouteProgressSnapshot(
+          activeRoute,
+          location,
+          previousProgress?.traveledMeters || 0,
+        )
+        if (progressSnapshot) {
+          routeProgressRef.current = {
+            route: activeRoute,
+            progress: progressSnapshot.progress,
+          }
+          setRouteProgressData(progressSnapshot)
+          progress = progressSnapshot.progress
+        } else {
+          progress = previousProgress
+        }
+
         if (navigationStepRef.current.clientId !== activeRoute.clientId) {
           navigationStepRef.current = { clientId: activeRoute.clientId, index: 0 };
         }
@@ -409,6 +487,7 @@ export default function PwaRuta() {
           location,
           18,
           navigationStepRef.current.index,
+          progress?.traveledMeters,
         );
         if (maneuver) {
           navigationStepRef.current.index = Math.max(
@@ -424,6 +503,7 @@ export default function PwaRuta() {
         accuracy: location.accuracy,
         heading: location.heading,
         speed: location.speed,
+        timestamp: location.timestamp,
       });
     };
 
@@ -690,8 +770,17 @@ export default function PwaRuta() {
   const currentRouteData = routeData?.clientId === String(clienteEnCursoId)
     ? routeData
     : null;
+  const pendingRouteCoords = getPendingRouteCoords(currentRouteData, routeProgressData);
   const routeProgress = currentRouteData
-    ? getRouteProgress(currentRouteData, routeLocation)
+    ? routeProgressData?.route === currentRouteData
+      ? routeProgressData.progress
+      : getRouteProgress(
+        currentRouteData,
+        routeLocation,
+        routeProgressRef.current?.route === currentRouteData
+          ? routeProgressRef.current.progress?.traveledMeters || 0
+          : 0,
+      )
     : null;
   const nextManeuver = currentRouteData
     ? getNextManeuver(
@@ -701,6 +790,7 @@ export default function PwaRuta() {
       navigationStepRef.current.clientId === currentRouteData.clientId
         ? navigationStepRef.current.index
         : 0,
+      routeProgress?.traveledMeters,
     )
     : null;
   const routeProgressRatio = routeProgress?.geometryLengthMeters
@@ -844,6 +934,7 @@ export default function PwaRuta() {
                 currentLocation={routeLocation}
                 cliente={clienteEnCurso}
                 routeCoords={currentRouteData?.geometry}
+                pendingRouteCoords={pendingRouteCoords}
                 routeSummary={currentRouteData}
                 nextManeuver={nextManeuver}
                 remainingDistanceMeters={remainingDistanceMeters}
