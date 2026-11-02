@@ -73,7 +73,7 @@ body {
 }
 
 /* Ajuste para iconos de Lucide para que no se vean desproporcionados */
-svg {
+svg.lucide {
   width: 18px;
   height: 18px;
 }
