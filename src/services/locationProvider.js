@@ -3,12 +3,13 @@ import { Geolocation } from '@capacitor/geolocation'
 
 const activeWatchCleanups = new Set()
 
-const normalizePosition = ({ coords }) => ({
+const normalizePosition = ({ coords, timestamp }) => ({
   latitude: coords.latitude,
   longitude: coords.longitude,
   accuracy: coords.accuracy,
   heading: coords.heading ?? coords.course ?? null,
   speed: coords.speed ?? null,
+  timestamp: Number.isFinite(timestamp) ? timestamp : Date.now(),
 })
 
 const getBrowserGeolocationError = (error) => {

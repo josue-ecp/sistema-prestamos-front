@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { createRoot } from 'react-dom/client'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Circle, MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faMotorcycle } from '@fortawesome/free-solid-svg-icons'
 import { AlertTriangle, CheckCircle2, LocateFixed, Loader2, Navigation, RefreshCw, X } from 'lucide-react'
 import L from 'leaflet'
@@ -22,39 +21,209 @@ const riderMarkerIcon = L.divIcon({
   className: 'credurix-rider-marker',
   html: `
     <div style="width:44px;height:44px;display:grid;place-items:center;border:2px solid #fff;border-radius:9999px;background:#0f4c81;box-shadow:0 2px 8px rgba(15,23,42,.35)">
-      <span data-rider-icon style="display:grid;width:34px;height:34px;place-items:center"></span>
+      <span data-rider-icon style="display:grid;width:34px;height:34px;place-items:center;color:#38bdf8;transform:rotate(-90deg);transition:transform 350ms ease-out">${icon(faMotorcycle, {
+    styles: { width: '30px', height: '30px' },
+  }).html.join('')}</span>
     </div>
   `,
   iconSize: [48, 48],
   iconAnchor: [24, 24],
 })
 
-function RiderMarker({ currentLocation }) {
-  const markerRef = useRef(null)
+const NavigationMotionContext = createContext(null)
+const MAX_LOCATION_AGE_MS = 10000
+const MAX_ANIMATED_ACCURACY_METERS = 100
+const MAX_ANIMATED_DISTANCE_METERS = 200
+const POSITION_ANIMATION_DURATION_MS = 650
+
+const isValidLocation = (location) =>
+  location &&
+  Number.isFinite(location.latitude) &&
+  location.latitude >= -90 &&
+  location.latitude <= 90 &&
+  Number.isFinite(location.longitude) &&
+  location.longitude >= -180 &&
+  location.longitude <= 180
+
+const isFreshTimestamp = (timestamp) =>
+  Number.isFinite(timestamp) &&
+  Date.now() - timestamp >= -1000 &&
+  Date.now() - timestamp <= MAX_LOCATION_AGE_MS
+
+const isFreshLocation = (location) => isFreshTimestamp(location?.timestamp)
+
+function NavigationMotionProvider({ currentLocation, navigationActive, children }) {
+  const [position, setPosition] = useState(() => (
+    isValidLocation(currentLocation)
+      ? { latitude: currentLocation.latitude, longitude: currentLocation.longitude }
+      : null
+  ))
+  const positionRef = useRef(position)
+  const lastSampleTimestampRef = useRef(null)
 
   useEffect(() => {
+    let animationFrameId = null
+    let isCancelled = false
+    let previousSampleTimestamp = lastSampleTimestampRef.current
+    let acceptedSampleTimestamp = null
+    const setPositionAndRef = (nextPosition) => {
+      if (isCancelled) return
+      positionRef.current = nextPosition
+      setPosition(nextPosition)
+    }
+
+    if (!isValidLocation(currentLocation)) return undefined
+
+    const target = {
+      latitude: currentLocation.latitude,
+      longitude: currentLocation.longitude,
+    }
+    const sampleTimestamp = currentLocation.timestamp
+
+    if (!navigationActive) {
+      setPositionAndRef(target)
+      lastSampleTimestampRef.current = sampleTimestamp
+      return undefined
+    }
+
+    if (!isFreshLocation(currentLocation)) return undefined
+    if (
+      Number.isFinite(lastSampleTimestampRef.current) &&
+      Number.isFinite(sampleTimestamp) &&
+      sampleTimestamp <= lastSampleTimestampRef.current
+    ) {
+      return undefined
+    }
+    previousSampleTimestamp = lastSampleTimestampRef.current
+    lastSampleTimestampRef.current = sampleTimestamp
+    acceptedSampleTimestamp = sampleTimestamp
+
+    const start = positionRef.current
+    if (!start) {
+      setPositionAndRef(target)
+      return undefined
+    }
+
+    const startLatLng = L.latLng(start.latitude, start.longitude)
+    const targetLatLng = L.latLng(target.latitude, target.longitude)
+    if (!startLatLng || !targetLatLng) return undefined
+
+    const distanceMeters = startLatLng.distanceTo(targetLatLng)
+    const accuracyIsUsable = Number.isFinite(currentLocation.accuracy) &&
+      currentLocation.accuracy <= MAX_ANIMATED_ACCURACY_METERS
+    if (
+      distanceMeters < 0.5 ||
+      !accuracyIsUsable ||
+      distanceMeters > MAX_ANIMATED_DISTANCE_METERS
+    ) {
+      setPositionAndRef(target)
+      return undefined
+    }
+
+    const startTime = performance.now()
+    const animatePosition = (timestamp) => {
+      if (isCancelled || !isValidLocation(currentLocation) || !isFreshLocation(currentLocation)) {
+        animationFrameId = null
+        return
+      }
+
+      const progress = Math.min(
+        1,
+        (timestamp - startTime) / POSITION_ANIMATION_DURATION_MS,
+      )
+      const nextPosition = {
+        latitude: start.latitude + (target.latitude - start.latitude) * progress,
+        longitude: start.longitude + (target.longitude - start.longitude) * progress,
+      }
+      setPositionAndRef(nextPosition)
+
+      if (progress < 1) {
+        animationFrameId = window.requestAnimationFrame(animatePosition)
+      } else {
+        animationFrameId = null
+      }
+    }
+
+    animationFrameId = window.requestAnimationFrame(animatePosition)
+    return () => {
+      isCancelled = true
+      if (animationFrameId != null) {
+        window.cancelAnimationFrame(animationFrameId)
+        if (
+          acceptedSampleTimestamp != null &&
+          lastSampleTimestampRef.current === acceptedSampleTimestamp
+        ) {
+          lastSampleTimestampRef.current = previousSampleTimestamp
+        }
+      }
+    }
+  }, [currentLocation, navigationActive])
+
+  const presentationLocation = position
+    ? {
+      ...(isValidLocation(currentLocation) ? currentLocation : {}),
+      ...position,
+    }
+    : null
+
+  return (
+    <NavigationMotionContext.Provider value={presentationLocation}>
+      {children}
+    </NavigationMotionContext.Provider>
+  )
+}
+
+const getShortestHeadingChange = (currentHeading, nextHeading) =>
+  ((nextHeading - currentHeading + 540) % 360) - 180
+
+function RiderMarker() {
+  const currentLocation = useContext(NavigationMotionContext)
+  const markerRef = useRef(null)
+  const displayedHeadingRef = useRef(0)
+
+  useEffect(() => {
+    const headingValue = currentLocation?.heading
+    const speedValue = currentLocation?.speed
+    const accuracyValue = currentLocation?.accuracy
+    const timestamp = currentLocation?.timestamp
+    const heading = Number(headingValue)
+    const speed = Number(speedValue)
+    const accuracy = Number(accuracyValue)
+    const headingIsUsable = headingValue != null &&
+      headingValue !== '' &&
+      isFreshTimestamp(timestamp) &&
+      Number.isFinite(heading) &&
+      heading >= 0 &&
+      heading <= 360 &&
+      speedValue != null &&
+      speedValue !== '' &&
+      Number.isFinite(speed) &&
+      speed >= 1.2 &&
+      accuracyValue != null &&
+      accuracyValue !== '' &&
+      Number.isFinite(accuracy) &&
+      accuracy <= 35
+
+    if (!headingIsUsable) return
+
+    displayedHeadingRef.current = (
+      displayedHeadingRef.current + getShortestHeadingChange(displayedHeadingRef.current, heading)
+    ) % 360
+
     const markerElement = markerRef.current?.getElement()
     const iconContainer = markerElement?.querySelector('[data-rider-icon]')
-    if (!iconContainer) return undefined
+    if (iconContainer && isValidLocation(currentLocation)) {
+      iconContainer.style.transform = `rotate(${displayedHeadingRef.current - 90}deg)`
+    }
+  }, [
+    currentLocation?.accuracy,
+    currentLocation?.heading,
+    currentLocation?.speed,
+    currentLocation?.timestamp,
+    currentLocation,
+  ])
 
-    const numericHeading = Number(currentLocation.heading)
-    const hasHeading = currentLocation.heading != null &&
-      currentLocation.heading !== '' &&
-      Number.isFinite(numericHeading) &&
-      numericHeading >= 0 &&
-      numericHeading <= 360
-    const rotation = hasHeading ? numericHeading % 360 : 0
-    const iconRoot = createRoot(iconContainer)
-
-    iconRoot.render(
-      <FontAwesomeIcon
-        icon={faMotorcycle}
-        style={{ width: '30px', height: '30px', color: '#38bdf8', transform: `rotate(${rotation}deg)` }}
-      />,
-    )
-
-    return () => iconRoot.unmount()
-  }, [currentLocation.heading])
+  if (!isValidLocation(currentLocation)) return null
 
   return (
     <Marker
@@ -78,8 +247,9 @@ const getNavigationPanOffset = (map) => {
     ? navigationPanel.getBoundingClientRect().bottom - mapBounds.top
     : 0
   const bottomControls = [
-    ...container.querySelectorAll('[data-navigation-center-control], .leaflet-control-zoom'),
-  ]
+    root?.querySelector('[data-navigation-center-control]'),
+    container.querySelector('.leaflet-control-zoom'),
+  ].filter(Boolean)
   const firstBottomControl = bottomControls.reduce((top, control) => {
     const bounds = control.getBoundingClientRect()
     return bounds.width > 0 && bounds.height > 0
@@ -91,8 +261,8 @@ const getNavigationPanOffset = (map) => {
 
   if (usableBottom <= usableTop) return L.point(0, 0)
 
-  const usableCenterY = (usableTop + usableBottom) / 2
-  return L.point(0, mapSize.y / 2 - usableCenterY)
+  const riderTargetY = usableTop + (usableBottom - usableTop) * 0.75
+  return L.point(0, mapSize.y / 2 - riderTargetY)
 }
 
 const setNavigationCamera = (map, location) => {
@@ -134,10 +304,15 @@ const formatDuration = (durationSeconds) => {
 
 function MapCamera({ currentLocation, clienteLatLng, routeCoords, navigationActive }) {
   const map = useMap()
+  const presentationLocation = useContext(NavigationMotionContext)
+  const usableLocation = isValidLocation(currentLocation) ? currentLocation : presentationLocation
+  const presentationLatitude = presentationLocation?.latitude
+  const presentationLongitude = presentationLocation?.longitude
   const [followingLocation, setFollowingLocation] = useState(navigationActive)
   const followingLocationRef = useRef(navigationActive)
-  const previousLocationRef = useRef(currentLocation)
   const currentLocationRef = useRef(currentLocation)
+  const presentationLocationRef = useRef(presentationLocation)
+  const lastFollowPositionRef = useRef(null)
 
   useEffect(() => {
     const container = map.getContainer()
@@ -161,8 +336,12 @@ function MapCamera({ currentLocation, clienteLatLng, routeCoords, navigationActi
   }, [map])
 
   useEffect(() => {
-    currentLocationRef.current = currentLocation
-  }, [currentLocation])
+    currentLocationRef.current = usableLocation
+  }, [usableLocation])
+
+  useEffect(() => {
+    presentationLocationRef.current = presentationLocation
+  }, [presentationLocation])
 
   useEffect(() => {
     let animationFrameId = null
@@ -174,8 +353,9 @@ function MapCamera({ currentLocation, clienteLatLng, routeCoords, navigationActi
         animationFrameId = null
         if (map.getContainer().isConnected) {
           map.invalidateSize({ pan: false })
-          if (navigationActive && followingLocationRef.current && currentLocationRef.current) {
-            setNavigationCamera(map, currentLocationRef.current)
+          if (navigationActive && followingLocationRef.current && presentationLocationRef.current) {
+            setNavigationCamera(map, presentationLocationRef.current)
+            lastFollowPositionRef.current = presentationLocationRef.current
           }
         }
       })
@@ -190,7 +370,7 @@ function MapCamera({ currentLocation, clienteLatLng, routeCoords, navigationActi
       const elementsToObserve = [
         container,
         root?.querySelector('[data-navigation-panel-content]'),
-        container.querySelector('[data-navigation-center-control]'),
+        root?.querySelector('[data-navigation-center-control]'),
         container.querySelector('.leaflet-control-zoom'),
       ]
       elementsToObserve.forEach((element) => {
@@ -212,14 +392,20 @@ function MapCamera({ currentLocation, clienteLatLng, routeCoords, navigationActi
   useEffect(() => {
     if (!navigationActive) {
       followingLocationRef.current = false
+      lastFollowPositionRef.current = null
       return
     }
 
     followingLocationRef.current = true
 
-    const location = currentLocationRef.current
-    if (location) {
+    if (map.zoomControl) {
+      map.zoomControl.setPosition('bottomleft')
+    }
+
+    const location = presentationLocationRef.current || currentLocationRef.current
+    if (isValidLocation(location)) {
       setNavigationCamera(map, location)
+      lastFollowPositionRef.current = location
     }
   }, [map, navigationActive])
 
@@ -242,24 +428,60 @@ function MapCamera({ currentLocation, clienteLatLng, routeCoords, navigationActi
   }, [clienteLatLng, map, navigationActive, routeCoords])
 
   useEffect(() => {
-    const locationChanged = previousLocationRef.current !== currentLocation
-    previousLocationRef.current = currentLocation
+    if (
+      !navigationActive ||
+      !followingLocation ||
+      !Number.isFinite(presentationLatitude) ||
+      !Number.isFinite(presentationLongitude)
+    ) return
 
-    if (!locationChanged || !navigationActive || !followingLocationRef.current || !currentLocation) return
-    setNavigationCamera(map, currentLocation)
-  }, [currentLocation, followingLocation, map, navigationActive])
+    const previousPosition = lastFollowPositionRef.current
+    const nextPosition = {
+      latitude: presentationLatitude,
+      longitude: presentationLongitude,
+    }
+    if (!previousPosition) {
+      setNavigationCamera(map, nextPosition)
+      lastFollowPositionRef.current = nextPosition
+      return
+    }
+
+    const zoom = map.getZoom()
+    const previousPoint = map.project(
+      [previousPosition.latitude, previousPosition.longitude],
+      zoom,
+    )
+    const nextPoint = map.project(
+      [nextPosition.latitude, nextPosition.longitude],
+      zoom,
+    )
+    const movement = nextPoint.subtract(previousPoint)
+
+    if (movement.x !== 0 || movement.y !== 0) {
+      map.panBy(movement, { animate: false })
+    }
+    lastFollowPositionRef.current = nextPosition
+  }, [
+    followingLocation,
+    map,
+    navigationActive,
+    presentationLatitude,
+    presentationLongitude,
+  ])
 
   const centerOnCurrentLocation = () => {
-    if (!currentLocation) return
+    const location = presentationLocationRef.current || currentLocationRef.current
+    if (!isValidLocation(location)) return
     followingLocationRef.current = true
     setFollowingLocation(true)
     if (navigationActive) {
-      setNavigationCamera(map, currentLocation)
+      setNavigationCamera(map, location)
+      lastFollowPositionRef.current = location
       return
     }
 
     map.setView(
-      [currentLocation.latitude, currentLocation.longitude],
+      [location.latitude, location.longitude],
       Math.max(map.getZoom(), 15),
       { animate: false },
     )
@@ -275,7 +497,7 @@ function MapCamera({ currentLocation, clienteLatLng, routeCoords, navigationActi
     <button
       type="button"
       onClick={centerOnCurrentLocation}
-      disabled={!currentLocation}
+      disabled={!isValidLocation(usableLocation)}
       aria-label={followingLocation ? 'Centrar y seguir mi ubicación' : 'Volver a seguir mi ubicación'}
       data-navigation-center-control={navigationActive ? '' : undefined}
       className={`absolute right-3 z-[1000] flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 shadow-md transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 ${
@@ -294,6 +516,7 @@ export default function RutaMapa({
   currentLocation,
   cliente,
   routeCoords = EMPTY_ROUTE,
+  pendingRouteCoords = EMPTY_ROUTE,
   routeSummary = null,
   nextManeuver = null,
   remainingDistanceMeters = null,
@@ -310,9 +533,12 @@ export default function RutaMapa({
     () => getClientCoordinates(cliente),
     [cliente],
   )
-  const defaultCenter = currentLocation
-    ? [currentLocation.latitude, currentLocation.longitude]
+  const validCurrentLocation = isValidLocation(currentLocation) ? currentLocation : null
+  const defaultCenter = validCurrentLocation
+    ? [validCurrentLocation.latitude, validCurrentLocation.longitude]
     : clienteLatLng || [20.9674, -89.6236]
+  const visibleRouteCoords = navigationActive ? pendingRouteCoords : routeCoords
+
   return (
     <div className={navigationActive
       ? 'fixed inset-0 z-[100] h-[100dvh] w-screen overflow-hidden bg-slate-950'
@@ -391,42 +617,47 @@ export default function RutaMapa({
           style={{ height: '100%', width: '100%' }}
           className="z-0"
         >
-          <TileLayer
-            attribution="&copy; OpenStreetMap contributors"
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-
-          {currentLocation && (
-            <>
-              <RiderMarker currentLocation={currentLocation} />
-              <Circle
-                center={[currentLocation.latitude, currentLocation.longitude]}
-                radius={Math.max(30, Number(currentLocation.accuracy || 30))}
-                pathOptions={{ color: '#2563eb', fillColor: '#93c5fd', fillOpacity: 0.18, weight: 2 }}
-              />
-            </>
-          )}
-
-          {clienteLatLng && (
-            <Marker position={clienteLatLng} icon={defaultMarkerIcon}>
-              <Popup>{cliente?.nombre || 'Cliente'}</Popup>
-            </Marker>
-          )}
-
-          {routeCoords.length > 0 && (
-            <Polyline
-              positions={routeCoords}
-              pathOptions={{ color: '#0f4c81', weight: 6, opacity: 0.9 }}
-            />
-          )}
-
-          <MapCamera
-            key={navigationActive ? 'navigation' : 'preview'}
+          <NavigationMotionProvider
             currentLocation={currentLocation}
-            clienteLatLng={clienteLatLng}
-            routeCoords={routeCoords}
             navigationActive={navigationActive}
-          />
+          >
+            <TileLayer
+              attribution="&copy; OpenStreetMap contributors"
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            {validCurrentLocation && (
+              <>
+                <RiderMarker />
+                <Circle
+                  center={[validCurrentLocation.latitude, validCurrentLocation.longitude]}
+                  radius={Math.max(30, Number(validCurrentLocation.accuracy || 30))}
+                  pathOptions={{ color: '#2563eb', fillColor: '#93c5fd', fillOpacity: 0.18, weight: 2 }}
+                />
+              </>
+            )}
+
+            {clienteLatLng && (
+              <Marker position={clienteLatLng} icon={defaultMarkerIcon}>
+                <Popup>{cliente?.nombre || 'Cliente'}</Popup>
+              </Marker>
+            )}
+
+            {visibleRouteCoords.length > 1 && (
+              <Polyline
+                positions={visibleRouteCoords}
+                pathOptions={{ color: '#0f4c81', weight: 6, opacity: 0.9 }}
+              />
+            )}
+
+            <MapCamera
+              key={navigationActive ? 'navigation' : 'preview'}
+              currentLocation={validCurrentLocation}
+              clienteLatLng={clienteLatLng}
+              routeCoords={routeCoords}
+              navigationActive={navigationActive}
+            />
+          </NavigationMotionProvider>
         </MapContainer>
       </div>
 
