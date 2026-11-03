@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -28,11 +28,44 @@ const LocationMarker = ({ position, setPosition }) => {
 
 export default function AgregarZona() {
   const navigate = useNavigate();
+  let actor = {};
+  try {
+    actor = JSON.parse(localStorage.getItem('user') || '{}');
+  } catch {
+    actor = {};
+  }
+  const isSuperAdmin = actor.actor_type === 'super_admin' || actor.role_code === 'SUPER_ADMIN';
   // Coordenadas iniciales centradas en la región (puedes ajustarlas según prefieras)
   const [position, setPosition] = useState({ lat: 20.9674, lng: -89.6236 });
   const [descripcion, setDescripcion] = useState('');
+  const [empresas, setEmpresas] = useState([]);
+  const [idEmpresa, setIdEmpresa] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+
+    const fetchEmpresas = async () => {
+      try {
+        const response = await api.get('/empresas', {
+          headers: { Accept: 'application/json' },
+          validateStatus: () => true
+        });
+        const result = response.data;
+        if (response.status >= 200 && response.status < 300 && result.status) {
+          setEmpresas((result.data || []).filter((empresa) => empresa.estado === 'activo'));
+        } else {
+          showMessage(result.message || 'No se pudieron cargar las empresas.', 'error');
+        }
+      } catch (error) {
+        console.error('Error al cargar empresas:', error);
+        showMessage('Error de conexión al cargar empresas.', 'error');
+      }
+    };
+
+    fetchEmpresas();
+  }, [isSuperAdmin]);
 
   const showMessage = (text, type = 'success') => {
     setMessage({ type, text });
@@ -49,6 +82,10 @@ export default function AgregarZona() {
       showMessage('Ingresa la descripción o nombre de la zona.', 'error');
       return;
     }
+    if (isSuperAdmin && !idEmpresa) {
+      showMessage('Selecciona una empresa activa.', 'error');
+      return;
+    }
 
     setSaving(true);
     // Objeto adaptado 100% a las columnas requeridas por tu tabla de BD y controlador
@@ -59,6 +96,9 @@ export default function AgregarZona() {
       longitud: position.lng,
       estado: 'activo'
     };
+    if (isSuperAdmin) {
+      payload.id_empresa = idEmpresa;
+    }
 
     try {
       const response = await api.post('/zonas', payload, {
@@ -159,6 +199,25 @@ export default function AgregarZona() {
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
+
+                {isSuperAdmin && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold uppercase tracking-wide text-slate-600">Empresa</label>
+                    <select
+                      required
+                      value={idEmpresa}
+                      onChange={(e) => setIdEmpresa(e.target.value)}
+                      className="w-full cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
+                    >
+                      <option value="">Selecciona una empresa activa...</option>
+                      {empresas.map((empresa) => (
+                        <option key={empresa.id_empresa} value={empresa.id_empresa}>
+                          {empresa.nombre_negocio}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Barra de Acciones Inferior Estandarizada */}
                 <div className="mt-8 flex flex-col-reverse justify-start gap-3 border-t border-slate-100 pt-5 sm:flex-row">

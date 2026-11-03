@@ -9,16 +9,25 @@ const UsuariosWeb = () => {
   
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]); // <-- AHORA SÍ, ESTADO PARA ROLES
+  const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
   const [modalBorrar, setModalBorrar] = useState({ show: false, id: null, nombre: '' });
+  let actor = {};
+  try {
+    actor = JSON.parse(localStorage.getItem('user') || '{}');
+  } catch {
+    actor = {};
+  }
+  const isSuperAdmin = actor.actor_type === 'super_admin' || actor.role_code === 'SUPER_ADMIN';
 
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
     password: '',
-    id_rol: '' 
+    id_rol: '',
+    id_empresa: '',
   });
 
   const fetchData = async () => {
@@ -39,6 +48,14 @@ const UsuariosWeb = () => {
         setRoles(dataRoles.data);
       }
 
+      if (isSuperAdmin) {
+        const resEmpresas = await api.get('/empresas', { headers, validateStatus: () => true });
+        const dataEmpresas = resEmpresas.data;
+        if (resEmpresas.status >= 200 && resEmpresas.status < 300 && dataEmpresas.status) {
+          setEmpresas((dataEmpresas.data || []).filter((empresa) => empresa.estado === 'activo'));
+        }
+      }
+
     } catch (error) {
       console.error("Error al cargar datos:", error);
     } finally {
@@ -48,7 +65,7 @@ const UsuariosWeb = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [isSuperAdmin]);
 
   // 2. GUARDAR (CREAR O EDITAR)
   const showMessage = (text, type = 'success') => {
@@ -62,6 +79,10 @@ const UsuariosWeb = () => {
     // Validar que sí eligieron un rol
     if (!formData.id_rol) {
       showMessage('Por favor, selecciona un rol de la lista.', 'error');
+      return;
+    }
+    if (isSuperAdmin && !isEditing && !formData.id_empresa) {
+      showMessage('Por favor, selecciona una empresa activa.', 'error');
       return;
     }
 
@@ -148,7 +169,7 @@ const UsuariosWeb = () => {
   const cerrarModal = () => {
     setIsModalOpen(false);
     setIsEditing(false);
-    setFormData({ nombre: '', correo: '', password: '', id_rol: '' });
+    setFormData({ nombre: '', correo: '', password: '', id_rol: '', id_empresa: '' });
   };
 
   const filteredUsuarios = usuarios.filter((usuario) =>
@@ -363,6 +384,25 @@ const UsuariosWeb = () => {
                   ))}
                 </select>
               </div>
+
+              {isSuperAdmin && !isEditing && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">Empresa</label>
+                  <select
+                    required
+                    value={formData.id_empresa}
+                    onChange={(e) => setFormData({ ...formData, id_empresa: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  >
+                    <option value="">-- Selecciona una empresa activa --</option>
+                    {empresas.map((empresa) => (
+                      <option key={empresa.id_empresa} value={empresa.id_empresa}>
+                        {empresa.nombre_negocio}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="mt-2 flex flex-col-reverse justify-between gap-3 border-t border-slate-100 pt-4 sm:flex-row">
                 <button type="button" onClick={cerrarModal} className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 font-bold text-slate-600 transition hover:bg-slate-100">Cancelar</button>

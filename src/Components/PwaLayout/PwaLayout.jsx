@@ -1,20 +1,22 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { MapPin, Users, BarChart2, User } from 'lucide-react';
+import { MapPin, Users, BarChart2, User, FilePlus2 } from 'lucide-react';
 
 export default function PwaLayout() {
   const pwaMenu = [
     { icon: <MapPin size={22} />, label: 'Ruta', path: '/pwa/cobratario' },
     { icon: <Users size={22} />, label: 'Clientes', path: '/pwa/cobratario/clientes' },
+    { icon: <FilePlus2 size={22} />, label: 'Solicitud', path: '/pwa/cobratario/nueva-solicitud' },
     { icon: <BarChart2 size={22} />, label: 'Resumen', path: '/pwa/cobratario/resumen' },
     { icon: <User size={22} />, label: 'Perfil', path: '/pwa/cobratario/perfil' },
+
   ];
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* main content */}
-      <main className="flex-1 overflow-y-auto pb-20"> 
-        <Outlet /> 
+      <main className="flex-1 overflow-y-auto pb-20">
+        <Outlet />
       </main>
 
       {/* Bottom Nav */}

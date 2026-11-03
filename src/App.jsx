@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -49,6 +49,8 @@ import TiposDeCredito from './pages/TiposDeCredito/TiposDeCredito';
 import NuevoTipoCredito from './pages/TiposDeCredito/NuevoTipoCredito';
 import DetalleTipoCredito from './pages/TiposDeCredito/DetalleTipoCredito';
 import HistorialPagos from './pages/Historial/HistorialPagos';
+import NuevaSolicitud from './pages/Pwa/vistacobratarios/NuevaSolicitud';
+import SolicitudesCobratarios from './pages/Solicitudes/SolicitudesCobratarios';
 
 // --- COMPONENTES TEMPORALES PARA PWA ---
 const PwaVisitas = () => (
@@ -77,13 +79,7 @@ function ProtectedRoute() {
 function MainLayout() {
   const navigate = useNavigate();
 
-  const [usuario, setUsuario] = useState({
-    nombre: 'Cargando...',
-    rol: '...',
-    iniciales: '',
-  });
-
-  useEffect(() => {
+  const [usuario] = useState(() => {
     const userDataString = localStorage.getItem('user');
 
     if (userDataString) {
@@ -106,30 +102,33 @@ function MainLayout() {
         }
 
         let textoRol = 'Usuario';
+        if (userData.actor_type === 'super_admin') textoRol = 'Super Admin';
+        else if (userData.role_code === 'COMPANY_ADMIN') textoRol = 'Administrador de empresa';
+        else if (userData.role_code === 'SUPERVISOR') textoRol = 'Supervisor';
+        else if (userData.actor_type === 'cobratario') textoRol = 'Cobratario';
+        else if (userData.actor_type === 'cliente') textoRol = 'Cliente';
+        else if (userData.actor_type === 'company_account') textoRol = 'Cuenta de empresa';
+        else if (userData.tipo === 'admin') textoRol = `Usuario de empresa (rol ${userData.id_rol ?? userData.rol ?? 'pendiente'})`;
 
-        if (userData.id_rol === 1) textoRol = 'Super Admin';
-        if (userData.id_rol === 2) textoRol = 'Admin Empresa';
-        if (userData.id_rol === 3) textoRol = 'Cobratario';
-
-        setUsuario({
+        return {
           nombre: userData.nombre || 'Usuario Sin Nombre',
           rol: textoRol,
           iniciales: letras.toUpperCase(),
-        });
+        };
       } catch (error) {
         console.error(
           'Error al leer el usuario del localStorage',
           error
         );
       }
-    } else {
-      setUsuario({
-        nombre: 'Modo Invitado',
-        rol: 'Sin sesión',
-        iniciales: '??',
-      });
     }
-  }, []);
+
+    return {
+      nombre: 'Modo Invitado',
+      rol: 'Sin sesión',
+      iniciales: '??',
+    };
+  });
 
   // --- CIERRE DE SESIÓN ---
   const handleLogout = () => {
@@ -250,6 +249,7 @@ export default function App() {
             <Route path="/dashboard-analitico" element={<MetabaseDashboard />} />
             <Route path="/usuarios-web" element={<UsuariosWeb />} />
             <Route path="/roles" element={<Roles />} />
+            <Route path="/solicitudes" element={<SolicitudesCobratarios />} />
             <Route path="/visitas" element={<Visitas />} />
 
             {/* CLIENTES */}
@@ -356,6 +356,7 @@ export default function App() {
           <Route path="visitas" element={<PwaVisitas />} />
           <Route path="resumen" element={<PwaResumen />} />
           <Route path="perfil" element={<PwaPerfil />} />
+          <Route path="nueva-solicitud" element={<NuevaSolicitud />} />
         </Route>
 
         {/* RUTAS PWA: CLIENTE */}

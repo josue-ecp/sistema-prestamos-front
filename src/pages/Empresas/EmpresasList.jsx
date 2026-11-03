@@ -12,7 +12,7 @@ export default function EmpresasList() {
   const [message, setMessage] = useState({ type: '', text: '' });
   
   // NUEVO: Estado para controlar el Modal de Borrar
-  const [modalBorrar, setModalBorrar] = useState({ show: false, id: null, nombre: '' });
+  const [modalBorrar, setModalBorrar] = useState({ show: false, id: null, nombre: '', estado: 'activo' });
 
   const showMessage = (text, type = 'success') => {
     setMessage({ type, text });
@@ -47,13 +47,13 @@ export default function EmpresasList() {
   // ==========================================
 
   // 1. Cuando le dan clic al botón rojo de la tabla (solo abre el modal)
-  const clickBorrar = (id, nombre) => {
-    setModalBorrar({ show: true, id: id, nombre: nombre });
+  const clickBorrar = (id, nombre, estado) => {
+    setModalBorrar({ show: true, id, nombre, estado });
   };
 
   // 2. Cuando le dan a "Cancelar" en el modal
   const cancelarBorrar = () => {
-    setModalBorrar({ show: false, id: null, nombre: '' });
+    setModalBorrar({ show: false, id: null, nombre: '', estado: 'activo' });
   };
 
   // 3. Cuando le dan a "Sí, eliminar" en el modal (Aquí hacemos el fetch real)
@@ -61,15 +61,15 @@ export default function EmpresasList() {
     const id = modalBorrar.id;
     
     try {
-      const response = await api.delete(`/empresas/${id}`, { validateStatus: () => true });
+      const estado = modalBorrar.estado === 'activo' ? 'inactivo' : 'activo';
+      const response = await api.patch(`/empresas/${id}/estado`, { estado }, { validateStatus: () => true });
       const result = response.data;
 
       if (response.status >= 200 && response.status < 300 && result.status) {
-        // Actualizamos la tabla
-        setEmpresas(empresas.filter(emp => emp.id_empresa !== id));
+        setEmpresas((current) => current.map((empresa) => empresa.id_empresa === id ? { ...empresa, estado } : empresa));
         // Cerramos el modal
         setModalBorrar({ show: false, id: null, nombre: '' });
-        showMessage('Empresa eliminada correctamente.', 'success');
+        showMessage(estado === 'activo' ? 'Empresa reactivada correctamente.' : 'Empresa suspendida correctamente.', 'success');
       } else {
         showMessage('Error: ' + (result.message || 'No se pudo eliminar la empresa'), 'error');
       }
@@ -196,7 +196,8 @@ export default function EmpresasList() {
                         
                         {/* Botón Borrar: Ahora solo abre el modal */}
                         <button 
-                          onClick={() => clickBorrar(emp.id_empresa, emp.nombre_negocio)}
+                          onClick={() => clickBorrar(emp.id_empresa, emp.nombre_negocio, emp.estado)}
+                          title={emp.estado === 'activo' ? 'Suspender empresa' : 'Reactivar empresa'}
                           className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 shadow-sm transition hover:bg-slate-100 hover:text-slate-900"
                         >
                           <Trash2 strokeWidth={2.5} />
@@ -219,7 +220,7 @@ export default function EmpresasList() {
       </div>
 
       {/* ========================================== */}
-      {/* MODAL PERSONALIZADO DE ELIMINAR            */}
+      {/* MODAL PERSONALIZADO DE SUSPENSIÓN           */}
       {/* ========================================== */}
       {modalBorrar.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity">
@@ -236,13 +237,13 @@ export default function EmpresasList() {
             {/* Cuerpo del modal */}
             <div className="p-8 text-center space-y-5">
               <p className="text-gray-600 text-lg leading-relaxed">
-                ¿Estás seguro de que deseas eliminar la empresa
+                ¿Estás seguro de que deseas {modalBorrar.estado === 'activo' ? 'suspender' : 'reactivar'} la empresa
               </p>
               <p className="text-xl font-bold text-slate-900">
                 "{modalBorrar.nombre}"?
               </p>
               <p className="text-sm font-semibold text-slate-500">
-                Esta acción no se puede deshacer.
+                Los registros de la empresa se conservarán.
               </p>
               
               {/* Botones del modal */}
@@ -257,7 +258,7 @@ export default function EmpresasList() {
                   onClick={confirmarBorrado}
                   className="rounded-xl bg-blue-800 px-6 py-3 font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-blue-900"
                 >
-                  Sí, eliminar
+                  {modalBorrar.estado === 'activo' ? 'Sí, suspender' : 'Sí, reactivar'}
                 </button>
               </div>
             </div>
