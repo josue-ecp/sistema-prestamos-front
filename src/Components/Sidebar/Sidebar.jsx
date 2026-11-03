@@ -15,6 +15,7 @@ import {
   Smartphone,
   ChevronRight,
   BarChart3, 
+  ClipboardList,
 } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 
@@ -58,12 +59,35 @@ const menuSections = [
       { icon: Building2, label: 'Empresas', path: '/empresas' },
       { icon: Users, label: 'Usuarios Web', path: '/usuarios-web' },
       { icon: ShieldAlert, label: 'Roles', path: '/roles' },
+      { icon: ClipboardList, label: 'Solicitudes', path: '/solicitudes' },
     ],
   },
 ];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  let actor = {};
+  try {
+    actor = JSON.parse(localStorage.getItem('user') || '{}');
+  } catch {
+    actor = {};
+  }
+  const isSuperAdmin = actor.actor_type === 'super_admin' || actor.role_code === 'SUPER_ADMIN';
+  const isCompanyAdmin = actor.role_code === 'COMPANY_ADMIN' || actor.actor_type === 'company_account';
+  const isSupervisor = actor.role_code === 'SUPERVISOR';
+  const hasAdministrativeActor = isSuperAdmin || isCompanyAdmin || isSupervisor;
+  const visibleSections = menuSections.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      if (!hasAdministrativeActor) return false;
+      if (item.path === '/empresas' || item.path === '/roles') return isSuperAdmin;
+      if (item.path === '/solicitudes') return isSuperAdmin || isCompanyAdmin || isSupervisor;
+      if (item.path === '/usuarios-web') return isSuperAdmin || isCompanyAdmin;
+      if (item.path === '/cobratarios') return hasAdministrativeActor;
+      if (item.path === '/renovaciones' || item.path === '/tipos-de-credito') return !isSupervisor;
+      return true;
+    }),
+  })).filter((section) => section.items.length > 0);
 
   // Cerrar el menú con Escape cuando esté abierto.
   useEffect(() => {
@@ -164,7 +188,7 @@ export default function Sidebar() {
           className="min-h-0 flex-1 space-y-5 overflow-x-hidden overflow-y-auto overscroll-contain px-3 py-5"
           aria-label="Secciones del sistema"
         >
-          {menuSections.map((section) => (
+          {visibleSections.map((section) => (
             <div key={section.title}>
               {/* TÍTULO DE SECCIÓN */}
               <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">

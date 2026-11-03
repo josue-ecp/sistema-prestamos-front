@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, Check, Edit, Plus, Search, Trash2, X } from 'lucide-react';
 import api from '../../api';
 
@@ -15,15 +15,15 @@ const Roles = () => {
     const [formData, setFormData] = useState({
         id_rol: '',
         nombre_rol: '',
-        descripcion: ''
+        codigo: ''
     });
 
-    const showMessage = (text, type = 'success') => {
+    const showMessage = useCallback((text, type = 'success') => {
         setMessage({ type, text });
         window.setTimeout(() => setMessage({ type: '', text: '' }), 4500);
-    };
+    }, []);
 
-    const fetchRoles = async () => {
+    const fetchRoles = useCallback(async () => {
         try {
             const response = await api.get('/roles', {
                 validateStatus: () => true,
@@ -44,16 +44,16 @@ const Roles = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [showMessage]);
 
     useEffect(() => {
         fetchRoles();
-    }, []);
+    }, [fetchRoles]);
 
     const abrirModal = () => {
         setIsEditing(false);
         setCurrentId(null);
-        setFormData({ id_rol: '', nombre_rol: '', descripcion: '' });
+        setFormData({ id_rol: '', nombre_rol: '', codigo: '' });
         setIsModalOpen(true);
     };
 
@@ -63,7 +63,7 @@ const Roles = () => {
         setFormData({
             id_rol: rol.id_rol,
             nombre_rol: rol.nombre_rol || '',
-            descripcion: rol.descripcion || ''
+            codigo: rol.codigo || ''
         });
         setIsModalOpen(true);
     };
@@ -72,7 +72,7 @@ const Roles = () => {
         setIsModalOpen(false);
         setIsEditing(false);
         setCurrentId(null);
-        setFormData({ id_rol: '', nombre_rol: '', descripcion: '' });
+        setFormData({ id_rol: '', nombre_rol: '', codigo: '' });
     };
 
     const handleSubmit = async (e) => {
@@ -99,7 +99,7 @@ const Roles = () => {
                 },
                 data: {
                     nombre_rol: formData.nombre_rol.trim(),
-                    descripcion: formData.descripcion.trim()
+                    codigo: formData.codigo || null
                 }
             });
 
@@ -157,7 +157,7 @@ const Roles = () => {
         return (
             String(rol.id_rol).includes(search) ||
             (rol.nombre_rol || '').toLowerCase().includes(search) ||
-            (rol.descripcion || '').toLowerCase().includes(search)
+            (rol.codigo || '').toLowerCase().includes(search)
         );
     });
 
@@ -205,7 +205,7 @@ const Roles = () => {
                             <tr className="bg-slate-50 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
                                 <th className="border-b border-slate-200 px-6 py-4 text-left">ID</th>
                                 <th className="border-b border-slate-200 px-6 py-4 text-left">Nombre</th>
-                                <th className="border-b border-slate-200 px-6 py-4 text-left">Descripción</th>
+                                <th className="border-b border-slate-200 px-6 py-4 text-left">Código</th>
                                 <th className="border-b border-slate-200 px-6 py-4 text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -219,7 +219,7 @@ const Roles = () => {
                                     <tr key={rol.id_rol} className="border-b border-slate-100 transition-colors last:border-0 hover:bg-blue-50/40">
                                         <td className="px-6 py-4 text-slate-500">{rol.id_rol}</td>
                                         <td className="px-6 py-4 font-semibold text-slate-900">{rol.nombre_rol}</td>
-                                        <td className="px-6 py-4 text-slate-600">{rol.descripcion || 'Sin descripción'}</td>
+                                        <td className="px-6 py-4 font-mono text-slate-600">{rol.codigo || 'Sin asignar'}</td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
@@ -316,14 +316,17 @@ const Roles = () => {
                             </div>
 
                             <div>
-                                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">Descripción</label>
-                                <textarea
-                                    rows="4"
-                                    value={formData.descripcion}
-                                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600">Código operativo</label>
+                                <select
+                                    value={formData.codigo}
+                                    onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
                                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
-                                    placeholder="Describe la función del rol..."
-                                />
+                                >
+                                    <option value="">Sin asignar</option>
+                                    <option value="COMPANY_ADMIN">COMPANY_ADMIN</option>
+                                    <option value="SUPERVISOR">SUPERVISOR</option>
+                                </select>
+                                <p className="mt-1 text-xs text-slate-500">No asignes códigos a roles usados por varias cuentas sin revisar primero sus usuarios.</p>
                             </div>
 
                             <div className="mt-2 flex flex-col-reverse justify-between gap-3 border-t border-slate-100 pt-4 sm:flex-row">

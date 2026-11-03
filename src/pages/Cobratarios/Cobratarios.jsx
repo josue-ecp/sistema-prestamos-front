@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, Check, X, Eye, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
@@ -10,6 +10,7 @@ export default function Cobratarios() {
 
   const [cobratarios, setCobratarios] = useState([]);
   const [zonas, setZonas] = useState([]);
+  const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [isEditing, setIsEditing] = useState(false);
@@ -22,10 +23,19 @@ export default function Cobratarios() {
     correo: '',
     password: '',
     id_zona: '',
-    telefono: ''
+    telefono: '',
+    id_empresa: ''
   });
 
-  const fetchData = async () => {
+  let actor = {};
+  try {
+    actor = JSON.parse(localStorage.getItem('user') || '{}');
+  } catch {
+    actor = {};
+  }
+  const isSuperAdmin = actor.actor_type === 'super_admin' || actor.role_code === 'SUPER_ADMIN';
+
+  const fetchData = useCallback(async () => {
     try {
       // Consultamos ambos endpoints en paralelo
       const [resCob, resZon] = await Promise.all([
@@ -35,17 +45,21 @@ export default function Cobratarios() {
       
       setCobratarios(resCob.data);
       setZonas(resZon.data);
+      if (isSuperAdmin) {
+        const resEmpresas = await api.get('/empresas');
+        setEmpresas((resEmpresas.data.data || []).filter((empresa) => empresa.estado === 'activo'));
+      }
       setLoading(false);
     } catch (error) {
       console.error("Error al cargar datos:", error);
       setLoading(false);
     }
-  };
+  }, [isSuperAdmin]);
 
   // --- CARGA INICIAL ---
   useEffect(() => {
     setTimeout(fetchData, 0);
-  }, []);
+  }, [fetchData]);
 
   // --- MANEJO DE ENVÍO ---
   const showMessage = (text, type = 'success') => {
@@ -54,7 +68,7 @@ export default function Cobratarios() {
   };
 
   const resetForm = () => {
-    setFormData({ nombre: '', correo: '', password: '', id_zona: '', telefono: '' });
+    setFormData({ nombre: '', correo: '', password: '', id_zona: '', telefono: '', id_empresa: '' });
     setIsEditing(false);
     setEditingId(null);
   };
@@ -70,7 +84,7 @@ export default function Cobratarios() {
         await api.put(url, formData);
         showMessage('Cobratario actualizado correctamente.');
       } else {
-        await api.post(url, formData);
+        await api.post(url, isSuperAdmin ? formData : { ...formData, id_empresa: undefined });
         showMessage('Cobratario registrado exitosamente.');
       }
 
@@ -89,7 +103,8 @@ export default function Cobratarios() {
       correo: cobratario.correo || '',
       password: '',
       id_zona: cobratario.id_zona || '',
-      telefono: cobratario.telefono || ''
+    telefono: cobratario.telefono || '',
+    id_empresa: ''
     });
     setIsEditing(true);
     setEditingId(cobratario.id_cobratario);
@@ -106,7 +121,7 @@ export default function Cobratarios() {
     try {
       await api.delete(`/cobratarios/${deleteModal.id}`);
       setDeleteModal({ open: false, id: null, nombre: '' });
-      showMessage('Cobratario eliminado correctamente.');
+      showMessage('Cobratario desactivado correctamente.');
       fetchData();
     } catch (error) {
       setDeleteModal({ open: false, id: null, nombre: '' });
@@ -333,6 +348,25 @@ export default function Cobratarios() {
                   ))}
                 </select>
               </div>
+
+              {isSuperAdmin && !isEditing && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600 text-left">Empresa</label>
+                  <select
+                    required
+                    value={formData.id_empresa}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
+                    onChange={(e) => setFormData({ ...formData, id_empresa: e.target.value })}
+                  >
+                    <option value="">Selecciona una empresa activa...</option>
+                    {empresas.map((empresa) => (
+                      <option key={empresa.id_empresa} value={empresa.id_empresa}>
+                        {empresa.nombre_negocio}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600 text-left">Teléfono</label>

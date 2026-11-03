@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { Search, Plus, Edit, Trash2, Check } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Check, RotateCcw } from 'lucide-react';
 import api from '../../api';
 
 export default function ZonasAsignadas() {
@@ -30,6 +30,7 @@ export default function ZonasAsignadas() {
       try {
         const response = await api.get('/zonas', {
           headers: { Accept: 'application/json' },
+          params: { include_inactive: 1 },
           validateStatus: () => true
         });
         const result = response.data;
@@ -56,7 +57,7 @@ export default function ZonasAsignadas() {
 
   const getClave = (zona) => zona.clave ?? zona.id_zona ?? zona.id;
   const getDescripcion = (zona) => zona.descripcion || zona.nombre_zona || zona.descripcion_zona || '-';
-  const getActivo = (zona) => zona.activo ?? zona.estatus ?? zona.status ?? true;
+  const getActivo = (zona) => zona.estado === 'activo';
 
   const filteredZonas = zonas.filter((zona) =>
     getDescripcion(zona).toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -64,7 +65,7 @@ export default function ZonasAsignadas() {
   );
 
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Seguro que deseas eliminar esta zona?')) return;
+    if (!window.confirm('¿Seguro que deseas desactivar esta zona?')) return;
 
     try {
       const response = await api.delete(`/zonas/${id}`, {
@@ -74,12 +75,45 @@ export default function ZonasAsignadas() {
       const result = response.data;
 
       if (response.status >= 200 && response.status < 300 && (result.status === undefined || result.status)) {
-        setZonas(zonas.filter((zona) => zona.id !== id && zona.id_zona !== id));
+        setZonas((currentZonas) => currentZonas.map((zona) => (
+          String(zona.id_zona ?? zona.id) === String(id)
+            ? { ...zona, estado: 'inactivo' }
+            : zona
+        )));
+        showMessage(result.message || 'Zona desactivada correctamente.');
       } else {
-        showMessage('Error al eliminar zona: ' + (result.message || 'Revisa el backend'), 'error');
+        showMessage('Error al desactivar zona: ' + (result.message || 'Revisa el backend'), 'error');
       }
     } catch (error) {
       console.error('Error al eliminar zona:', error);
+      showMessage('Error de conexión con el servidor.', 'error');
+    }
+  };
+
+  const handleReactivate = async (zona) => {
+    if (!window.confirm('¿Seguro que deseas reactivar esta zona?')) return;
+
+    try {
+      const response = await api.put(`/zonas/${zona.id_zona ?? zona.id}`, {
+        estado: 'activo'
+      }, {
+        headers: { Accept: 'application/json' },
+        validateStatus: () => true
+      });
+      const result = response.data;
+
+      if (response.status >= 200 && response.status < 300 && (result.status === undefined || result.status)) {
+        setZonas((currentZonas) => currentZonas.map((currentZona) => (
+          String(currentZona.id_zona ?? currentZona.id) === String(zona.id_zona ?? zona.id)
+            ? { ...currentZona, estado: 'activo' }
+            : currentZona
+        )));
+        showMessage(result.message || 'Zona reactivada correctamente.');
+      } else {
+        showMessage('Error al reactivar zona: ' + (result.message || 'Revisa el backend'), 'error');
+      }
+    } catch (error) {
+      console.error('Error al reactivar zona:', error);
       showMessage('Error de conexión con el servidor.', 'error');
     }
   };
@@ -158,10 +192,14 @@ export default function ZonasAsignadas() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex justify-center">
-                      {getActivo(zona) && (
-                        <div className="rounded-full bg-blue-100 p-1 text-blue-700">
-                          <Check size={12} strokeWidth={4} />
-                        </div>
+                      {getActivo(zona) ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">
+                          <Check size={12} strokeWidth={4} /> Activa
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-500">
+                          Inactiva
+                        </span>
                       )}
                     </div>
                   </td>
@@ -173,12 +211,23 @@ export default function ZonasAsignadas() {
                       >
                         <Edit size={14} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(zona.id ?? zona.id_zona)}
-                        className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 shadow-sm transition hover:bg-slate-100 hover:text-slate-900"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {getActivo(zona) ? (
+                        <button
+                          onClick={() => handleDelete(zona.id ?? zona.id_zona)}
+                          className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 shadow-sm transition hover:bg-slate-100 hover:text-slate-900"
+                          title="Desactivar zona"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleReactivate(zona)}
+                          className="rounded-lg border border-slate-200 bg-white p-2 text-blue-700 shadow-sm transition hover:bg-blue-50"
+                          title="Reactivar zona"
+                        >
+                          <RotateCcw size={14} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
