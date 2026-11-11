@@ -2,7 +2,17 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../api';
 
-const initialForm = { nombre: '', telefono: '', correo: '', direccion: '', notas: '' };
+const initialForm = {
+  tipo_solicitud: 'NUEVO_CLIENTE',
+  nombre: '',
+  telefono: '',
+  correo: '',
+  direccion: '',
+  notas: '',
+  id_cliente: '',
+  monto_solicitado: '',
+  plazo_solicitado: '',
+};
 
 export default function NuevaSolicitud() {
   const [form, setForm] = useState(initialForm);
@@ -10,6 +20,10 @@ export default function NuevaSolicitud() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [loadingSolicitudes, setLoadingSolicitudes] = useState(true);
   const [message, setMessage] = useState('');
+  const [clientSearch, setClientSearch] = useState('');
+  const [clientResults, setClientResults] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [searchingClients, setSearchingClients] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,18 +45,59 @@ export default function NuevaSolicitud() {
     };
   }, []);
 
+  useEffect(() => {
+    if (form.tipo_solicitud !== 'CLIENTE_EXISTENTE' || clientSearch.trim().length < 2) {
+      setClientResults([]);
+      return undefined;
+    }
+
+    let active = true;
+    const timer = window.setTimeout(async () => {
+      setSearchingClients(true);
+      try {
+        const { data } = await api.get('/solicitudes-cobratario/clientes-elegibles', {
+          params: { search: clientSearch.trim() },
+        });
+        if (active) setClientResults(Array.isArray(data) ? data : []);
+      } catch {
+        if (active) setMessage('No se pudo buscar clientes elegibles.');
+      } finally {
+        if (active) setSearchingClients(false);
+      }
+    }, 300);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [clientSearch, form.tipo_solicitud]);
+
   const updateField = (event) => {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
   const submit = async (event) => {
     event.preventDefault();
+    if (form.tipo_solicitud === 'CLIENTE_EXISTENTE' && !selectedClient) {
+      setMessage('Selecciona un cliente elegible antes de enviar la solicitud.');
+      return;
+    }
     setLoading(true);
     setMessage('');
 
     try {
-      await api.post('/solicitudes-cobratario', form);
+      await api.post('/solicitudes-cobratario', form.tipo_solicitud === 'CLIENTE_EXISTENTE'
+        ? {
+          tipo_solicitud: form.tipo_solicitud,
+          id_cliente: form.id_cliente,
+          monto_solicitado: form.monto_solicitado,
+          plazo_solicitado: form.plazo_solicitado,
+          notas: form.notas,
+        }
+        : form);
       setForm(initialForm);
+      setSelectedClient(null);
+      setClientSearch('');
       setMessage('Solicitud enviada para revisión.');
       try {
         const { data } = await api.get('/solicitudes-cobratario/mis-solicitudes');
@@ -71,23 +126,84 @@ export default function NuevaSolicitud() {
 
         <form onSubmit={submit} className="mt-5 space-y-4">
           <label className="block text-sm font-semibold text-slate-700">
-            Nombre de la persona
-            <input name="nombre" required maxLength={150} value={form.nombre} onChange={updateField} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+            Tipo de solicitud
+            <select name="tipo_solicitud" value={form.tipo_solicitud} onChange={(event) => {
+              updateField(event);
+              setSelectedClient(null);
+              setClientSearch('');
+            }} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal">
+              <option value="NUEVO_CLIENTE">Nuevo cliente</option>
+              <option value="CLIENTE_EXISTENTE">Cliente existente</option>
+            </select>
           </label>
+          {form.tipo_solicitud === 'NUEVO_CLIENTE' ? (
+            <>
+              <label className="block text-sm font-semibold text-slate-700">
+                Nombre de la persona
+                <input name="nombre" required maxLength={150} value={form.nombre} onChange={updateField} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+              </label>
+              <label className="block text-sm font-semibold text-slate-700">
+                Teléfono
+                <input name="telefono" required maxLength={20} value={form.telefono} onChange={updateField} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+              </label>
+              <label className="block text-sm font-semibold text-slate-700">
+                Correo (opcional)
+                <input type="email" name="correo" maxLength={150} value={form.correo} onChange={updateField} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+              </label>
+              <label className="block text-sm font-semibold text-slate-700">
+                Dirección (opcional)
+                <textarea name="direccion" maxLength={2000} value={form.direccion} onChange={updateField} rows={3} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+              </label>
+            </>
+          ) : (
+            <>
+              <label className="block text-sm font-semibold text-slate-700">
+                Buscar cliente por nombre o teléfono
+                <input value={clientSearch} onChange={(event) => {
+                  setClientSearch(event.target.value);
+                  setSelectedClient(null);
+                  setForm((current) => ({ ...current, id_cliente: '' }));
+                }} minLength={2} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+              </label>
+              {searchingClients && <p className="text-sm text-slate-500">Buscando clientes...</p>}
+              {clientResults.length > 0 && (
+                <ul className="divide-y rounded-lg border border-slate-200">
+                  {clientResults.map((client) => (
+                    <li key={client.id}>
+                      <button type="button" onClick={() => {
+                        setSelectedClient(client);
+                        setClientResults([]);
+                        setClientSearch(client.nombre);
+                        setForm((current) => ({ ...current, id_cliente: client.id }));
+                      }} className="w-full p-3 text-left hover:bg-slate-50">
+                        <strong>{client.nombre}</strong>
+                        <span className="ml-2 text-sm text-slate-500">{client.telefono}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {selectedClient && (
+                <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
+                  <p className="font-bold">{selectedClient.nombre}</p>
+                  <p>{selectedClient.telefono} · {selectedClient.zona?.nombre_zona || `Zona ${selectedClient.id_zona}`}</p>
+                  <p>Identificador: {selectedClient.id}</p>
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block text-sm font-semibold text-slate-700">
+                  Monto solicitado
+                  <input name="monto_solicitado" required type="number" min="0.01" step="0.01" value={form.monto_solicitado} onChange={updateField} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+                </label>
+                <label className="block text-sm font-semibold text-slate-700">
+                  Plazo solicitado
+                  <input name="plazo_solicitado" required type="number" min="1" step="1" value={form.plazo_solicitado} onChange={updateField} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+                </label>
+              </div>
+            </>
+          )}
           <label className="block text-sm font-semibold text-slate-700">
-            Teléfono
-            <input name="telefono" required maxLength={20} value={form.telefono} onChange={updateField} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
-          </label>
-          <label className="block text-sm font-semibold text-slate-700">
-            Correo (opcional)
-            <input type="email" name="correo" maxLength={150} value={form.correo} onChange={updateField} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
-          </label>
-          <label className="block text-sm font-semibold text-slate-700">
-            Dirección (opcional)
-            <textarea name="direccion" maxLength={2000} value={form.direccion} onChange={updateField} rows={3} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
-          </label>
-          <label className="block text-sm font-semibold text-slate-700">
-            Notas (opcional)
+            Observaciones (opcional)
             <textarea name="notas" maxLength={2000} value={form.notas} onChange={updateField} rows={3} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
           </label>
           <button disabled={loading} className="w-full rounded-xl bg-blue-800 px-4 py-3 font-bold text-white disabled:opacity-60">
@@ -107,7 +223,7 @@ export default function NuevaSolicitud() {
               <li key={solicitud.id_solicitud} className="py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-slate-800">{solicitud.nombre}</p>
+                    <p className="font-semibold text-slate-800">{solicitud.tipo_solicitud === 'CLIENTE_EXISTENTE' ? 'Nuevo préstamo · ' : ''}{solicitud.nombre}</p>
                     <p className="text-sm text-slate-500">{solicitud.telefono}</p>
                     {solicitud.motivo_rechazo && (
                       <p className="mt-1 text-sm text-rose-700">Motivo: {solicitud.motivo_rechazo}</p>
