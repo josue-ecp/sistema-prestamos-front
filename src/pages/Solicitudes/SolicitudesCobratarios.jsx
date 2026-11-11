@@ -6,6 +6,8 @@ export default function SolicitudesCobratarios() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [workingId, setWorkingId] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
   const load = useCallback(async () => {
     setError('');
@@ -39,6 +41,19 @@ export default function SolicitudesCobratarios() {
     }
   };
 
+  const showDetail = async (id) => {
+    setLoadingDetail(true);
+    setError('');
+    try {
+      const { data } = await api.get(`/solicitudes-cobratario/${id}`);
+      setDetail(data);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'No se pudo cargar el detalle.');
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
   return (
     <section className="min-h-screen bg-slate-50/70 p-4 sm:p-6 lg:p-8">
       <header className="mb-6">
@@ -64,6 +79,9 @@ export default function SolicitudesCobratarios() {
               {solicitudes.map((solicitud) => (
                 <tr key={solicitud.id_solicitud} className="border-t border-slate-100 align-top">
                   <td className="p-3">
+                    <span className="mb-2 inline-block rounded-full bg-blue-50 px-2 py-1 text-xs font-bold text-blue-800">
+                      {solicitud.tipo_solicitud === 'CLIENTE_EXISTENTE' ? 'Nuevo préstamo' : 'Nuevo cliente'}
+                    </span>
                     <strong>{solicitud.nombre}</strong>
                     <div>{solicitud.telefono}</div>
                     <div>{solicitud.correo || 'Sin correo'}</div>
@@ -78,16 +96,24 @@ export default function SolicitudesCobratarios() {
                       </p>
                     )}
                     <p className="mt-1 whitespace-pre-wrap">{solicitud.direccion || solicitud.notas || 'Sin detalles adicionales'}</p>
+                    {solicitud.tipo_solicitud === 'CLIENTE_EXISTENTE' && (
+                      <p className="mt-1 text-slate-700">Monto: {solicitud.monto_solicitado} · Plazo: {solicitud.plazo_solicitado}</p>
+                    )}
                     {solicitud.motivo_rechazo && <p className="mt-1 text-red-700">{solicitud.motivo_rechazo}</p>}
                     {solicitud.cliente && <p className="mt-1 text-green-700">Cliente: {solicitud.cliente.nombre}</p>}
                   </td>
                   <td className="p-3">
-                    {solicitud.estado === 'pendiente' && (
-                      <div className="flex flex-col gap-2">
-                        <button disabled={workingId === solicitud.id_solicitud} onClick={() => resolve(solicitud.id_solicitud, 'aprobar')} className="rounded-lg bg-blue-800 px-3 py-2 font-semibold text-white disabled:opacity-60">Aprobar</button>
-                        <button disabled={workingId === solicitud.id_solicitud} onClick={() => resolve(solicitud.id_solicitud, 'rechazar')} className="rounded-lg border border-slate-300 px-3 py-2 font-semibold text-slate-700 disabled:opacity-60">Rechazar</button>
-                      </div>
-                    )}
+                    <div className="flex flex-col gap-2">
+                      {solicitud.tipo_solicitud === 'CLIENTE_EXISTENTE' && (
+                        <button disabled={loadingDetail} onClick={() => showDetail(solicitud.id_solicitud)} className="rounded-lg border border-blue-300 px-3 py-2 font-semibold text-blue-800 disabled:opacity-60">Ver historial</button>
+                      )}
+                      {solicitud.estado === 'pendiente' && (
+                        <>
+                          <button disabled={workingId === solicitud.id_solicitud} onClick={() => resolve(solicitud.id_solicitud, 'aprobar')} className="rounded-lg bg-blue-800 px-3 py-2 font-semibold text-white disabled:opacity-60">Aprobar</button>
+                          <button disabled={workingId === solicitud.id_solicitud} onClick={() => resolve(solicitud.id_solicitud, 'rechazar')} className="rounded-lg border border-slate-300 px-3 py-2 font-semibold text-slate-700 disabled:opacity-60">Rechazar</button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -95,6 +121,34 @@ export default function SolicitudesCobratarios() {
             </tbody>
           </table>
         </div>
+      )}
+      {detail && (
+        <aside className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">Detalle de cliente existente</h2>
+              <p className="text-sm text-slate-500">{detail.cliente?.nombre} · {detail.cliente?.telefono}</p>
+            </div>
+            <button type="button" onClick={() => setDetail(null)} className="text-sm font-semibold text-slate-500">Cerrar</button>
+          </div>
+          <p className="mt-3 text-sm text-slate-700">
+            Empresa: {detail.cliente?.empresa?.nombre_negocio || '—'} · Zona: {detail.cliente?.zona?.nombre_zona || detail.zona?.nombre_zona || '—'} · Cobratario: {detail.cobratario?.nombre || '—'}
+          </p>
+          <p className="mt-2 text-sm text-slate-700">
+            Monto solicitado: {detail.monto_solicitado || '—'} · Plazo: {detail.plazo_solicitado || '—'} · Registro: {detail.created_at ? new Date(detail.created_at).toLocaleString('es-MX') : '—'}
+          </p>
+          <h3 className="mt-4 font-semibold text-slate-900">Historial de préstamos</h3>
+          {detail.cliente?.prestamos?.length ? (
+            <ul className="mt-2 space-y-2 text-sm">
+              {detail.cliente.prestamos.map((prestamo) => (
+                <li key={prestamo.id_prestamo} className="rounded-lg bg-slate-50 p-3">
+                  Préstamo #{prestamo.id_prestamo} · Monto original: {prestamo.monto} · Tasa: {prestamo.tasa_interes}% · Estado: {prestamo.estado}
+                  <br />Cuota: {prestamo.monto_cuota} · Saldo: {prestamo.saldo_pendiente} · Días de retraso: {prestamo.dias_retraso} · Próximo pago: {prestamo.fecha_siguiente_pago || '—'}
+                </li>
+              ))}
+            </ul>
+          ) : <p className="mt-2 text-sm text-slate-500">No hay préstamos registrados.</p>}
+        </aside>
       )}
     </section>
   );
