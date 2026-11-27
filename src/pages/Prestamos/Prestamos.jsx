@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Eye } from 'lucide-react';
+import { Search, Plus, Eye, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 
+const canEditLoans = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user.actor_type === 'super_admin'
+      || user.actor_type === 'company_account'
+      || user.role_code === 'COMPANY_ADMIN';
+  } catch (error) {
+    console.error('Error al leer el rol del usuario:', error);
+    return false;
+  }
+};
+
 export default function Prestamos() {
   const navigate = useNavigate();
+  const canEdit = canEditLoans();
   const [prestamos, setPrestamos] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Cargar préstamos reales desde la API de Laravel
   useEffect(() => {
@@ -17,6 +31,7 @@ export default function Prestamos() {
         setPrestamos(response.data);
       } catch (error) {
         console.error("Error al cargar los préstamos:", error);
+        setErrorMessage(error.response?.data?.message || 'No se pudieron cargar los préstamos.');
       } finally {
         setLoading(false);
       }
@@ -65,6 +80,12 @@ export default function Prestamos() {
       </div>
 
       {/* Tabla de Préstamos */}
+      {errorMessage && (
+        <div role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {errorMessage}
+        </div>
+      )}
+
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.045)]">
         <div className="overflow-x-auto">
           <table className="w-full text-center border-collapse min-w-[700px]">
@@ -85,7 +106,9 @@ export default function Prestamos() {
                 </tr>
               ) : prestamosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-slate-400">No hay préstamos registrados.</td>
+                  <td colSpan="6" className="py-12 text-center text-slate-400">
+                    {errorMessage ? 'No se pudo consultar la lista de préstamos.' : 'No hay préstamos registrados.'}
+                  </td>
                 </tr>
               ) : (
                 prestamosFiltrados.map((p) => (
@@ -104,6 +127,7 @@ export default function Prestamos() {
                     </td>
                     <td className="px-5 py-4 font-medium capitalize text-slate-600">{p.esquema_cobro}</td>
                     <td className="px-5 py-4">
+                      <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => navigate(`/prestamos/detalle/${p.id_prestamo}`)}
                         aria-label={`Ver préstamo ${p.id_prestamo}`}
@@ -111,6 +135,16 @@ export default function Prestamos() {
                       >
                         <Eye size={16} />
                       </button>
+                      {canEdit && Number(p.pagos_count) === 0 && (
+                        <button
+                          onClick={() => navigate(`/prestamos/editar/${p.id_prestamo}`)}
+                          aria-label={`Editar préstamo ${p.id_prestamo}`}
+                          className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                      )}
+                      </div>
                     </td>
                   </tr>
                 ))
