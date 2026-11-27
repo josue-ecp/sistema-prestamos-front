@@ -5,10 +5,11 @@ import api from '../../api';
 
 export default function DetallePrestamo() {
   const navigate = useNavigate();
-  const { id } = useParams(); // ID del préstamo
+  const { id } = useParams();
   
   const [prestamo, setPrestamo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchDetalle = async () => {
@@ -17,6 +18,7 @@ export default function DetallePrestamo() {
         setPrestamo(response.data);
       } catch (error) {
         console.error("Error al cargar detalle:", error);
+        setErrorMessage(error.response?.data?.message || 'No se pudo consultar el préstamo.');
       } finally {
         setLoading(false);
       }
@@ -25,7 +27,20 @@ export default function DetallePrestamo() {
   }, [id]);
 
   if (loading) return <div className="min-h-screen bg-slate-50 p-8 text-center text-slate-500">Cargando detalles...</div>;
-  if (!prestamo) return <div className="min-h-screen bg-slate-50 p-8 text-center text-slate-600">Préstamo no encontrado.</div>;
+  if (!prestamo) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-8 text-center text-slate-600">
+        <p role="alert">{errorMessage || 'Préstamo no encontrado.'}</p>
+        <button
+          type="button"
+          onClick={() => navigate('/prestamos')}
+          className="mt-4 rounded-lg px-4 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-50"
+        >
+          Volver a la lista
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full animate-in fade-in duration-500 bg-slate-50/70 p-4 sm:p-6 lg:p-8">
@@ -50,11 +65,39 @@ export default function DetallePrestamo() {
           </div>
           <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
             <p className="mb-1 text-xs font-semibold text-slate-500">Crédito Original</p>
-            <p className="text-sm font-bold text-slate-900">${Number(prestamo.monto).toLocaleString()}</p>
+            <p className="text-sm font-bold text-slate-900">${Number(prestamo.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
           </div>
           <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
             <p className="mb-1 text-xs font-semibold text-slate-500">Saldo Pendiente</p>
-            <p className="text-sm font-bold text-slate-900">${Number(prestamo.saldo_pendiente).toLocaleString()}</p>
+            <p className="text-sm font-bold text-slate-900">${Number(prestamo.saldo_pendiente).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="mb-1 text-xs font-semibold text-slate-500">Monto de cuota</p>
+            <p className="text-sm font-bold text-slate-900">${Number(prestamo.monto_cuota).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="mb-1 text-xs font-semibold text-slate-500">Tasa de interés</p>
+            <p className="text-sm font-bold text-slate-900">{Number(prestamo.tasa_interes || 0)}%</p>
+          </div>
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="mb-1 text-xs font-semibold text-slate-500">Estado</p>
+            <p className="text-sm font-bold capitalize text-slate-900">{prestamo.estado}</p>
+          </div>
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="mb-1 text-xs font-semibold text-slate-500">Esquema de cobro</p>
+            <p className="text-sm font-bold capitalize text-slate-900">{prestamo.esquema_cobro}</p>
+          </div>
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="mb-1 text-xs font-semibold text-slate-500">Fecha de desembolso</p>
+            <p className="text-sm font-bold text-slate-900">{prestamo.fecha_desembolso || '—'}</p>
+          </div>
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="mb-1 text-xs font-semibold text-slate-500">Siguiente pago</p>
+            <p className="text-sm font-bold text-slate-900">{prestamo.fecha_siguiente_pago || '—'}</p>
+          </div>
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="mb-1 text-xs font-semibold text-slate-500">Días de retraso</p>
+            <p className="text-sm font-bold text-slate-900">{prestamo.dias_retraso || 0}</p>
           </div>
           <div className="flex md:justify-end">
             <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-800 px-6 py-3 text-sm font-bold uppercase text-white shadow-sm transition hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-200 md:w-auto cursor-pointer">
@@ -75,7 +118,7 @@ export default function DetallePrestamo() {
                 </tr>
               </thead>
               <tbody className="text-center text-sm text-slate-700">
-                {prestamo.pagos && prestamo.pagos.map((pago) => (
+                {prestamo.pagos?.length ? prestamo.pagos.map((pago) => (
                   <tr key={pago.id_pago} className="transition-colors hover:bg-blue-50/40">
                     <td className="border-b border-slate-100 px-5 py-4">{new Date(pago.fecha_pago).toLocaleDateString()}</td>
                     <td className="border-b border-slate-100 px-5 py-4 font-semibold text-slate-900">${Number(pago.monto_pagado).toFixed(2)}</td>
@@ -86,7 +129,11 @@ export default function DetallePrestamo() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan="4" className="px-5 py-8 text-slate-400">No hay pagos registrados.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

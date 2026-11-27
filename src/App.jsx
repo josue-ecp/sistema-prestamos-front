@@ -33,6 +33,7 @@ import DetalleCobratario from './pages/Cobratarios/DetalleCobratario';
 import Prestamos from './pages/Prestamos/Prestamos';
 import NuevoPrestamo from './pages/Prestamos/NuevoPrestamo';
 import DetallePrestamo from './pages/Prestamos/DetallePrestamo';
+import EditarPrestamo from './pages/Prestamos/EditarPrestamo';
 import UsuariosWeb from './pages/UsuariosWeb/UsuariosWeb';
 import Roles from './pages/Roles/Roles';
 import Visitas from './pages/Visitas/Visitas';
@@ -275,6 +276,14 @@ export default function App() {
             <Route
               path="/prestamos/nuevo"
               element={<NuevoPrestamo />}
+            />
+            <Route
+              path="/prestamos/editar/:id"
+              element={<EditarPrestamo />}
+            />
+            <Route
+              path="/prestamos/detalle/:id"
+              element={<DetallePrestamo />}
             />
             <Route
               path="/prestamos/:id"
